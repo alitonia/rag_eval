@@ -36,8 +36,8 @@ class FileResultRepository(BenchmarkResultRepository):
                     for item in data:
                         rec = EvaluationRecord(**item)
                         self._eval_cache[(rec.question_id, rec.model_name, rec.retrieval_mode)] = rec
-            except Exception:
-                pass
+            except Exception as e:
+                raise IOError(f"Failed to load evaluations from {self.eval_json_path}: {e}") from e
 
         if os.path.exists(self.gen_json_path):
             try:
@@ -45,8 +45,8 @@ class FileResultRepository(BenchmarkResultRepository):
                     data = json.load(f)
                     for item in data:
                         self._gen_cache.append(GenerationResult(**item))
-            except Exception:
-                pass
+            except Exception as e:
+                raise IOError(f"Failed to load generations from {self.gen_json_path}: {e}") from e
 
     def _flush_evaluations(self) -> None:
         """Atomically persist evaluations to both JSON and CSV."""
@@ -54,27 +54,33 @@ class FileResultRepository(BenchmarkResultRepository):
 
         # Write JSON atomically
         tmp_json = self.eval_json_path + ".tmp"
-        with open(tmp_json, "w", encoding="utf-8") as f:
-            json.dump(eval_list, f, ensure_ascii=False, indent=2)
-        os.replace(tmp_json, self.eval_json_path)
+        try:
+            with open(tmp_json, "w", encoding="utf-8") as f:
+                json.dump(eval_list, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_json, self.eval_json_path)
 
-        # Write CSV atomically
-        if eval_list:
-            fieldnames = list(eval_list[0].keys())
-            tmp_csv = self.eval_csv_path + ".tmp"
-            with open(tmp_csv, "w", encoding="utf-8", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(eval_list)
-            os.replace(tmp_csv, self.eval_csv_path)
+            # Write CSV atomically
+            if eval_list:
+                fieldnames = list(eval_list[0].keys())
+                tmp_csv = self.eval_csv_path + ".tmp"
+                with open(tmp_csv, "w", encoding="utf-8", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(eval_list)
+                os.replace(tmp_csv, self.eval_csv_path)
+        except Exception as e:
+            raise IOError(f"Failed to persist evaluations to disk in {self.base_dir}: {e}") from e
 
     def _flush_generations(self) -> None:
         """Atomically persist generations to JSON."""
         gen_list = [asdict(g) for g in self._gen_cache]
         tmp_json = self.gen_json_path + ".tmp"
-        with open(tmp_json, "w", encoding="utf-8") as f:
-            json.dump(gen_list, f, ensure_ascii=False, indent=2)
-        os.replace(tmp_json, self.gen_json_path)
+        try:
+            with open(tmp_json, "w", encoding="utf-8") as f:
+                json.dump(gen_list, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_json, self.gen_json_path)
+        except Exception as e:
+            raise IOError(f"Failed to persist generations to disk in {self.base_dir}: {e}") from e
 
     def save_evaluation(self, record: EvaluationRecord) -> None:
         key = (record.question_id, record.model_name, record.retrieval_mode)

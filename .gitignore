@@ -39,6 +39,9 @@ ENV/
 .env
 .env.local
 
+# Local regeneration state (derived; CSV content hash for idempotent re-runs)
+data/gold/.regenerate_state.json
+
 # Large model weights / caches
 *.bin
 *.pt

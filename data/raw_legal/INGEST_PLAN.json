@@ -1,0 +1,199 @@
+{
+  "_README": "Ingestion intake plan, ordered by how many benchmark questions each instrument carries. Derived from data/gold/bank_qa_data.csv via regrag/corpus/qa_loader.py on 2026-09-09. scripts/build_corpus_chunks.py reads this file; it fails loudly on any entry whose status is not 'skipped' but whose file is absent, so a partial delivery can never silently produce an empty corpus. Delivery convention: put the file at data/raw_legal/<expected_file>, set status to 'downloaded', then run the script.",
+
+  "_priority_summary": {
+    "top_5_carry": "51 of 57 resolved questions (89%)",
+    "critical_warning": "3 of the top 5 are the unreachable sources: 32/2024/QH15 (luatvietnam, likely PARTIAL - 10 q), 22/2023/TT-NHNN (HTTP 404 - 10 q), 21/2021/NĐ-CP (HTTP 403 - 10 q). 30 of the top 51 questions depend on files that need a replacement source tonight. Download these three FIRST.",
+    "unresolved_rows": "7 questions still map to UNRESOLVED:manifest-pending (5 opaque URLs). Their doc_id must be read off the downloaded file header and added to DOC_MANIFEST.json.",
+    "distractors_are_valuable": "18/2024/TT-NHNN is already ingested and cited by ZERO questions. Keep it. A corpus containing only gold passages makes retrieval trivially perfect and cannot separate BM25 from dense; uncited instruments are what make Recall@k meaningful. Add more non-cited instruments if time allows."
+  },
+
+  "documents": [
+    {
+      "priority": 1,
+      "doc_id": "17/2024/TT-NHNN",
+      "doc_title": "Thông tư quy định việc mở và sử dụng tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán",
+      "questions": 11,
+      "expected_file": "17_2024_TT_NHNN.html",
+      "format": "html",
+      "source_url": "https://congbao.chinhphu.vn/van-ban/thong-tu-so-17-2024-tt-nhnn-40112",
+      "alt_source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/7/17-nhnn.pdf",
+      "reachability": "HTTP 200 verified 2026-09-09 (both sources)",
+      "version": "NEEDS_DECISION - payment-account circular; check for amendments",
+      "status": "pending"
+    },
+    {
+      "priority": 2,
+      "doc_id": "32/2024/QH15",
+      "doc_title": "Luật Các tổ chức tín dụng 2024",
+      "questions": 10,
+      "expected_file": "32_2024_QH15.html",
+      "format": "html",
+      "source_url": "https://luatvietnam.vn/tai-chinh/luat-cac-to-chuc-tin-dung-2024-273574-d1.html",
+      "reachability": "HTTP 200 but LIKELY PARTIAL - luatvietnam gates full law text and '-d1.html' is page 1 of a 209-article law. Prefer the full text from quochoi.vn or datafiles.chinhphu.vn.",
+      "version": "original (passed 2024-01-18)",
+      "status": "pending",
+      "verify_after_download": "Confirm the file contains articles well beyond Điều 20 (the CSV cites Điều 134 and 135). If it stops early, the source is truncated."
+    },
+    {
+      "priority": 3,
+      "doc_id": "39/2016/TT-NHNN",
+      "doc_title": "Thông tư quy định về hoạt động cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài",
+      "questions": 10,
+      "expected_file": "39_2016_TT_NHNN.html",
+      "format": "html",
+      "source_url": "https://congbao.chinhphu.vn/van-ban/thong-tu-so-39-2016-tt-nhnn-24653",
+      "reachability": "HTTP 200 verified 2026-09-09",
+      "version": "NEEDS_DECISION - long amendment history. Verify whether the 10 gold answers quote the 2016 original or a consolidated (văn bản hợp nhất) text; ingesting the wrong one produces FALSE hallucination labels.",
+      "status": "pending"
+    },
+    {
+      "priority": 4,
+      "doc_id": "22/2023/TT-NHNN",
+      "doc_title": "Thông tư sửa đổi, bổ sung một số điều của các Thông tư liên quan đến hoạt động tín dụng",
+      "questions": 10,
+      "expected_file": "22_2023_TT_NHNN.pdf",
+      "format": "pdf",
+      "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2023/12/thong-tu-22-2023-tt-nhnn.pdf",
+      "replacement_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/01/22-nhnn.pdf",
+      "also_at": "https://chinhphu.vn/?pageid=27160&docid=209488&classid=1&typegroupid=6",
+      "reachability": "ORIGINAL IS HTTP 404 (verified 2026-09-09). Use the replacement URL.",
+      "version": "AMENDED BY 22/2025/TT-NHNN - decision required: ingest the 2023 original or the consolidated version. 10 questions at risk of false labels.",
+      "status": "pending"
+    },
+    {
+      "priority": 5,
+      "doc_id": "21/2021/NĐ-CP",
+      "doc_title": "Nghị định quy định thi hành Bộ luật Dân sự về bảo đảm thực hiện nghĩa vụ",
+      "questions": 10,
+      "expected_file": "21_2021_ND_CP.html",
+      "format": "html",
+      "source_url": "https://thuvienphapluat.vn/van-ban/Giao-dich-bao-dam/Nghi-dinh-21-2021-ND-CP-thi-hanh-Bo-luat-Dan-su-ve-bao-da",
+      "replacement_url": "https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-21-2021-nd-cp-33477/35291.htm",
+      "also_at": "https://vanban.chinhphu.vn/?pageid=27160&docid=202835",
+      "reachability": "ORIGINAL IS HTTP 403 bot-wall (verified 2026-09-09). Use the replacement URL.",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 6,
+      "doc_id": "06/2019/TT-NHNN",
+      "doc_title": "Thông tư hướng dẫn về quản lý ngoại hối đối với hoạt động đầu tư ra nước ngoài",
+      "questions": 2,
+      "expected_file": "06_2019_TT_NHNN.html",
+      "format": "html",
+      "source_url": "https://congbao.chinhphu.vn/van-ban/thong-tu-so-06-2019-tt-nhnn-29358.htm",
+      "reachability": "HTTP 200 verified 2026-09-09",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 7,
+      "doc_id": "48/2018/TT-NHNN",
+      "doc_title": "Thông tư quy định về tiền gửi tiết kiệm",
+      "questions": 4,
+      "expected_file": "48_2018_TT_NHNN.pdf",
+      "format": "pdf",
+      "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2019/01/48-nhnn.pdf",
+      "reachability": "HTTP 200 verified 2026-09-09. NOTE: the filename number (48) is not the path year (2019/01 = publication month).",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 8,
+      "doc_id": "61/2025/TT-NHNN",
+      "doc_title": "Thông tư (hoạt động chi nhánh ngân hàng - verify title from file)",
+      "questions": 3,
+      "expected_file": "61_2025_TT_NHNN.pdf",
+      "format": "pdf",
+      "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/01/61-nhnn.pdf",
+      "reachability": "HTTP 200 verified 2026-09-09",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 9,
+      "doc_id": "08/2023/TT-NHNN",
+      "doc_title": "Thông tư (quản lý ngoại hối - verify title from file)",
+      "questions": 1,
+      "expected_file": "08_2023_TT_NHNN.pdf",
+      "format": "pdf",
+      "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2023/7/08-nhnn.pdf",
+      "reachability": "HTTP 200 verified 2026-09-09",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 10,
+      "doc_id": "46/2024/QH15",
+      "doc_title": "Luật Công chứng 2024",
+      "questions": 1,
+      "expected_file": "46_2024_QH15.html",
+      "format": "html",
+      "source_url": "https://luatvietnam.vn/tu-phap/luat-cong-chung-2024-so-46-2024-qh15-379073-d1.html",
+      "reachability": "HTTP 200 verified 2026-09-09 - but check for the same partial-text gating as 32/2024/QH15",
+      "version": "original",
+      "status": "pending"
+    },
+    {
+      "priority": 11,
+      "doc_id": "23/2015/NĐ-CP",
+      "doc_title": "Nghị định về cấp bản sao từ sổ gốc, chứng thực bản sao từ bản chính, chứng thực chữ ký",
+      "questions": 1,
+      "expected_file": "23_2015_ND_CP.pdf",
+      "format": "pdf",
+      "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2015/03/23-nd-.signed.pdf",
+      "reachability": "HTTP 200 verified 2026-09-09",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 12,
+      "doc_id": "70/2014/NĐ-CP",
+      "doc_title": "Nghị định quy định chi tiết thi hành một số điều của Pháp lệnh Ngoại hối",
+      "questions": 1,
+      "expected_file": "70_2014_ND_CP.pdf",
+      "format": "pdf",
+      "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2014/07/nd-70.signed.pdf",
+      "reachability": "HTTP 200 verified 2026-09-09",
+      "version": "NEEDS_DECISION",
+      "status": "pending"
+    },
+    {
+      "priority": 13,
+      "doc_id": "276/2017/NHNN-TTGSNH",
+      "doc_title": "Công văn 276/NHNN-TTGSNH (2017)",
+      "questions": 1,
+      "expected_file": "276_2017_NHNN_TTGSNH.html",
+      "format": "html",
+      "source_url": "https://thuvienphapluat.vn/cong-van/Tien-te-Ngan-hang/Cong-van-276-NHNN-TTGSNH-2017-chuy",
+      "reachability": "HTTP 403 bot-wall (verified 2026-09-09). NO replacement found - needs a manual download or a decision to drop this question.",
+      "version": "n/a",
+      "status": "blocked"
+    },
+    {
+      "priority": 14,
+      "doc_id": "18/2024/TT-NHNN",
+      "doc_title": "Thông tư quy định về hoạt động thẻ ngân hàng",
+      "questions": 0,
+      "expected_file": "18_2024_TT_NHNN.txt",
+      "format": "txt",
+      "source_url": "already on disk",
+      "reachability": "PRESENT - data/raw_legal/18_2024_TT_NHNN.txt",
+      "version": "original",
+      "status": "quarantined",
+      "quarantine_reason": "NOT AN AUTHENTIC LEGAL TEXT - audited 2026-09-09. The file is 3,611 chars / 43 lines and contains only Điều 1, 2, 3, 9, 14, 15, 23. Real instruments number articles contiguously; gaps of 3->9->14->23 cannot occur in a genuine circular. Only Chương I and II are present yet Điều 23 appears. The mandatory structural elements of every Vietnamese circular are all absent: no 'Căn cứ...' recitals, no effective-date clause, no 'Điều khoản thi hành' chapter, no signature block. The file ends mid-provision. It is cited by ZERO benchmark questions and was not sourced from the QA set.",
+      "action_required": "Do NOT ingest and do NOT keep as a distractor. Fabricated provisions in the corpus are worse than no distractor at all: a model could retrieve a fake article and be scored against it, contaminating every retrieval and hallucination number. The 22 chunks currently in data/processed_chunks/corpus_chunks.json all come from this file and must be treated as invalid. If a distractor is wanted, download a REAL uncited instrument (the genuine TT 18/2024/TT-NHNN from congbao.chinhphu.vn would work).",
+      "note": "Supersedes the earlier assumption that this was a usable seed corpus. The parser was validated against this text, which means its segmentation was tested on content whose formatting may have been generated to match the parser's own regexes - circular validation. Re-validate the parser against the real downloaded instruments."
+    }
+  ],
+
+  "unresolved_urls": {
+    "_note": "These 5 URLs back 7 questions but their instrument id is unknown. Download them, read the id off the document header, add the mapping to DOC_MANIFEST.json under 'urls', then add a document entry above.",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2014/01/tt-32.pdf": "HTTP 200, 1 question",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2016/01/91.signed.pdf": "HTTP 200, question count unverified",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2013/08/6pl.pdf": "HTTP 200, possibly a Pháp lệnh",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/3/62-vbhn-vpqh.pdf": "HTTP 200, a consolidated (văn bản hợp nhất) QH text - may be the correct version for an amended law",
+    "https://vanban.chinhphu.vn/?pageid=27160&docid=211190": "HTTP 200 (83KB), opaque docid"
+  }
+}

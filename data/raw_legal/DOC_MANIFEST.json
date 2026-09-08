@@ -1,0 +1,79 @@
+{
+  "_README": "Human-verified URL -> canonical instrument id. canonical.py consults this BEFORE its slug regexes, and anything absent here that the regexes cannot resolve stays UNRESOLVED and is reported. Empty string = known URL, id not yet verified. Corroborated entries cite their evidence in _evidence; entries marked NEEDS_VERIFICATION must be confirmed against the downloaded file before the coverage gate is trusted.",
+
+  "urls": {
+    "https://congbao.chinhphu.vn/van-ban/thong-tu-so-06-2019-tt-nhnn-29358.htm": "06/2019/TT-NHNN",
+    "https://congbao.chinhphu.vn/van-ban/thong-tu-so-17-2024-tt-nhnn-40112": "17/2024/TT-NHNN",
+    "https://congbao.chinhphu.vn/van-ban/thong-tu-so-39-2016-tt-nhnn-24653": "39/2016/TT-NHNN",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2023/12/thong-tu-22-2023-tt-nhnn.pdf": "22/2023/TT-NHNN",
+    "https://luatvietnam.vn/tu-phap/luat-cong-chung-2024-so-46-2024-qh15-379073-d1.html": "46/2024/QH15",
+    "https://thuvienphapluat.vn/van-ban/Giao-dich-bao-dam/Nghi-dinh-21-2021-ND-CP-thi-hanh-Bo-luat-Dan-su-ve-bao-da": "21/2021/NĐ-CP",
+    "https://thuvienphapluat.vn/cong-van/Tien-te-Ngan-hang/Cong-van-276-NHNN-TTGSNH-2017-chuy": "276/2017/NHNN-TTGSNH",
+
+    "https://luatvietnam.vn/tai-chinh/luat-cac-to-chuc-tin-dung-2024-273574-d1.html": "32/2024/QH15",
+
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2019/01/48-nhnn.pdf": "48/2018/TT-NHNN",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2023/7/08-nhnn.pdf": "08/2023/TT-NHNN",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/7/17-nhnn.pdf": "17/2024/TT-NHNN",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/01/61-nhnn.pdf": "61/2025/TT-NHNN",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2015/03/23-nd-.signed.pdf": "23/2015/NĐ-CP",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2014/07/nd-70.signed.pdf": "70/2014/NĐ-CP",
+
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2014/01/tt-32.pdf": "",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2016/01/91.signed.pdf": "",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2013/08/6pl.pdf": "",
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/3/62-vbhn-vpqh.pdf": "",
+    "https://vanban.chinhphu.vn/?pageid=27160&docid=211190": ""
+  },
+
+  "_evidence": {
+    "32/2024/QH15": "Luật Các tổ chức tín dụng 2024, passed 2024-01-18 as Luật số 32/2024/QH15. URL slug names the law but not its number - confirm from the downloaded file header.",
+    "48/2018/TT-NHNN": "Corroborated: the literal string '48/2018/TT-NHNN' occurs in 14 gold passages/answers; PROJECT_PLAN lists it as the savings-deposit circular. Filename number (48) is NOT the year - path year 2019/01 is the publication month.",
+    "08/2023/TT-NHNN": "Corroborated: '08/2023/TT-NHNN' occurs in 2 gold passages; PROJECT_PLAN lists it under foreign-exchange management.",
+    "17/2024/TT-NHNN": "Same instrument as the congbao slug entry (payment accounts + biometric authentication). Path 2024/7 matches the 2024-06-28 issue date.",
+    "61/2025/TT-NHNN": "Corroborated: '61/2025/TT-NHNN' occurs in 6 gold passages; PROJECT_PLAN lists it under branch operations.",
+    "23/2015/NĐ-CP": "Corroborated: '23/2015/NĐ-CP' occurs in 2 gold passages; PROJECT_PLAN lists it under collateral/notarization.",
+    "70/2014/NĐ-CP": "PROJECT_PLAN lists Nghị định 70/2014/NĐ-CP under foreign-exchange management; filename 'nd-70' in path 2014/07 is consistent.",
+    "NEEDS_VERIFICATION": "tt-32.pdf, 91.signed.pdf, 6pl.pdf, 62-vbhn-vpqh.pdf, vanban docid=211190 - no corroborating evidence available. Left empty on purpose so they surface as UNRESOLVED:manifest-pending rather than being guessed."
+  },
+
+  "unreachable_sources": {
+    "https://datafiles.chinhphu.vn/cpp/files/vbpq/2023/12/thong-tu-22-2023-tt-nhnn.pdf": {
+      "status": "HTTP 404 (verified 2026-09-09)",
+      "questions_at_risk": 10,
+      "working_replacement": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/01/22-nhnn.pdf",
+      "also_at": "https://chinhphu.vn/?pageid=27160&docid=209488&classid=1&typegroupid=6"
+    },
+    "https://thuvienphapluat.vn/van-ban/Giao-dich-bao-dam/Nghi-dinh-21-2021-ND-CP-thi-hanh-Bo-luat-Dan-su-ve-bao-da": {
+      "status": "HTTP 403 bot-wall (verified 2026-09-09)",
+      "questions_at_risk": 10,
+      "working_replacement": "https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-21-2021-nd-cp-33477/35291.htm",
+      "also_at": "https://vanban.chinhphu.vn/?pageid=27160&docid=202835"
+    },
+    "https://thuvienphapluat.vn/cong-van/Tien-te-Ngan-hang/Cong-van-276-NHNN-TTGSNH-2017-chuy": {
+      "status": "HTTP 403 bot-wall (verified 2026-09-09)",
+      "questions_at_risk": 1,
+      "working_replacement": null
+    },
+    "https://luatvietnam.vn/tai-chinh/luat-cac-to-chuc-tin-dung-2024-273574-d1.html": {
+      "status": "HTTP 200 but likely PARTIAL - luatvietnam gates full law text and '-d1.html' is page 1 of a 209-article law",
+      "questions_at_risk": 10,
+      "working_replacement": "Prefer the full text from quochoi.vn or datafiles.chinhphu.vn (Luật số 32/2024/QH15)"
+    }
+  },
+
+  "amendments": {
+    "22/2023/TT-NHNN": {
+      "amended_by": "22/2025/TT-NHNN",
+      "evidence": "Found while locating the mirror for the 404 URL: vanban.chinhphu.vn/?pageid=27160&docid=215003 'Thông tư số 22/2025/TT-NHNN: Sửa đổi...'",
+      "action_required": "10 questions cite the 2023 text. Decide and record: ingest the 2023 original, or the consolidated (văn bản hợp nhất) version. Ingesting the original while gold answers quote amended wording produces FALSE hallucination labels.",
+      "questions_at_risk": 10
+    },
+    "39/2016/TT-NHNN": {
+      "amended_by": "NEEDS_CHECK",
+      "evidence": "PROJECT_PLAN flags that amending circulars must be reconciled with consolidated versions; TT 39/2016 has a long amendment history.",
+      "action_required": "Verify whether the gold answers for these 10 questions quote the 2016 original or a consolidated text.",
+      "questions_at_risk": 10
+    }
+  }
+}
