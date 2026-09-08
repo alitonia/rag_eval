@@ -3,6 +3,8 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any, Optional
 
+from regrag.provenance import CORPUS_UNSET
+
 
 @dataclass
 class LegalCitation:
@@ -35,6 +37,9 @@ class LegalChunk:
     clause_id: Optional[str] = None
     text: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Which corpus produced this chunk. CORPUS_TIER1 rows are development
+    # fixtures and must never reach a paper table; see provenance.py.
+    corpus_source: str = CORPUS_UNSET
 
     def formatted_context(self) -> str:
         """Context string with legal hierarchical header for retrieval."""
@@ -46,7 +51,13 @@ class LegalChunk:
 
 @dataclass
 class GoldQuestion:
-    """A curated question in the 100-question benchmark set."""
+    """A curated question in the benchmark set.
+
+    Derived only from the trusted QA CSV. gold_doc_ids are CANONICAL instrument
+    ids (e.g. "06/2019/TT-NHNN"), never raw URLs, and are resolved from
+    doc_link via corpus.canonical - only 2/64 gold passages name their own
+    instrument, so the prose can never be the source of doc_id.
+    """
     id: str                 # e.g., "Q001"
     question: str
     is_answerable: bool
@@ -54,6 +65,19 @@ class GoldQuestion:
     gold_citations: List[Dict[str, Any]] = field(default_factory=list)
     reference_answer: str = ""
     category: str = "factual"  # "factual", "synthesis", "definition", "unanswerable"
+    # Verbatim `text_contains_answer_in_the_doc` cell: the coverage-test target
+    # and the Tier 1 chunk source. 64/64 rows name an Điều; line-initial clause
+    # numbering survives in only 5/64, so clause-level gold is optional.
+    gold_passage: str = ""
+    source_urls: List[str] = field(default_factory=list)
+    doc_id_confidence: str = "unresolved"  # manifest | slug | heuristic | unresolved
+    author: str = ""
+
+    @property
+    def doc_ids_resolved(self) -> bool:
+        return bool(self.gold_doc_ids) and not any(
+            d.startswith("UNRESOLVED") for d in self.gold_doc_ids
+        )
 
 
 @dataclass
@@ -62,6 +86,9 @@ class RetrievedResult:
     chunk: LegalChunk
     score: float
     rank: int
+    # Which backend actually produced this ranking. "DEGRADED:<reason>" means a
+    # dependency was missing and the scores are not real; see provenance.py.
+    retriever_backend: str = CORPUS_UNSET
 
 
 @dataclass
@@ -69,12 +96,17 @@ class GenerationResult:
     """Model output for a given question and retrieval configuration."""
     question_id: str
     model_name: str
-    retrieval_mode: str     # "closed_book", "rag_bm25", "rag_dense"
+    retrieval_mode: str     # "closed_book", "rag_bm25", "rag_dense", ...
     prompt: str
     raw_response: str
     answer_text: str
     extracted_citations: List[Dict[str, Any]] = field(default_factory=list)
     abstained: bool = False
+    # Provenance of the corpus this generation was conditioned on.
+    corpus_source: str = CORPUS_UNSET
+    retriever_backend: str = CORPUS_UNSET
+    # Cache key for idempotent re-runs when the CSV changes under review.
+    cache_key: str = ""
 
 
 @dataclass
@@ -91,6 +123,12 @@ class EvaluationRecord:
     correctness_score: float = 0.0  # 0.0, 1.0, 2.0
     hallucinated: bool = False
     notes: str = ""
+    corpus_source: str = CORPUS_UNSET
+    retriever_backend: str = CORPUS_UNSET
+    # "placeholder" means the scorer for this field is not yet implemented.
+    # Placeholders must be loud: a null plus this tag, never a plausible number.
+    metric_status: str = "unset"
+    placeholder_fields: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

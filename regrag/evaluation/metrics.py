@@ -1,7 +1,14 @@
-"""Automated metric extraction for generated model answers."""
+"""Automated metric extraction for generated model answers.
+
+WARNING: Metrics in this module (particularly correctness_score, hallucinated,
+abstained, and abstained_correctly) are heuristic PLACEHOLDERS pending the research
+team's final scorer implementation. They must NOT be reported as publishable numbers
+in benchmark results or paper tables. All records are tagged with metric_status='placeholder'.
+"""
 
 from typing import Dict, Any, List
 from regrag.models import EvaluationRecord, GenerationResult, GoldQuestion
+from regrag.provenance import CORPUS_UNSET
 from regrag.generation.prompts import ABSTENTION_KEYPHRASE
 from regrag.evaluation.citation import (
     extract_citations,
@@ -58,4 +65,13 @@ def evaluate_response(
         abstained_correctly=abstained_correctly,
         correctness_score=correctness,
         hallucinated=hallucinated,
+        corpus_source=getattr(gen, "corpus_source", CORPUS_UNSET),
+        retriever_backend=getattr(gen, "retriever_backend", CORPUS_UNSET),
+        metric_status="placeholder",
+        placeholder_fields=[
+            "correctness_score",
+            "hallucinated",
+            "abstained",
+            "abstained_correctly",
+        ],
     )

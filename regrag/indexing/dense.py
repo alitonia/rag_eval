@@ -2,12 +2,18 @@
 
 from typing import List, Optional
 from regrag.models import LegalChunk, RetrievedResult
+from regrag.provenance import CORPUS_UNSET, ProvenanceError, require
+
+try:
+    import torch
+except ImportError:
+    torch = None
 
 try:
     from sentence_transformers import SentenceTransformer
-    import torch
     HAS_SENTENCE_TRANSFORMERS = True
 except ImportError:
+    SentenceTransformer = None
     HAS_SENTENCE_TRANSFORMERS = False
 
 
@@ -22,13 +28,25 @@ class DenseIndex:
     ) -> None:
         self.chunks = chunks
         self.model_name = model_name
-        self.device = device or ("cuda" if HAS_SENTENCE_TRANSFORMERS and torch.cuda.is_available() else "cpu")
+        self.device = device or (
+            "cuda"
+            if HAS_SENTENCE_TRANSFORMERS and torch is not None and torch.cuda.is_available()
+            else "cpu"
+        )
         self._model = None
         self._embeddings = None
+        self.backend: str = CORPUS_UNSET
 
     def build(self) -> None:
         """Encode all chunks into dense embeddings."""
-        if not HAS_SENTENCE_TRANSFORMERS or not self.chunks:
+        require(
+            HAS_SENTENCE_TRANSFORMERS,
+            "DenseIndex requires 'sentence_transformers' to be installed (pip install sentence-transformers).",
+        )
+        if not self.chunks:
+            self._model = None
+            self._embeddings = None
+            self.backend = CORPUS_UNSET
             return
 
         self._model = SentenceTransformer(self.model_name, device=self.device)
@@ -39,15 +57,18 @@ class DenseIndex:
             show_progress_bar=False,
             normalize_embeddings=True,
         )
+        self.backend = self.model_name
 
     def search(self, query: str, top_k: int = 3) -> List[RetrievedResult]:
         """Retrieve top_k chunks by cosine similarity."""
-        if not HAS_SENTENCE_TRANSFORMERS or self._model is None or self._embeddings is None:
-            # Fallback mock for non-GPU/test environments
-            return [
-                RetrievedResult(chunk=chunk, score=1.0 / (i + 1), rank=i + 1)
-                for i, chunk in enumerate(self.chunks[:top_k])
-            ]
+        require(
+            HAS_SENTENCE_TRANSFORMERS,
+            "DenseIndex requires 'sentence_transformers' to be installed (pip install sentence-transformers).",
+        )
+        require(
+            self._model is not None and self._embeddings is not None,
+            "DenseIndex has not been built or contains no chunks. Call build() on non-empty chunks before search().",
+        )
 
         import torch
         query_emb = self._model.encode(
@@ -63,6 +84,7 @@ class DenseIndex:
                 chunk=self.chunks[idx],
                 score=float(scores[idx]),
                 rank=rank + 1,
+                retriever_backend=self.backend,
             )
             for rank, idx in enumerate(ranked_indices)
         ]
