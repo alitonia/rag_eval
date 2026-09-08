@@ -8,46 +8,57 @@ Tracked against GitHub Issues in [alitonia/rag_eval](https://github.com/alitonia
 - [x] **[#1] Architecture Scaffolding & Dual Storage Repositories**
   - *Lead:* Nguyễn Thắng Phúc, Nguyễn Huy Hoàng
   - *Artifacts:* `regrag/storage/` (`InMemoryResultRepository`, `FileResultRepository`), `tests/test_storage.py` passing, tagged `v0.1.0`.
-- [x] **Git & Authorship Setup**
-  - Configured git user `alitonia <allyofjustice1@gmail.com>`, purged `tun2101`, rewritten commit history.
+- [x] **Git & Authorship Configuration**
+  - Configured git user `alitonia <allyofjustice1@gmail.com>`, purged `tun2101`, rewritten clean commit history.
 - [x] **Core Evaluation & Prompt Modules**
   - *Artifacts:* `regrag/evaluation/` (citation regex, Cohen's $\kappa$, metric scorer), `regrag/generation/prompts.py`.
 - [x] **Colab Resilience Infrastructure**
   - *Artifacts:* `notebooks/colab_runner.ipynb` with Drive mount, checkpoint restore/save cells.
+- [x] **Seed Legal Corpus & Chunking Pipeline**
+  - *Artifacts:* `data/raw_legal/CATALOG.md`, `18_2024_TT_NHNN.txt`, `scripts/build_corpus_chunks.py`, BM25 retrieval smoke test.
+- [x] **QA Import Pipeline & Dataset Snapshot**
+  - *Artifacts:* `data/gold/bank_qa_data.csv` (local copy), `scripts/import_qa_csv.py`, `data/gold/questions_in_progress.json` (64 questions validated).
 
 ---
 
-### 🟡 IN PROGRESS (Active Now)
+### 🟡 IN PROGRESS (Currently Active)
 - [ ] **[#6] 100 Gold Banking QA Benchmark**
-  - *Lead:* Vũ Đức Thành, Đinh Thị Lan Hương
-  - *Current Status:* **64 / 100 questions completed** in `bank_qa_data - QA.csv` (Thành: 50, Hương: 14).
-  - *Target:* 100 questions completed by End of Day (EOD).
-- [ ] **[#2] QA-Driven Legal Corpus Ingestion**
-  - *Lead:* Đinh Thị Lan Hương, Nguyễn Khắc Duy Ngọc
-  - *Current Status:* Extracted 16+ legal document links from CSV (Luật Các TCTD 2024, TT 39/2016, TT 17/2024, TT 06/2019, TT 48/2018, TT 08/2023, NĐ 70/2014, NĐ 23/2015, etc.). Ingesting and segmenting into `data/raw_legal/`.
-- [ ] **[#3] Clause-Level Legal Document Segmenter & Ground-Truth Alignment**
-  - *Lead:* Đinh Thị Lan Hương, Nguyễn Huy Hoàng
-  - *Current Status:* Parser running in `scripts/build_corpus_chunks.py`; validating exact snippet matching from `text_contains_answer_in_the_doc`.
-- [ ] **Drafting 25 Unanswerable Probes for RQ2**
-  - *Lead:* Nguyễn Huy Hoàng
-  - *Target:* Synthesize 25 negative/unanswerable regulatory questions (e.g., cryptocurrency regulations under banking circulars, out-of-scope foreign jurisdictions) to evaluate abstention.
+  - *Assignees:* **Vũ Đức Thành & Đinh Thị Lan Hương**
+  - *Status:* **64 / 100 questions completed** in `data/gold/bank_qa_data.csv` (Thành: 50, Hương: 14).
+  - *Active Work:* Writing the remaining 36 questions to finish by **End of Day (EOD) today**.
 
 ---
 
-### 🔵 NEXT UP (Queued upon EOD CSV Handover)
-1. **[#7] Dual Annotation Protocol & Cohen's $\kappa$ Calculation**
-   - Run pairwise verification across group members on the frozen 100 QA set; calculate inter-annotator agreement score.
-2. **[#4 & #5] Finalize BM25 & BGE-M3 Dense Indexes on the Complete Corpus**
-   - Re-index all chunks extracted from the 16+ legal documents.
-   - Run Recall@1 and Recall@3 sanity check against the 100 ground-truth QA passages.
-3. **[#8 & #9] Launch Colab Inference Campaign (9 Configurations)**
-   - Upload finalized corpus and QA set to Colab.
-   - Execute 1,125 total inferences ($125 \text{ questions} \times 9 \text{ conditions}$) across `Qwen2.5-7B`, `Llama-3.2-3B`, and `Qwen2.5-3B` in 4-bit quantization with Drive checkpointing.
+### 🔵 NEXT UP (Assigned to Members for Today & EOD Handover)
+
+#### For Nguyễn Khắc Duy Ngọc:
+- [ ] **[#2] Legal Corpus Ingestion from QA Sources:**
+  - Download and ingest the full texts of the 16 legal documents identified from `bank_qa_data.csv` into `data/raw_legal/`.
+- [ ] **[#3] Full Clause Segmentation:**
+  - Run `scripts/build_corpus_chunks.py` to segment all 16 legal texts into `data/processed_chunks/corpus_chunks.json`.
+
+#### For Nguyễn Thắng Phúc:
+- [ ] **[#8] Colab 4-Bit Preflight Test:**
+  - Open `notebooks/colab_runner.ipynb` on Google Colab T4.
+  - Test-load `Qwen/Qwen2.5-7B-Instruct` in 4-bit (`load_in_4bit=True`) and verify Drive checkpoint synchronization.
+
+#### For Nguyễn Huy Hoàng (You):
+- [ ] **Draft 25 Unanswerable Probes for RQ2:**
+  - Author 25 out-of-scope/unanswerable regulatory questions to evaluate model abstention.
+- [ ] **Finalize Citation & Metric Extraction Script ([#10]):**
+  - Verify regex citation extraction across all phrasing variants in the 64+ questions.
+
+#### For Group (Upon EOD Handover):
+- [ ] **[#7] Dual Annotation Protocol:**
+  - Run cross-check pass between Hương and Thành on the 100 QA set; calculate Cohen's $\kappa$ inter-annotator agreement.
+- [ ] **[#4 & #5] Retriever Sanity & Benchmark:**
+  - Index the complete corpus with BM25 (`pyvi`) and BGE-M3; test Recall@1 and Recall@3 against ground-truth passages.
+- [ ] **[#9] Launch 900-Inference Campaign on Colab:**
+  - Execute batch generation across 3 models $\times$ 3 modes with automatic checkpointing.
 
 ---
 
 ### ⚪ BACKLOG (Subsequent Phases)
-- [ ] **[#10] Automated Citation Extraction & Precision/Recall Scoring**
 - [ ] **[#11] Automated Abstention Classification & Hallucination Rate Analysis**
 - [ ] **[#12] Result Aggregation & Comparison Tables/Figures Generation**
 - [ ] **[#13] Course LaTeX Report & IEEE 6-Page Manuscript Drafting**
