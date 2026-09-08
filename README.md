@@ -22,3 +22,24 @@ A benchmark and modular evaluation framework for studying hallucination, citatio
 - `evaluation/`: Exact citation parser, abstention classifier, hallucination grader, and inter-annotator agreement metrics.
 - `storage/`: Two-persistence-layer architecture (In-Memory vs. JSON/CSV) sharing an identical business logic interface.
 - `docs/`: Project plan, experimental protocol, and LaTeX report draft.
+
+## vLLM model serving
+
+The benchmark generation models can be exposed through vLLM's
+OpenAI-compatible API. Install vLLM separately in a CUDA environment, then
+start one model (recommended for a single GPU):
+
+```bash
+python scripts/load_vllm_models.py --list
+python scripts/load_vllm_models.py --model qwen-7b --gpu-devices 0
+```
+
+To keep all five configured models loaded, assign one CUDA device to each
+server. They listen on consecutive ports starting at 8000:
+
+```bash
+python scripts/load_vllm_models.py --all --gpu-devices 0,1,2,3,4
+```
+
+Additional vLLM arguments may be placed after `--`, for example
+`-- --max-model-len 4096 --gpu-memory-utilization 0.85`.
