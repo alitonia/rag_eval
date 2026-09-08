@@ -1,7 +1,9 @@
 # RegRAG-VN Kanban
 
-Tracked against GitHub Issues in [alitonia/rag_eval](https://github.com/alitonia/rag_eval/issues).
+Tracked against GitHub Issues in [alitonia/rag_eval](https://github.com/alitonia/rag_eval/issues) and the [Seminar_2_board](https://github.com/users/alitonia/projects/6) project (statuses, priorities and target dates synced 2026-09-09).
 **Target: IEEE-RIVF 2026 — paper deadline 2026-09-15 (hard).** See `docs/PROJECT_PLAN.md` §1.
+
+**P0 right now:** #15 environment deps (blocks #2/#4/#5) · #2 downloads · #6 QA + probes · #13 paper · #11 replace the placeholder scorers.
 
 Last re-baselined **2026-09-09** against the live repository and the trusted QA CSV. Statuses below are *verified*, not claimed — every "done" has a command that demonstrates it.
 
