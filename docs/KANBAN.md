@@ -3,9 +3,9 @@
 Tracked against GitHub Issues in [alitonia/rag_eval](https://github.com/alitonia/rag_eval/issues) and the [Seminar_2_board](https://github.com/users/alitonia/projects/6) project (statuses, priorities and target dates synced 2026-09-09).
 **Target: IEEE-RIVF 2026 — paper deadline 2026-09-15 (hard).** See `docs/PROJECT_PLAN.md` §1.
 
-**P0 right now:** #15 environment deps (blocks #2/#4/#5) · #2 downloads · #6 QA + probes · #13 paper · #11 replace the placeholder scorers.
+**P0 right now:** Colab campaign (`notebooks/colab_runner.ipynb`, model set settled: qwen-7b + qwen-3b + vistral-7b) → Tables I–II + dense row of Table III · #7 κ subset (Thành & Hương) · §V–§VI · EDAS N35414 submission ≥6 h early.
 
-Last re-baselined **2026-09-09** against the live repository and the trusted QA CSV. Statuses below are *verified*, not claimed — every "done" has a command that demonstrates it.
+Last re-baselined **2026-09-11** against the live repository and the trusted QA CSV. Statuses below are *verified*, not claimed — every "done" has a command that demonstrates it. Full session detail: `docs/HANDOFF_2026-09-11.md` §0.
 
 ---
 
@@ -14,14 +14,14 @@ Last re-baselined **2026-09-09** against the live repository and the trusted QA 
 | | |
 |---|---|
 | Paper due | **Tue 2026-09-15**, EDAS `N35414`, ≤6 pp IEEE A4 |
-| Days remaining | 6 (as of Wed 09-09) |
+| Days remaining | 4 (as of Fri 09-11) |
 | Notification / camera-ready | 2026-10-15 / 2026-11-11 |
 | Conference | 2026-12-18→20, VinUniversity Hanoi — **in-person presentation required** |
 | Fallback | Special sessions 2026-09-30 (only SS1 *AI for Smart Cities* is even a stretch fit) |
 
 ---
 
-## 🟢 DONE (verified 2026-09-09)
+## 🟢 DONE (verified 2026-09-11)
 
 - [x] **[#1] Architecture scaffolding & dual storage** — `regrag/storage/`, `tests/test_storage.py`. `file_repo.py` no longer swallows write/parse errors silently.
 - [x] **Data layer: canonical CSV → benchmark schema** *(new)*
@@ -38,40 +38,32 @@ Last re-baselined **2026-09-09** against the live repository and the trusted QA 
 - [x] **Provenance discipline** *(new)* — `regrag/provenance.py`. Three silent-substitution paths eliminated: the `dense.py` mock that returned corpus-order chunks with fabricated scores (this would have faked RQ3 entirely), `bm25.py`'s unlabelled downgrades, and `metrics.py`'s confident placeholder numbers. Every result row now carries `corpus_source` / `retriever_backend`; `assert_publishable()` refuses `UNSET`, `DEGRADED` and Tier 1 rows.
 - [x] **Ingestion pipeline rebuilt** *(new)* — `scripts/build_corpus_chunks.py` is now manifest-driven (`data/raw_legal/INGEST_PLAN.json`), handles txt/pdf/html, fails loud, flags any extraction with no "Điều" as suspect, and refuses to write an empty corpus. Previously it hardcoded one entry and `continue`d past missing files, so a partial delivery would print "Saved 0 total chunks" and exit 0.
 - [x] **Idempotent regeneration** *(new)* — `scripts/regenerate.py`: CSV content hash, per-question cache keys (a revision touching 6 questions does not invalidate 2,000 cached generations), coverage report per corpus file, verified NO-OP on re-run.
-- [x] **Test suite: 33 passing** — `test_storage`, `test_components`, `test_provenance`, `test_coverage`, `test_parser_passages`.
+- [x] **Test suite: 269 passing** (was 33 at the 09-09 re-baseline) — adds squash-tier, repair-guards, articleless-whole-doc, harness, metrics, probes modules.
 - [x] **Seed corpus quarantined** — `data/raw_legal/18_2024_TT_NHNN.txt` is **not authentic legal text** (43 lines; Điều 1,2,3,9,14,15,23 — real instruments number contiguously; no recitals, no effective-date clause, no signature block). Its 22 chunks were the entire previous corpus and are invalid. See `INGEST_PLAN.json`.
+- [x] **[#15] Environment resolved** *(2026-09-11)* — `.venv` has `sentence-transformers`, `rank_bm25`, `pyvi`, `pypdf`, `pdfplumber`, `bs4`, `lxml`; system tesseract 5.3.4 with `vie`.
+- [x] **[#6] Gold QA benchmark: 88 rows, verified and corrected** *(2026-09-11)* — 64 answerable + 24 probes (probe rows pinned to explicit IDs Q066–Q088 + Q037). 26 rows corrected from verified primary sources (`scripts/correct_gold_labels.py`; evidence in `TT41_FINDINGS.md`/`TT39_FINDINGS.md`): CAR block re-pointed to TT 41/2016 + TT 22/2023, lending block to the 39/2016 VBHN / TT 21/2017, Q037 converted to a coverage-gap probe, Q065's phantom instrument numbers fixed. 63/64 passages repaired to verbatim article text under guards A/B/C (`scripts/repair_gold_passages.py`, originals in `data/gold/passage_repair_log.json`). **64/64 doc_ids resolved.** Remaining for #6: the κ subset only.
+- [x] **[#2] Source documents complete** *(2026-09-11)* — 23 documents ingested, 3,703 chunks, every cited instrument present (real TT 22/2023 official scan fetched + OCR'd; VBHN 39/2016 as single primary; TT 21/2017; Công văn 276/2017 via the articleless wholedoc opt-in). Original-vs-consolidated decisions recorded per instrument in `INGEST_PLAN.json`. Verify: `scripts/build_corpus_chunks.py --allow-missing` → chunks 3703, missing 0.
+- [x] **Gate B passed** *(settled 2026-09-11)* — Gate B redefined as provision-level (cited Điều present in cited instrument); verbatim strict coverage **63/64 = 98.44%** reported as a data-quality metric with the repair's partial self-satisfaction disclosed. Verify: `scripts/regenerate.py --force`.
+- [x] **Extraction hardening** *(2026-09-11)* — `build_corpus_chunks.py` prefers pdfplumber (pypdf inserts intra-word spaces in four CÔNG BÁO layers: single-char-token ratio 0.11–0.13 → 0.02–0.06); whitespace-squash match tier added as a distinct damage category; 14 corrupt/absent text layers OCR'd.
+- [x] **[#4 sparse half] Gate C BM25 measured** *(2026-09-11)* — `scripts/eval_bm25_recall.py` + `data/eval/bm25_recall_gate_c_2026-09-11.json`, reproduced twice. Doc-level 0.734@1 / **0.906@3** (≥0.7 bar: PASS); article-level 0.381@1 / 0.492@3 — the doc≫article gap is a finding and sets the citation-recall ceiling for RAG modes. Dense half + the "must differ" clause of Gate C settle on Colab.
+- [x] **[#8/#9 partial] Harness built** *(2026-09-11)* — `notebooks/colab_runner.ipynb` regenerated (31 cells: setup, Drive checkpoint/resume, sanity probe cell 11, `HUMAN_APPROVED_MODELS` human gate cell 13, campaign + provenance-guarded aggregation). Phúc's vLLM serving scripts merged (`feat/load_model` 3532f36 now in main's history). Model set settled: **qwen-7b + qwen-3b + vistral-7b**; llama-3b = labelled weak-Vietnamese contrast only; qwen-1.5b dropped.
+- [x] **[#13 partial] Paper §I–§IV complete prose** *(2026-09-11)* — `paper/main.tex` compiles clean (0 errors, 0 overfull, 5 pp); §III synced to 64/24/63/40 + squash tier + repair disclosure; Table III BM25 row filled from the Gate C log; §V–§VI carry `% TODO(results)` markers.
+- [x] **[#11] Placeholder scorers replaced** *(2026-09-10/11)* — groundedness/citation/abstention scorers in `regrag/evaluation/metrics.py` with `metric_status` discipline and publishability asserts on all aggregators; pinned by `tests/test_metrics.py`. Remaining: validation against ~50 human-labelled responses (pairs with the κ subset).
 
 ---
 
 ## 🟡 IN PROGRESS
 
-- [ ] **[#6] Gold QA benchmark** — *Thành & Hương*
-  - 64/100 written (Thành 50, Hương 14). **Review completes 2026-09-10.**
-  - On landing: run `python3 scripts/regenerate.py`. Cache keys are per-question, so only edited questions invalidate.
-  - **0 of 20 unanswerable probes written.** These need no corpus and no gold passage — cheapest high-value item left, carries half of RQ2. *Owner: unassigned.*
-- [ ] **[#2] Source document downloads** — *Thành & Hương, EOD 09-09*
-  - Work from `data/raw_legal/INGEST_PLAN.json`, **priority order**. Top 5 = 51 of 57 questions (89%).
-  - **Do these three first** — 30 questions depend on them and their listed URLs are broken:
-    - `22/2023/TT-NHNN` → original **404**; use `datafiles.chinhphu.vn/cpp/files/vbpq/2024/01/22-nhnn.pdf`
-    - `21/2021/NĐ-CP` → original **403**; use `congbao.chinhphu.vn/van-ban/nghi-dinh-so-21-2021-nd-cp-33477/35291.htm`
-    - `32/2024/QH15` → luatvietnam returns 200 but is **probably page 1 of 209 articles**; prefer quochoi.vn
-  - Drop each file at `data/raw_legal/<expected_file>` and set its `status` to `downloaded`.
-  - **Record an original-vs-consolidated decision** for `22/2023/TT-NHNN` (amended by 22/2025) and `39/2016/TT-NHNN`. Ingesting the original while gold answers quote amended wording produces *false hallucination labels*.
-  - 7 questions still `UNRESOLVED`: read the instrument id off the downloaded header and add it to `DOC_MANIFEST.json`.
+- [ ] **Colab generation campaign** — *blocker for §V*
+  - Run `notebooks/colab_runner.ipynb` on a T4 (~4.1 h for 3 models × 3 modes × 88; Drive-resumable). **Cell 13 requires a human to set `HUMAN_APPROVED_MODELS = ["qwen-7b", "qwen-3b", "vistral-7b"]` after reading the cell-11 sanity probe.** Never run generation or embedding builds locally.
+  - Output: campaign log → `scripts/run_eval.py` → Tables I–II + Table III dense row.
+- [ ] **[#7] Inter-annotator reliability** — *Thành & Hương* — κ on the 30-question genuinely cross-annotated subset (each grades the other's questions); also feeds the ~50-response scorer validation. Last human-only dependency before §V.
 
 ---
 
 ## 🔵 BLOCKED
 
-- [ ] **Environment: no retrieval or extraction dependencies installed** — *blocks #4, #5, and all ingestion*
-  - Missing: `sentence-transformers`, `rank_bm25`, `pyvi`, `pypdf`/`pdfplumber`, `beautifulsoup4`/`lxml`. Present: torch 2.13, pandas, numpy.
-  - Consequence today: BM25 runs self-declared `DEGRADED`, dense **refuses**, and no PDF or HTML can be read — so tomorrow's 10-instrument ingest cannot run at all.
-  - Fix (`--system-site-packages` reuses the installed torch instead of pulling a second copy):
-    ```bash
-    python3 -m venv --system-site-packages .venv
-    .venv/bin/pip install pyvi rank_bm25 pypdf pdfplumber beautifulsoup4 lxml sentence-transformers
-    ```
-  - This is also why the earlier "BM25 retrieval smoke test" passed: it ran in degraded mode and nothing said so.
+*(nothing blocked on environment or data as of 2026-09-11; the only external dependency is Colab GPU time)*
 
 ---
 
@@ -113,8 +105,8 @@ Last re-baselined **2026-09-09** against the live repository and the trusted QA 
 | Date | Work | Gate |
 |---|---|---|
 | Wed 09-09 | Data layer + provenance ✅ · EDAS entry · install deps · downloads begin | A |
-| Thu 09-10 | Revised CSV → `regenerate.py` · ingest Tier 2 · 20 probes · LaTeX skeleton §I–§IV | **B: coverage ≥80%** |
-| Fri 09-11 | Indices + Recall@k · replace placeholder scorers · model sanity probes | **C: Recall@3 ≥0.7** |
+| Thu 09-10 | Revised CSV → `regenerate.py` ✅ · ingest Tier 2 ✅ · probes ✅ · LaTeX §I–IV ✅ | **B: coverage ≥80% ✅ (provision-level, settled 09-11; strict 98.44%)** |
+| Fri 09-11 | Recall@k ✅ (BM25: doc@3 0.906) · scorers ✅ · harness + sanity gate ✅ | **C: sparse PASS; dense half on Colab** |
 | Sat 09-12 | Inference campaign, checkpointed | D |
 | Sun 09-13 | Metrics, tables, figures · 50 human labels · κ subset | — |
 | Mon 09-14 | §V–§VI · clean compile ≤6 pp · artifacts + availability statement | — |
