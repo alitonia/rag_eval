@@ -39,48 +39,149 @@ OUTPUT_PATH = os.path.join(REPO_ROOT, "data", "processed_chunks", "corpus_chunks
 
 _ARTICLE_RE = re.compile(r"Điều\s*\d+", re.IGNORECASE)
 
+_OCR_DIR = os.path.join(RAW_DIR, "ocr")
+_VIET_LETTERS = set("ăâêôơưđĂÂÊÔƠƯĐáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệ"
+                    "íìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ"
+                    "ÁÀẢÃẠẤẦẨẪẬẮẰẲẴẶÉÈẺẼẸẾỀỂỄỆÍÌỈĨỊ"
+                    "ÓÒỎÕỌỐỒỔỖỘỚỜỞỠỢÚÙỦŨỤỨỪỬỮỰÝỲỶỸ")
+_ASCII_LETTERS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+_MIN_VIET_RATIO = 0.05
+_OCR_HEADER_RE = re.compile(r"^<!--.*?-->\s*", re.DOTALL)
+
+
+def viet_ratio(text: str) -> float:
+    """Share of letters carrying a Vietnamese-specific diacritic.
+
+    Genuine Vietnamese legal text measures 0.26-0.31; a corrupt or diacritic-stripped
+    layer measures 0.00. This is what separates a usable embedded PDF text layer from
+    the garbage the government scans ship with.
+    """
+    letters = [c for c in text if c in _VIET_LETTERS or c in _ASCII_LETTERS]
+    if not letters:
+        return 0.0
+    return sum(1 for c in letters if c in _VIET_LETTERS) / float(len(letters))
+
+
+def _ocr_fallback(path: str) -> str:
+    """Return the tesseract text for this PDF, or '' if none was produced."""
+    stem = os.path.splitext(os.path.basename(path))[0]
+    candidate = os.path.join(_OCR_DIR, stem + ".ocr.txt")
+    if not os.path.exists(candidate):
+        return ""
+    with open(candidate, "r", encoding="utf-8", errors="replace") as f:
+        return _OCR_HEADER_RE.sub("", f.read(), count=1)
+
 
 # --- text extraction ---------------------------------------------------------
 
-def extract_txt(path: str) -> str:
+def extract_txt(path: str) -> tuple:
     with open(path, "r", encoding="utf-8", errors="replace") as f:
-        return f.read()
+        return f.read(), "plain-text"
 
 
-def extract_pdf(path: str) -> str:
-    """Extract text from a born-digital legal PDF. Tries pypdf, then pdfplumber."""
+def _looks_reversed(text: str) -> bool:
+    """True when a page extracted as reversed single characters.
+
+    Landscape/rotated annex tables (e.g. Phụ lục 1 of TT 41/2016, pages 31-44) extract
+    as one character per line in reverse order. Crucially their viet_ratio still looks
+    healthy (~0.29), because reversing characters preserves diacritics - so the quality
+    gate alone cannot catch them and a pipeline would silently index garbage. Median
+    line length separates them cleanly: ~2-4 chars reversed vs ~40-80 normal.
+    """
+    lines = [l for l in text.splitlines() if l.strip()]
+    if len(lines) < 8 or len(text) < 400:
+        return False
+    median = sorted(len(l) for l in lines)[len(lines) // 2]
+    return median <= 6
+
+
+def _page_text(page) -> tuple:
+    """Extract one page, repairing a 90-degree rotated layout if present."""
+    text = page.extract_text() or ""
+    if _looks_reversed(text):
+        try:
+            page.rotate(90)
+            fixed = page.extract_text() or ""
+            page.rotate(-90)
+            if fixed.strip() and not _looks_reversed(fixed):
+                return fixed, True
+        except Exception:
+            pass
+    return text, False
+
+
+def extract_pdf(path: str) -> tuple:
+    """Extract text from a legal PDF, trusting only a usable embedded layer.
+
+    Returns (text, extraction_tag). pdfplumber is the PREFERRED extractor: on
+    several born-digital CÔNG BÁO PDFs of this delivery (06/2019, 21/2017,
+    32/2024/QH15, 41/2016) the pypdf layer inserts spurious intra-word spaces
+    ("T ỷ l ệ an toàn v ốn") - measured 2026-09-11 as a single-char-token
+    ratio of 0.11-0.13 under pypdf versus 0.02-0.06 under pdfplumber - which
+    silently poisons BM25 tokenisation and every downstream exact match.
+    pypdf remains the fallback. An embedded layer is trusted only when it
+    contains articles AND measures a real Vietnamese diacritic ratio. The
+    government scans in this delivery ship corrupt layers that pass a naive
+    "has text?" check - tens of thousands of characters, zero 'Điều',
+    viet_ratio 0.00 - and would silently poison every downstream match. When
+    no layer is usable, the tesseract text produced by
+    scripts/ocr_scanned_documents.py is used and the chunk is stamped
+    extraction=ocr:..., so an OCR row can never be presented as born-digital.
+    """
+    # 1. pdfplumber first (layout-aware, no intra-word spacing damage).
+    try:
+        import pdfplumber
+        with pdfplumber.open(path) as pdf:
+            pages, repaired = [], 0
+            for p in pdf.pages:
+                t, fixed = _page_text(p)
+                repaired += 1 if fixed else 0
+                pages.append(t)
+            text = "\n".join(pages)
+        if text.strip() and _ARTICLE_RE.search(text) and viet_ratio(text) >= _MIN_VIET_RATIO:
+            tag = "pdf-text-layer:pdfplumber"
+            if repaired:
+                tag += f"+rot-repair:{repaired}"
+            return text, tag
+    except ImportError:
+        sys.stderr.write(
+            f"[warn] pdfplumber not installed; falling back to pypdf for "
+            f"{os.path.basename(path)}. Install with: pip install pdfplumber\n"
+        )
+    except Exception as exc:
+        sys.stderr.write(f"[warn] pdfplumber failed on {os.path.basename(path)}: {exc}\n")
+
+    # 2. pypdf fallback.
     try:
         from pypdf import PdfReader
     except ImportError:
-        try:
-            from PyPDF2 import PdfReader  # older name
-        except ImportError:
-            raise ProvenanceError(
-                f"No PDF library available to read {os.path.basename(path)}. "
-                "Install with: pip install pypdf pdfplumber"
-            )
+        raise ProvenanceError(
+            f"No PDF library available to read {os.path.basename(path)}. "
+            "Install with: pip install pypdf pdfplumber"
+        )
+
+    text = ""
     try:
         reader = PdfReader(path)
         text = "\n".join((page.extract_text() or "") for page in reader.pages)
-        if text.strip() and _ARTICLE_RE.search(text):
-            return text
-    except Exception as exc:  # fall through to pdfplumber, but remember why
+    except Exception as exc:
         sys.stderr.write(f"[warn] pypdf failed on {os.path.basename(path)}: {exc}\n")
 
-    try:
-        import pdfplumber
-    except ImportError:
-        if not text.strip():
-            raise ProvenanceError(
-                f"pypdf produced no usable text from {os.path.basename(path)} and "
-                "pdfplumber is not installed. Install with: pip install pdfplumber. "
-                "If the PDF is scanned rather than born-digital it needs OCR, which "
-                "is out of scope - get an HTML source instead."
-            )
-        return text
+    if text.strip() and _ARTICLE_RE.search(text) and viet_ratio(text) >= _MIN_VIET_RATIO:
+        return text, "pdf-text-layer:pypdf"
 
-    with pdfplumber.open(path) as pdf:
-        return "\n".join((page.extract_text() or "") for page in pdf.pages)
+    # 3. OCR fallback.
+    ocr = _ocr_fallback(path)
+    if ocr.strip():
+        return ocr, f"ocr:tesseract-vie:300dpi:{os.path.basename(path)}"
+
+    stem = os.path.splitext(os.path.basename(path))[0] + ".ocr.txt"
+    raise ProvenanceError(
+        f"No usable text from {os.path.basename(path)}: the embedded layer is absent or "
+        f"corrupt (viet_ratio={viet_ratio(text):.3f}) and no OCR text exists at "
+        f"data/raw_legal/ocr/{stem}. Run scripts/ocr_scanned_documents.py first; "
+        "ingesting the corrupt layer would fabricate the corpus."
+    )
 
 
 def extract_html(path: str) -> str:
@@ -96,13 +197,13 @@ def extract_html(path: str) -> str:
         soup = BeautifulSoup(f.read(), "html.parser")
     for tag in soup(["script", "style", "nav", "header", "footer", "noscript", "form", "aside"]):
         tag.decompose()
-    return soup.get_text("\n")
+    return soup.get_text("\n"), "html-body"
 
 
 _EXTRACTORS = {"txt": extract_txt, "pdf": extract_pdf, "html": extract_html, "htm": extract_html}
 
 
-def extract_text(path: str, fmt: str) -> str:
+def extract_text(path: str, fmt: str) -> tuple:
     fmt = (fmt or os.path.splitext(path)[1].lstrip(".")).lower()
     if fmt not in _EXTRACTORS:
         raise ProvenanceError(
@@ -154,7 +255,7 @@ def build(plan_path: str, allow_missing: bool, dry_run: bool) -> int:
             continue
 
         try:
-            raw_text = extract_text(filepath, entry.get("format", ""))
+            raw_text, extraction = extract_text(filepath, entry.get("format", ""))
         except ProvenanceError as exc:
             print(f"[ERROR]   {doc_id}: {exc}")
             raise
@@ -174,7 +275,12 @@ def build(plan_path: str, allow_missing: bool, dry_run: bool) -> int:
                 )
 
         parser = LegalDocumentParser(
-            doc_id=doc_id, doc_title=entry.get("doc_title") or ""
+            doc_id=doc_id,
+            doc_title=entry.get("doc_title") or "",
+            # Explicit per-entry opt-in for article-less documents (Công văn):
+            # INGEST_PLAN must carry "no_articles_ok": true, which is only set
+            # after the document was verified complete by other means.
+            whole_doc_when_articleless=bool(entry.get("no_articles_ok")),
         )
         # parser.parse_with_report is being added concurrently; use it if present.
         if hasattr(parser, "parse_with_report"):
@@ -189,8 +295,10 @@ def build(plan_path: str, allow_missing: bool, dry_run: bool) -> int:
             c.metadata.setdefault("source_url", entry.get("source_url"))
             c.metadata.setdefault("version", entry.get("version"))
             c.metadata.setdefault("questions_carried", entry.get("questions"))
+            c.metadata.setdefault("extraction", extraction)
 
-        print(f"[ok]      {doc_id}: {len(chunks):4d} chunks, {n_articles:4d} articles in source text")
+        print(f"[ok]      {doc_id}: {len(chunks):4d} chunks, {n_articles:4d} articles, "
+              f"extraction={extraction}")
         ingested.append({"doc_id": doc_id, "chunks": len(chunks), "questions": entry.get("questions")})
         all_chunks.extend(chunks)
 

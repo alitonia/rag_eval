@@ -62,11 +62,54 @@ def main() -> None:
     if args.report:
         print(json.dumps(report, ensure_ascii=False, indent=2))
 
-    # Check unresolved doc_ids
+    # Unanswerable probes are a deliberate benchmark class, not a data gap:
+    # report them separately so they are never mistaken for unresolved rows.
+    probe_count = report.get("unanswerable_probes", 0)
+    if probe_count:
+        print(
+            f"\nUnanswerable probes: {probe_count} "
+            f"(is_answerable=False, category='unanswerable', no doc_id, no gold passage)",
+            file=sys.stderr,
+        )
+        print(
+            f"  ids: {', '.join(report.get('unanswerable_probe_ids', []))}",
+            file=sys.stderr,
+        )
+
+    anomalies = report.get("probe_anomalies", []) or []
+    if anomalies:
+        print(
+            f"\nERROR: {len(anomalies)} row(s) have CONTRADICTORY unanswerable markers. "
+            "They were KEPT (never dropped) and classified as answerable:",
+            file=sys.stderr,
+        )
+        for a in anomalies:
+            print(f"  - {a['id']}: {a['reason']}", file=sys.stderr)
+        print(
+            "  'sentinel-answer-with-gold' = answer says 'not in the corpus' but the row "
+            "carries a doc_link and/or gold passage.",
+            file=sys.stderr,
+        )
+        print(
+            "  'no-gold-without-sentinel'   = row has neither doc_link nor gold passage but "
+            "does not declare itself unanswerable.",
+            file=sys.stderr,
+        )
+
+    empty_answerable = report.get("empty_passage", 0)
+    if empty_answerable:
+        print(
+            f"\nERROR: {empty_answerable} ANSWERABLE row(s) have no gold passage and cannot be "
+            f"scored for citation accuracy: {report.get('empty_passage_ids', [])}",
+            file=sys.stderr,
+        )
+
+    # Check unresolved doc_ids (answerable rows only - probes have no instrument
+    # to resolve and must not be counted here)
     unresolved_count = report.get("doc_ids_unresolved", 0)
     if unresolved_count > 0:
         print(
-            f"\nWARNING: {unresolved_count} question(s) have unresolved doc_ids!",
+            f"\nWARNING: {unresolved_count} answerable question(s) have unresolved doc_ids!",
             file=sys.stderr,
         )
         print(
@@ -80,13 +123,21 @@ def main() -> None:
                 file=sys.stderr,
             )
 
-        if not args.allow_unresolved:
-            print(
-                f"\nError: {unresolved_count} unresolved doc_id(s) detected. "
-                "Failing non-zero (pass --allow-unresolved to bypass).",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+    blocking = unresolved_count > 0 or bool(anomalies) or empty_answerable > 0
+    if blocking and not args.allow_unresolved:
+        reasons = []
+        if unresolved_count > 0:
+            reasons.append(f"{unresolved_count} unresolved doc_id(s)")
+        if anomalies:
+            reasons.append(f"{len(anomalies)} contradictory unanswerable row(s)")
+        if empty_answerable > 0:
+            reasons.append(f"{empty_answerable} answerable row(s) with no gold passage")
+        print(
+            f"\nError: {'; '.join(reasons)}. "
+            "Failing non-zero (pass --allow-unresolved to bypass).",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     sys.exit(0)
 

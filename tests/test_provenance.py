@@ -25,7 +25,11 @@ from regrag.provenance import (
 from regrag.indexing import dense, bm25
 from regrag.indexing.dense import DenseIndex
 from regrag.indexing.bm25 import BM25Index, tokenize_vietnamese
-from regrag.evaluation.metrics import evaluate_response
+from regrag.evaluation.metrics import (
+    METRIC_STATUS_FINAL,
+    METRIC_STATUS_UNVALIDATED,
+    evaluate_response,
+)
 from regrag.storage.file_repo import FileResultRepository
 
 
@@ -230,7 +234,7 @@ class TestProvenance(unittest.TestCase):
             assert_publishable([unset_backend_rec])
         self.assertIn("unpublishable provenance", str(cm.exception))
 
-    # 5. evaluate_response returns metric_status == "placeholder" with non-empty placeholder_fields
+    # 5. evaluate_response self-identifies as unvalidated with non-empty placeholder_fields
     def test_evaluate_response_placeholder_and_provenance(self):
         gen = GenerationResult(
             question_id="Q001",
@@ -251,7 +255,10 @@ class TestProvenance(unittest.TestCase):
         )
 
         record = evaluate_response(gen, gold)
-        self.assertEqual(record.metric_status, "placeholder")
+        # The scorers are real but not yet validated against human labels, so the
+        # record must self-identify as unvalidated and must never claim to be final.
+        self.assertEqual(record.metric_status, METRIC_STATUS_UNVALIDATED)
+        self.assertNotEqual(record.metric_status, METRIC_STATUS_FINAL)
         self.assertIsInstance(record.placeholder_fields, list)
         self.assertTrue(len(record.placeholder_fields) > 0)
         self.assertIn("correctness_score", record.placeholder_fields)
