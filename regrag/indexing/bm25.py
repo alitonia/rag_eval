@@ -23,15 +23,37 @@ except ImportError:
 
 _DEGRADED_WARNED = False
 
+# Instrument identifiers carry hyphens that pyvi treats as word separators, so
+# "18/2024/TT-NHNN" arrives from ViTokenizer as ['18','2024','tt','nhnn'] and the
+# citation can never be retrieved. They are masked out before segmentation and
+# re-inserted afterwards with their hyphens intact.
+_INSTRUMENT_ID_RE = re.compile(
+    r"\b\d{1,3}\s*/\s*\d{4}\s*/\s*[A-ZĐ]{1,12}(?:-[A-ZĐ0-9]{1,12})*", re.IGNORECASE
+)
+_BARE_AGENCY_RE = re.compile(r"\b[A-ZĐ]{1,8}(?:-[A-ZĐ0-9]{1,12})+\b", re.IGNORECASE)
+
+
+def _clean(token: str) -> str:
+    return re.sub(r"[^\w\s\-]", " ", token.lower()).strip()
+
 
 def tokenize_vietnamese(text: str) -> List[str]:
     """Tokenize Vietnamese text with compound word handling."""
-    # Feed original text to pyvi first so it sees compound words and hyphenated legal IDs intact
+    masked: List[str] = []
+
+    def _stash(match: "re.Match[str]") -> str:
+        masked.append(match.group(0))
+        return f" zzid{len(masked) - 1}zz "
+
+    protected = _INSTRUMENT_ID_RE.sub(_stash, text or "")
+    protected = _BARE_AGENCY_RE.sub(_stash, protected)
+
     if HAS_PYVI and ViTokenizer is not None:
-        text = ViTokenizer.tokenize(text)
-    # Preserve hyphens in legal identifiers (e.g. TT-NHNN) while removing other punctuation
-    text_clean = text.lower()
-    text_clean = re.sub(r"[^\w\s\-]", " ", text_clean)
+        protected = ViTokenizer.tokenize(protected)
+
+    text_clean = re.sub(r"[^\w\s\-]", " ", protected.lower())
+    for i, original in enumerate(masked):
+        text_clean = text_clean.replace(f"zzid{i}zz", _clean(original))
     return [t for t in text_clean.split() if t.strip("-")]
 
 

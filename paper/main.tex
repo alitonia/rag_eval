@@ -1,0 +1,228 @@
+% main.tex -- RegRAG-VN, IEEE-RIVF 2026 (EDAS N35414)
+%
+% BUILD (verified on this machine, 2026-09-11):
+%   cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main
+% IEEEtran.cls V1.8b and IEEEtran.bst are NOT installed in this TeX Live tree;
+% local copies (the genuine CTAN files, V1.8b, md5 5b2e4fa15b0f7eabb840ebf67df4c0f7)
+% ship in this directory so the manuscript compiles standalone. Do not replace
+% the document class with another one.
+%
+% NOTE(encoding): this host has no Vietnamese TeX support (no vntex, no babel
+% `vietnam'), and lualatex is unusable (luaotfload broken). vnchars.sty supplies
+% the missing precomposed characters as T1 composites and disables itself when
+% a real Vietnamese setup is present. Compile on a full TeX Live for camera-ready.
+
+\documentclass[conference,a4paper]{IEEEtran}
+\ifdefined\pdfminorversion\pdfminorversion=6\fi
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{vnchars}          % Vietnamese precomposed chars; see file header
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{xcolor}
+
+\begin{document}
+
+\title{Citation-Level Unfaithfulness of Small Language Models on Vietnamese Banking Regulation: A Provenance-Guarded RAG Benchmark}
+
+\author{%
+\IEEEauthorblockN{%
+Đinh Thị Lan Hương\textsuperscript{1},
+Vũ Đức Thành\textsuperscript{2},
+Nguyễn Khắc Duy Ngọc\textsuperscript{3},
+Nguyễn Huy Hoàng\textsuperscript{4},
+Nguyễn Thắng Phúc\textsuperscript{5}}
+\IEEEauthorblockA{%
+Hanoi University of Science and Technology, Hanoi, Vietnam\\
+\textsuperscript{1}20261261M \quad \textsuperscript{2}20261082M \quad \textsuperscript{3}20261206M \quad \textsuperscript{4}20251325M \quad \textsuperscript{5}20252263M}
+}
+
+\maketitle
+
+\begin{abstract}
+Retrieval-augmented generation (RAG) is the standard remedy for hallucination in small language models, but its benefit is usually reported as an aggregate accuracy delta that hides where an answer came from. We present RegRAG-VN, a benchmark and evaluation framework for Vietnamese banking and payment regulation in which the retrieval corpus is determined by the questions themselves: every retained question's verbatim gold passage must string-match a chunk of an ingested legal instrument. The benchmark holds 64 answerable questions over State Bank of Vietnam circulars, decrees and laws, plus 24 unanswerable probes whose gold label is an explicit abstention sentinel. We evaluate models of at most 7B parameters under closed-book, BM25 and dense retrieval, scoring article-level (\emph{Điều}) and clause-level (\emph{Khoản}) citation accuracy alongside abstention, and we report the provenance discipline that prevents any degraded or fixture row from reaching a results table.
+\end{abstract}
+
+\begin{IEEEkeywords}
+retrieval-augmented generation, hallucination, citation faithfulness, abstention, Vietnamese legal NLP, benchmark
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:intro}
+
+Regulatory compliance in Vietnam is a language problem with legal consequences. A bank officer who answers a customer's question about payment-card limits, or a compliance analyst who checks whether a new product violates a circular of the State Bank of Vietnam (SBV), must locate the governing provision among hundreds of circulars (\emph{Thông tư}), decrees (\emph{Nghị định}) and laws (\emph{Luật}), each organised into numbered articles (\emph{Điều}) and clauses (\emph{Khoản}). Language models are an obvious aid, but the models that regional banks and fintechs can actually deploy are small: a 3--7B parameter model served on a single commodity GPU, not a frontier API whose data leaves the country and whose pricing is set abroad. Whether such models answer Vietnamese regulatory questions faithfully, and whether they cite the provision they actually relied on, is therefore a deployment question, not only a research one.
+
+The expected answer to the first half of that question is uninteresting. Retrieval-augmented generation reduces hallucination relative to closed-book answering; this has been shown repeatedly for knowledge-intensive tasks in English \cite{lewis2020rag,gao2024ragsurvey}, and confirming it again for Vietnamese would add little. The failure mode that matters, and that aggregate accuracy conceals, is \emph{citation-level unfaithfulness}: a model produces a fluent, plausible answer that carries the wrong \emph{Điều} or \emph{Khoản}, or cites an instrument that does not govern the question at all, instead of abstaining. For a compliance tool, a wrong answer with a confident, wrong citation is more dangerous than an obviously wrong answer, because the citation is what a human reviewer checks first. Measuring that behaviour requires a benchmark in which the correct citation is known per question and in which the corpus provably contains the evidence, so that a missing citation cannot be blamed on missing evidence.
+
+RegRAG-VN is such a benchmark. Its defining property is that the corpus is \emph{QA-driven}: the legal instruments ingested are exactly those the benchmark questions cite, and a coverage invariant requires every retained question's verbatim gold passage to string-match a chunk of the ingested text. Ground truth is therefore verifiably present in the retrieval corpus rather than assumed. On top of this corpus we measure three research questions:
+
+\begin{itemize}
+\item \textbf{RQ1 (hallucination reduction).} How much does RAG reduce hallucination versus closed-book answering for small models ($\leq$7B) on Vietnamese regulatory questions?
+\item \textbf{RQ2 (citation and abstention).} How accurately do models cite the supporting article (\emph{Điều}) and clause (\emph{Khoản}), and do they abstain when the corpus does not contain the answer?
+\item \textbf{RQ3 (sparse versus dense).} How does BM25 with Vietnamese compound-word segmentation compare with multilingual dense embeddings (BGE-M3) on legal retrieval?
+\end{itemize}
+
+A benchmark of this kind is only as trustworthy as the pipeline that produced its numbers. During development we found three code paths that silently substituted a degraded implementation and returned plausible-looking output; the most serious returned corpus-order chunks with fabricated similarity scores whenever the embedding library was absent, which would have invented an entire dense-retrieval column and invalidated RQ3 without any warning. We therefore treat provenance as a methodological requirement: every chunk, retrieved result, generation and evaluation record carries its corpus tier and retriever backend, and aggregation raises an exception rather than average any row whose provenance is unset, degraded, or a development fixture. Section~\ref{sec:method} describes this discipline; we regard it as a contribution in its own right for evaluation papers, where a silently fabricated column is indistinguishable from a result.
+
+The contributions of this paper are: (i) RegRAG-VN, a QA-driven Vietnamese banking-regulation benchmark with 64 answerable questions, 24 unanswerable probes and a coverage invariant that makes evidence presence checkable; (ii) an evaluation protocol for citation-level faithfulness and abstention at \emph{Điều}/\emph{Khoản} granularity, including an honest inter-annotator reliability design; and (iii) a provenance discipline that makes silent substitution of degraded components impossible, documented against three concrete eliminated paths and one quarantined inauthentic seed corpus.
+
+\section{Related Work}
+\label{sec:related}
+
+\textbf{RAG and its evaluation.} Retrieval-augmented generation conditions a generator on passages retrieved from a corpus \cite{lewis2020rag}, with dense passage retrieval \cite{karpukhin2020dpr} and sparse BM25 scoring \cite{robertson2009bm25} as the two dominant retriever families. Surveys organise the design space of retrievers, generators and evaluation \cite{gao2024ragsurvey}. Benchmark suites for RAG measure the component abilities a system needs --- noise robustness, negative rejection, information integration and counterfactual robustness \cite{liu2024rgb} --- and automated frameworks estimate faithfulness and answer relevance without reference labels \cite{es2024ragas}. These suites are English-centric and none scores the correctness of a statutory citation, which is the unit a compliance reviewer trusts.
+
+\textbf{Hallucination and faithfulness measurement.} Hallucination in natural language generation is surveyed along the intrinsic/extrinsic axis \cite{ji2023hallucination}. Faithfulness to source text was operationalised for summarisation by checking whether summary facts are entailed by the source \cite{maynez2020faithfulness}; atomic-fact decomposition made factual precision measurable per claim \cite{min2023factscore}; and attribution research formalises the requirement that a generated statement be supported by a cited source, with citation quality scored separately from answer correctness \cite{rashkin2023attribution,bohnet2022attributed}. Self-critique architectures let a model flag its own unsupported generations \cite{asai2024selfrag}. Our citation metric follows this attribution line but is stricter in one respect: the cited unit is a statutory article or clause, so a citation to the right instrument but the wrong article scores zero, matching how a legal reviewer reads a reference.
+
+\textbf{Legal-domain language models.} Legal NLP benchmarks such as LexGLUE establish that legal text behaves differently from general text \cite{chalkidis2022lexglue}, and statute-specific retrieval has been studied for article-level matching. Vietnamese legal text adds a structural property that most legal-RAG work ignores: provisions are numbered hierarchically (\emph{Điều} within \emph{Chương}, \emph{Khoản} within \emph{Điều}), so the chunking granularity is itself an experimental variable. Mix-of-granularity chunking shows that mixing granularities outperforms any single fixed granularity for RAG \cite{qin2025mixgranularity}; our \emph{Điều}/\emph{Khoản} segmentation is exactly such a granularity decision, applied to a statutory hierarchy. Long-context behaviour is also relevant, since retrieved passages compete for the model's attention \cite{liu2024lostmiddle}.
+
+\textbf{Vietnamese NLP.} Toolkits provide word segmentation and part-of-speech tagging for Vietnamese \cite{vu2018vncorenlp}. Segmentation matters for sparse retrieval specifically: Vietnamese is written with spaces between syllables rather than words, so a whitespace tokenizer splits compound legal terms such as \emph{ngân hàng} or \emph{thẻ tín dụng} into meaningless units. We therefore segment with a Vietnamese word segmenter before BM25 scoring, and treat the segmented-sparse versus multilingual-dense comparison (RQ3) as a first-class measurement rather than an implementation detail.
+
+\section{The Benchmark}
+\label{sec:benchmark}
+
+\subsection{Domain and QA-driven corpus construction}
+The domain is Vietnamese banking and payment regulation: SBV circulars on payment services, cards, non-cash payment and credit-institution organisation, together with the governing decrees and laws. The corpus is not assembled from a catalogue of instruments and then questioned; it is derived from the questions. Each gold question was authored together with a verbatim passage from the instrument that answers it and the source URL of that instrument. Instrument identifiers are resolved from the URL through a human-verified manifest; where a URL is opaque (a PDF slug or a document id that does not spell out the instrument number), the row is kept with an explicit \texttt{UNRESOLVED:} identifier and reported, never dropped, so that the benchmark cannot silently shrink. Rows whose passage names one of several candidate instruments take that instrument as primary, because URL order in a spreadsheet is not evidence.
+
+% NOTE(dataset): counts below verified 2026-09-11 against data/gold/bank_qa_data.csv
+% via regrag/corpus/qa_loader.py; re-run scripts/load_qa_csv.py --report before
+% camera-ready, the CSV is still under review.
+The current benchmark holds 88 rows: 64 answerable questions, each with a gold passage recording the supporting provision and at least one source URL, and 24 unanswerable probes. The gold passage is the annotator's record of the evidence rather than a guarantee that the evidence was copied verbatim, so the coverage check verifies each passage against the ingested corpus at ingestion time; where the recorded passage is a summary rather than an extract, the verbatim article text is substituted from the source instrument and the substitution is reported, and where the cited instrument is absent the row is excluded from the answerable set. In the delivered revision, 63 of the 64 passages are verbatim article text substituted under a guarded repair pass that refuses to rewrite a row unless the cited instrument is present in the corpus, the cited article exists in it, and the summary's lexical overlap with that article clears a floor (63/64 substitutions logged with their originals); one row cites a \emph{Phụ lục} annex rather than a numbered article and is kept as an annotator summary; and one row whose governing instrument is absent from the corpus was excluded from the answerable set and moved to the probe arm. Because substituted passages are drawn from the corpus itself, verbatim coverage on repaired rows is partly self-satisfying and is reported as a data-quality metric, with the underlying gold-citation check carried at article level.
+Article-level gold citations (\emph{Điều}) are derivable for 63 of the 64 answerable rows; clause-level gold (\emph{Khoản}) is present for 40. We therefore score citation accuracy at article level and treat clause level as optional: a clause reference is credited when present and correct but is never required for a match, because requiring it would penalise correct answers for questions whose governing provision has no clause structure.
+
+\subsection{Two-tier corpus and the coverage invariant}
+The corpus has two tiers with identical interfaces. Tier~1 is a development fixture built from the verbatim gold passages, one chunk per passage; it exists so that indexing, retrieval, prompting, generation and scoring could be integrated before the real instruments arrived. Because each question's gold passage is in Tier~1 by construction, retrieval recall on it is trivially perfect and sparse and dense retrievers are indistinguishable; Tier~1 is therefore never publishable and the provenance guard refuses it (\S\ref{sec:provenance}). Tier~2 is the segmented full text of the ingested instruments and is the corpus all reported numbers use. Segmentation follows the statutory hierarchy: chunks are articles (\emph{Điều}), with clause (\emph{Khoản}) boundaries preserved inside them, and preambles retained rather than discarded.
+
+The coverage invariant ties the two together: every retained answerable question's verbatim gold passage must string-match a chunk of the Tier~2 corpus under strict normalisation (Unicode NFC plus whitespace collapse, diacritics preserved). A passage that matches only after diacritic folding is reported as extraction damage, a distinct diagnostic category, because it means the ingested text lost diacritics and would corrupt both retrieval and citation scoring; a passage that matches only after removing all whitespace is reported as a second damage category, since the born-digital layers of several official gazette PDFs insert spurious intra-word spaces while keeping every character and diacritic, and neither damage may be silently accepted as an exact match. A question whose instrument never arrives is excluded from the answerable set rather than left in, since leaving it in would generate a false hallucination label: the model would be scored as hallucinating evidence that was never retrievable.
+
+\subsection{Unanswerable probes}
+The 24 probes are questions the corpus deliberately does not cover; their gold answer is the sentinel \emph{Không có trong kho văn bản} (``not in the document corpus''). They carry the abstention half of RQ2 and need no corpus and no gold passage. They are in-domain Vietnamese banking operational scenarios whose governing provision is not in the repository: opening payment accounts for condominium management boards, kindergartens and foreign trade-representative offices, collateral held by a spouse or by an owner under 18, mortgage top-ups on property that already secures another obligation, and the reporting frequency of the capital-adequacy ratio, which is governed by a statistical-reporting circular that the corpus does not hold --- a row originally annotated as answerable and moved to the probe arm after source verification. They therefore measure abstention under a corpus-coverage gap --- the operationally common case in which a question is entirely reasonable but is governed by an instrument outside the corpus --- rather than rejection of topically out-of-scope domains. That is a narrower and harder property to measure: the model cannot lean on topical distance to decide to abstain, and must instead recognise that the retrieved evidence does not support the answer it is about to give. We state as a limitation that the probe set contains no precision-trap and no cross-jurisdictional arm, so abstention on numerically near-miss questions and on foreign rules is not measured. A model that answers a probe fluently has failed abstention even if the answer is globally true, because the benchmark asks what the corpus supports.
+
+\subsection{Annotation and inter-annotator reliability}
+Questions were authored by two domain annotators. Full dual annotation of all 88 rows is not feasible in the project window, and Cohen's $\kappa$ \cite{cohen1960kappa} computed on self-annotation would measure nothing, because each annotator would be re-grading their own questions. The design is therefore a genuinely cross-annotated subset of 30 questions in which each annotator grades the other's questions, with $\kappa$ reported on that subset only and the remainder disclosed as single-annotator. This is weaker than full dual annotation and we state it as a limitation: the reported $\kappa$ estimates agreement on a subset whose questions were authored by the graders' counterpart, and single-annotator rows carry unmeasured author bias.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Retrieval}
+Three retrieval modes are compared at top-$k=3$. \emph{Closed-book} passes only the question to the model. \emph{RAG-BM25} segments the query and the corpus with a Vietnamese word segmenter \cite{pyvi} so that compound legal terms survive as single terms, then scores with BM25 \cite{robertson2009bm25,rankbm25}. \emph{RAG-Dense} embeds queries and chunks with the multilingual BGE-M3 encoder \cite{chen2024m3} and retrieves by cosine similarity. The same three chunks are concatenated into the prompt in both RAG modes, so the modes differ only in retrieval.
+
+\subsection{Generation}
+The model set is three instruction-tuned models of at most 7B parameters: Qwen2.5-7B-Instruct and Qwen2.5-3B-Instruct \cite{yang2024qwen25}, plus one architecturally different Vietnamese-capable model (Gemma-3-4B-IT or Vistral-7B-Chat), the third to be fixed once loadability is confirmed on the inference host. Models are served in 4-bit quantisation to fit the available GPU budget. Before any measurement campaign, each model receives a three-question prompt-format probe that a human inspects, because a wrong chat template produces degenerate output that would be misread as hallucination. Every prompt carries an explicit abstention instruction naming the sentinel string, so that abstention is an available, scored behaviour rather than an absence.
+
+\subsection{Evaluation metrics}
+For each (question, model, mode) record we compute: (i) \emph{groundedness}, whether the answer's atomic claims are supported by the retrieved passages, following atomic-fact evaluation \cite{min2023factscore} and attribution scoring \cite{rashkin2023attribution}; (ii) \emph{hallucination}, a claim contradicted by the corpus or unsupported under closed-book; (iii) \emph{citation precision, recall and F1} at \emph{Điều} level, with \emph{Khoản} credited optionally, where a citation to the correct article of the wrong instrument scores zero; and (iv) \emph{abstention accuracy} on the probes, i.e.\ whether the model emits the sentinel and withholds a substantive answer. An earlier scorer version derived correctness entirely from citation overlap and flagged an uncited fabrication as non-hallucinated; that version is retained only as a tagged placeholder and is not used for any reported number. The replacement scorer is validated against approximately 50 human-labelled model responses, and the human--automatic agreement is reported with the results.
+
+\subsection{Provenance discipline}
+\label{sec:provenance}
+Every chunk, retrieved result, generation and evaluation record carries two tags: \texttt{corpus\_source} (\texttt{tier1\_passages} or \texttt{tier2\_full}) and \texttt{retriever\_backend} (for example \texttt{bm25-rank\_bm25+pyvi} or \texttt{BAAI/bge-m3}, or \texttt{DEGRADED:<reason>}). The aggregation guard raises an exception rather than aggregate any row whose backend is unset or degraded or whose corpus is not Tier~2. The rule for new code is that a placeholder must fail loudly or self-identify; it must never return a plausible default.
+
+Three silent-substitution paths motivated the rule. First, the dense index returned the first $k$ chunks in corpus order with fabricated scores whenever the embedding library was missing, which would have produced a fictional dense column and invalidated RQ3 without warning; it now raises a named error. Second, the sparse index silently degraded to term-overlap counting without its scoring library and to whitespace tokenisation without the Vietnamese segmenter, destroying exactly the compound-word handling RQ3 tests while still labelling itself BM25; the fallbacks remain but self-identify as degraded. Third, the evaluation scorers returned confident numbers from heuristics; they now tag themselves as placeholders.
+
+A fourth incident concerned the corpus itself. A seed file that had become the entire corpus was audited and quarantined as inauthentic: 43 lines containing only articles 1, 2, 3, 9, 14, 15 and 23, whereas real instruments number articles contiguously; and lacking every mandatory element of a Vietnamese circular (recitals, effective-date clause, execution clause, signature block). Its chunks were removed and the segmenter, originally validated against that file, was re-validated against the real gold passages. Fabricated provisions are worse than no distractor, because a model can retrieve a fake article and be scored against it.
+
+\section{Experimental Design and Results}
+\label{sec:results}
+
+The protocol is a $3 \times 3$ grid: three models by three retrieval modes (closed-book, RAG-BM25, RAG-Dense) at top-$k=3$, over all 88 benchmark rows, with a fixed decoding seed per condition. Retrieval quality is reported separately as Recall@1 and Recall@3 on the answerable set, because a RAG arm whose retriever never finds the gold passage measures prompting rather than retrieval. All reported rows must carry a clean provenance tag (\S\ref{sec:provenance}); the tables below are structured and captioned but intentionally empty, because the inference campaign has not run at the time of writing and we do not report numbers we have not produced.
+
+% TODO(results): fill Table I from the inference campaign; every row must pass
+% provenance.assert_publishable() before it is entered. No cell may be filled
+% by hand.
+\begin{table}[t]
+\centering
+\caption{Hallucination, groundedness and abstention by model and retrieval mode (RQ1, RQ2-abstention). Halluc.\ = hallucination rate on answerable questions; Ground.\ = groundedness; Abst.\ = abstention accuracy on the 24 probes. Cells are populated from the campaign log only.}
+\label{tab:main}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Model & Mode & Halluc. $\downarrow$ & Ground. $\uparrow$ & Abst. $\uparrow$ \\
+\midrule
+Qwen2.5-7B  & closed-book & -- & -- & -- \\
+Qwen2.5-7B  & RAG-BM25    & -- & -- & -- \\
+Qwen2.5-7B  & RAG-Dense   & -- & -- & -- \\
+Qwen2.5-3B  & closed-book & -- & -- & -- \\
+Qwen2.5-3B  & RAG-BM25    & -- & -- & -- \\
+Qwen2.5-3B  & RAG-Dense   & -- & -- & -- \\
+third model & closed-book & -- & -- & -- \\
+third model & RAG-BM25    & -- & -- & -- \\
+third model & RAG-Dense   & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% TODO(results): fill Table II; citation columns come from regrag/evaluation/
+% citation.py, abstention column from the probe rows only.
+\begin{table}[t]
+\centering
+\caption{Citation accuracy at article (\emph{Điều}) level and optional clause (\emph{Khoản}) level, per retrieval mode, pooled over models (RQ2). P/R/F1 computed against the gold citation; a correct article in the wrong instrument scores zero.}
+\label{tab:citation}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Mode & \multicolumn{3}{c}{\emph{Điều} P / R / F1} & \emph{Khoản} acc. \\
+\midrule
+closed-book & -- & -- & -- & -- \\
+RAG-BM25    & -- & -- & -- & -- \\
+RAG-Dense   & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% TODO(results): fill Table III; Recall columns require Gate C (BM25 vs dense
+% must actually differ on Tier 2) to have passed, else the RAG arm is not
+% measuring retrieval and the row must not be reported.
+\begin{table}[t]
+\centering
+\caption{Retrieval quality on the Tier~2 corpus and annotation agreement (RQ3, \S\ref{sec:benchmark}-D). Recall@1/@3 over the answerable set; $\kappa$ is Cohen's kappa on the 30-question cross-annotated subset only.}
+\label{tab:retrieval}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Retriever & Recall@1 & Recall@3 & $\kappa$ (subset) \\
+\midrule
+BM25 + pyvi segmentation & -- & -- & -- \\
+BGE-M3 dense             & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% TODO(results): replace the placeholder box with the real pipeline figure
+% (corpus ingestion -> coverage gate -> indexing -> generation -> provenance-
+% guarded aggregation), exported as PDF at column width.
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.92\columnwidth}{\centering\vspace{2.2em}\textit{Figure placeholder.} Provenance-tagged pipeline: QA-driven ingestion, coverage gate, two-tier corpus, three retrieval modes, provenance-guarded aggregation.\vspace{2.2em}}}
+\caption{The RegRAG-VN pipeline. Every arrow crossing a component boundary carries the \texttt{corpus\_source} and \texttt{retriever\_backend} tags enforced by the aggregation guard.}
+\label{fig:pipeline}
+\end{figure}
+
+% TODO(results): write the results narrative once Tables I-III are filled:
+% (a) the RAG-vs-closed-book delta per model, (b) the citation-level
+% unfaithfulness cases (fluent answer, wrong Dieu/Khoan, citation instead of
+% abstention) with two or three verbatim examples, (c) the sparse-vs-dense
+% comparison and whether it interacts with clause-level granularity,
+% (d) scorer-vs-human agreement on the ~50 labelled responses.
+% TODO(results): state the headline finding honestly; if citation-level
+% unfaithfulness does not appear in the data, say so and report the aggregate
+% delta instead rather than forcing the framing.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+% TODO(results): complete after the campaign. Intended content, in order:
+% what the benchmark makes measurable (evidence presence, citation-level
+% faithfulness, abstention); the measured answer to each RQ; the provenance
+% argument and why evaluation papers need it; limitations (single-annotator
+% remainder, Tier-2 coverage at submission time, three-model set, 4-bit
+% quantisation); and the release of corpus, prompts, scorer and logs.
+
+\section*{Data and Code Availability}
+% TODO(results): insert the Zenodo DOI here at submission; the record must be
+% published before the EDAS entry is finalised.
+The benchmark, the ingestion and evaluation code, the provenance guard and all campaign logs will be released as a public repository with a Zenodo DOI at submission; the placeholder for the DOI is reserved in this paragraph. The trusted gold CSV, the instrument manifest and the coverage reports are the artifacts of record; every derived file is regenerable from them by a single idempotent script. Legal texts are redistributed as downloaded from official government sources and remain under their original terms.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

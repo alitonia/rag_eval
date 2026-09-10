@@ -55,8 +55,19 @@ class GoldQuestion:
 
     Derived only from the trusted QA CSV. gold_doc_ids are CANONICAL instrument
     ids (e.g. "06/2019/TT-NHNN"), never raw URLs, and are resolved from
-    doc_link via corpus.canonical - only 2/64 gold passages name their own
+    doc_link via corpus.canonical - only 2/65 gold passages name their own
     instrument, so the prose can never be the source of doc_id.
+
+    Two classes share this dataclass and must not be conflated:
+
+    * ``is_answerable=True`` / ``category="factual"`` - has a doc_link and a
+      verbatim gold passage; scored for citation accuracy and correctness.
+    * ``is_answerable=False`` / ``category="unanswerable"`` - an abstention
+      probe. ``gold_doc_ids``, ``gold_citations``, ``gold_passage`` and
+      ``source_urls`` are all EMPTY on purpose (nothing is unresolved; there is
+      no instrument), and ``doc_id_confidence`` is ``"n/a-unanswerable"``. Such
+      rows are excluded from every gold-passage invariant and from the
+      unresolved-doc_id tally, but are always kept and reported.
     """
     id: str                 # e.g., "Q001"
     question: str
@@ -66,11 +77,15 @@ class GoldQuestion:
     reference_answer: str = ""
     category: str = "factual"  # "factual", "synthesis", "definition", "unanswerable"
     # Verbatim `text_contains_answer_in_the_doc` cell: the coverage-test target
-    # and the Tier 1 chunk source. 64/64 rows name an Điều; line-initial clause
-    # numbering survives in only 5/64, so clause-level gold is optional.
+    # and the Tier 1 chunk source. 61/65 answerable rows name an Điều (the 4
+    # exceptions quote a Phụ lục annex table); line-initial clause numbering
+    # survives in only 6/65, so clause-level gold is optional. Empty by design
+    # on unanswerable probes.
     gold_passage: str = ""
     source_urls: List[str] = field(default_factory=list)
-    doc_id_confidence: str = "unresolved"  # manifest | slug | heuristic | unresolved
+    # manifest | slug | heuristic | passage-named | ambiguous-multi-url |
+    # unresolved | n/a-unanswerable (probes: there is no instrument to resolve)
+    doc_id_confidence: str = "unresolved"
     author: str = ""
 
     @property

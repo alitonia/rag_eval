@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional, Sequence
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from regrag.corpus.qa_loader import load_and_report, load_gold_questions
-from regrag.corpus.canonical import normalize_ws, fold_diacritics
+from regrag.corpus.canonical import normalize_ws, fold_diacritics, squash_ws
 from regrag.provenance import CORPUS_UNSET
 
 
@@ -33,14 +33,30 @@ def check_passage_coverage(
       - Strict tier: matches normalized text (NFC, collapsed whitespace, preserving diacritics).
       - Loose tier: matches diacritic-folded text. Matches at this tier ONLY mean
         the ingested chunk text lost diacritics and are reported as a distinct category.
+
+    A third, intermediate squash tier (NFC with ALL whitespace removed on both
+    sides) matches the born-digital CÔNG BÁO layers whose intra-word spacing is
+    damaged ("vi ệc"); a squash match means the characters are all present and
+    in order, and it is reported as its own category, never counted as strict.
+
+    Unanswerable probes (``is_answerable=False``) have no gold passage by design,
+    so they are EXCLUDED from the invariant and counted separately in
+    ``unanswerable_probes_excluded`` - they must never drag coverage down, and
+    they must never be silently invisible either. An *answerable* row with an
+    empty passage is a different thing: that is a data defect, and it is counted
+    in ``answerable_without_passage`` so it cannot hide behind the probe bucket.
     """
     total = len(questions)
     answerable = 0
     strict_matches = 0
+    squash_matches = 0
     loose_matches = 0
     not_found = 0
     missing_ids: List[str] = []
+    squash_ids: List[str] = []
     loose_ids: List[str] = []
+    probe_ids: List[str] = []
+    no_passage_ids: List[str] = []
 
     # Pre-process chunks for faster comparison
     chunk_data = []
@@ -50,23 +66,31 @@ def check_passage_coverage(
         source = getattr(c, "corpus_source", None) or (c.get("corpus_source", CORPUS_UNSET) if isinstance(c, dict) else CORPUS_UNSET)
         s_norm = normalize_ws(raw_text)
         l_norm = fold_diacritics(raw_text)
-        chunk_data.append((cid, s_norm, l_norm, source))
+        q_norm = squash_ws(raw_text)
+        chunk_data.append((cid, s_norm, l_norm, q_norm, source))
 
     for q in questions:
         qid = getattr(q, "id", None) or (q.get("id", "") if isinstance(q, dict) else "")
         is_ans = getattr(q, "is_answerable", True) if not isinstance(q, dict) else q.get("is_answerable", True)
         passage = getattr(q, "gold_passage", None) or (q.get("gold_passage", "") if isinstance(q, dict) else "")
 
-        if not is_ans or not (passage or "").strip():
+        if not is_ans:
+            # Unanswerable probe: excluded from the gold-passage invariant.
+            probe_ids.append(qid)
+            continue
+        if not (passage or "").strip():
+            # Answerable but has no gold passage: a real defect, reported apart.
+            no_passage_ids.append(qid)
             continue
 
         answerable += 1
         p_strict = normalize_ws(passage)
         p_loose = fold_diacritics(passage)
+        p_squash = squash_ws(passage)
 
         # 1. Strict tier check
         matched_strict = False
-        for cid, c_strict, _, _ in chunk_data:
+        for cid, c_strict, _, _, _ in chunk_data:
             if not c_strict:
                 continue
             if p_strict in c_strict or p_strict == c_strict or (len(c_strict) >= 30 and c_strict in p_strict):
@@ -77,9 +101,25 @@ def check_passage_coverage(
             strict_matches += 1
             continue
 
-        # 2. Loose tier check (diacritic folded)
+        # 2. Squash tier check: whitespace removed on both sides. This matches
+        # intra-word spacing damage in the CÔNG BÁO born-digital layers while
+        # still requiring every character, diacritics included, in order.
+        matched_squash = False
+        for cid, _, _, c_squash, _ in chunk_data:
+            if not c_squash:
+                continue
+            if p_squash in c_squash or p_squash == c_squash or (len(c_squash) >= 30 and c_squash in p_squash):
+                matched_squash = True
+                break
+
+        if matched_squash:
+            squash_matches += 1
+            squash_ids.append(qid)
+            continue
+
+        # 3. Loose tier check (diacritic folded)
         matched_loose = False
-        for cid, _, c_loose, _ in chunk_data:
+        for cid, _, c_loose, _, _ in chunk_data:
             if not c_loose:
                 continue
             if p_loose in c_loose or p_loose == c_loose or (len(c_loose) >= 30 and c_loose in p_loose):
@@ -94,16 +134,26 @@ def check_passage_coverage(
             missing_ids.append(qid)
 
     strict_pct = (strict_matches / answerable * 100.0) if answerable else 0.0
-    total_pct = ((strict_matches + loose_matches) / answerable * 100.0) if answerable else 0.0
+    total_pct = ((strict_matches + squash_matches + loose_matches) / answerable * 100.0) if answerable else 0.0
+    squash_pct = (squash_matches / answerable * 100.0) if answerable else 0.0
+    loose_pct = (loose_matches / answerable * 100.0) if answerable else 0.0
 
     return {
         "total_questions": total,
         "answerable_questions": answerable,
+        "unanswerable_probes_excluded": len(probe_ids),
+        "unanswerable_probe_ids": probe_ids,
+        "answerable_without_passage": len(no_passage_ids),
+        "answerable_without_passage_ids": no_passage_ids,
         "strict_matches": strict_matches,
+        "squash_matches": squash_matches,
         "loose_matches": loose_matches,
         "not_found": not_found,
         "strict_coverage_pct": round(strict_pct, 2),
+        "squash_coverage_pct": round(squash_pct, 2),
+        "loose_coverage_pct": round(loose_pct, 2),
         "total_coverage_pct": round(total_pct, 2),
+        "squash_question_ids": squash_ids,
         "loose_question_ids": loose_ids,
         "missing_question_ids": missing_ids,
     }
@@ -215,6 +265,8 @@ def regenerate(repo_root: Optional[str] = None) -> Dict[str, Any]:
             "csv_hash": current_csv_hash,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "questions_count": len(questions),
+            "answerable_questions": report.get("answerable_questions", 0),
+            "unanswerable_probes": report.get("unanswerable_probes", 0),
             "doc_ids_resolved": report.get("doc_ids_resolved", 0),
             "doc_ids_unresolved": report.get("doc_ids_unresolved", 0),
         }
@@ -250,9 +302,21 @@ def regenerate(repo_root: Optional[str] = None) -> Dict[str, Any]:
     print(f"Status:             {status_label}")
     print(f"CSV Content Hash:   {current_csv_hash[:16]}...")
     print(f"Total Questions:    {len(questions)}")
+    print(f"  - Answerable:     {report.get('answerable_questions', 0)}")
+    print(f"  - Unanswerable probes: {report.get('unanswerable_probes', 0)} (excluded from gold-passage coverage)")
     print(f"  - Resolved IDs:   {report.get('doc_ids_resolved', 0)}")
-    print(f"  - Unresolved IDs: {report.get('doc_ids_unresolved', 0)}")
+    print(f"  - Unresolved IDs: {report.get('doc_ids_unresolved', 0)} (answerable rows only)")
     print(f"Distinct Instruments: {len(report.get('distinct_doc_ids', []))}")
+
+    anomalies = report.get("probe_anomalies", []) or []
+    if anomalies:
+        print(
+            f"\n!! {len(anomalies)} row(s) have CONTRADICTORY unanswerable markers "
+            "(kept, not dropped - fix the CSV):",
+            file=sys.stderr,
+        )
+        for a in anomalies:
+            print(f"  - {a['id']}: {a['reason']}", file=sys.stderr)
 
     if chunk_reports:
         print("\nProcessed Chunk Files Coverage:")
@@ -268,10 +332,23 @@ def regenerate(repo_root: Optional[str] = None) -> Dict[str, Any]:
                 f"({cov['strict_coverage_pct']}%)"
             )
             print(
+                f"      Squash match:    {cov['squash_matches']}/{cov['answerable_questions']} "
+                f"({cov['squash_coverage_pct']}%) [intra-word spacing damaged layers]"
+            )
+            print(
                 f"      Loose match:     {cov['loose_matches']}/{cov['answerable_questions']} "
-                f"({cov['loose_coverage_pct'] if 'loose_coverage_pct' in cov else round(cov['loose_matches']/cov['answerable_questions']*100, 2)}%)"
+                f"({cov['loose_coverage_pct']}%)"
             )
             print(f"      Not found:       {cov['not_found']}/{cov['answerable_questions']}")
+            print(
+                f"      Probes excluded: {cov['unanswerable_probes_excluded']}"
+            )
+            if cov.get("answerable_without_passage"):
+                print(
+                    f"      !! Answerable rows with NO gold passage (defect, not a probe): "
+                    f"{cov['answerable_without_passage']} -> {cov['answerable_without_passage_ids']}",
+                    file=sys.stderr,
+                )
     else:
         print("\nNo chunk files found in data/processed_chunks/ to evaluate.")
 

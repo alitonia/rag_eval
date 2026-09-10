@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Dict, Any, Tuple
 from regrag.models import EvaluationRecord, GenerationResult
-from regrag.storage.base import BenchmarkResultRepository
+from regrag.storage.base import BenchmarkResultRepository, publishable_evaluations
 
 
 class InMemoryResultRepository(BenchmarkResultRepository):
@@ -50,16 +50,22 @@ class InMemoryResultRepository(BenchmarkResultRepository):
 
     def export_summary(self) -> Dict[str, Any]:
         evals = list(self._evaluations.values())
-        if not evals:
-            return {"total": 0, "groups": {}}
+        kept, refused = publishable_evaluations(evals)
+        if not kept:
+            return {
+                "total": 0,
+                "groups": {},
+                "refused_unpublishable": len(refused),
+                "note": "no publishable rows; nothing averaged",
+            }
 
         # Aggregate by (model, mode)
         groups: Dict[Tuple[str, str], List[EvaluationRecord]] = {}
-        for e in evals:
+        for e in kept:
             k = (e.model_name, e.retrieval_mode)
             groups.setdefault(k, []).append(e)
 
-        summary = {"total_evaluations": len(evals), "groups": {}}
+        summary = {"total_evaluations": len(kept), "groups": {}}
         for (m, r), recs in groups.items():
             n = len(recs)
             prec = sum(r.citation_precision for r in recs) / n
@@ -72,7 +78,10 @@ class InMemoryResultRepository(BenchmarkResultRepository):
                 "citation_precision": round(prec, 4),
                 "citation_recall": round(rec, 4),
                 "hallucination_rate": round(halluc, 4),
-                "abstention_accuracy": round(abst_corr, 4),
+                # Not an accuracy: see metrics.compute_abstention_metrics for the
+                # real TP/FP/TN/FN figure over probes and answerable rows.
+                "abstained_correctly_rate": round(abst_corr, 4),
                 "avg_correctness": round(avg_correctness, 4),
             }
+        summary["refused_unpublishable"] = len(refused)
         return summary

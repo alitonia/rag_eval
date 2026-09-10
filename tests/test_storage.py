@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import unittest
 from regrag.models import EvaluationRecord, GenerationResult
+from regrag.provenance import CORPUS_TIER2
 from regrag.storage.in_memory import InMemoryResultRepository
 from regrag.storage.file_repo import FileResultRepository
 
@@ -28,6 +29,9 @@ class TestStorageImplementations(unittest.TestCase):
             abstained_correctly=False,
             correctness_score=2.0,
             hallucinated=False,
+            corpus_source=CORPUS_TIER2,
+            retriever_backend="bm25-rank_bm25+pyvi",
+            metric_status="final",
             notes="Test record",
         )
         self.sample_gen = GenerationResult(
@@ -75,6 +79,21 @@ class TestStorageImplementations(unittest.TestCase):
         self.assertIn(group_key, summary["groups"])
         self.assertEqual(summary["groups"][group_key]["citation_precision"], 1.0)
         self.assertEqual(summary["groups"][group_key]["hallucination_rate"], 0.0)
+
+        # 6. An unpublishable row is refused by the summary, not averaged in
+        bad = EvaluationRecord(
+            question_id="Q002",
+            model_name="qwen2.5-7b",
+            retrieval_mode="rag_bm25",
+            is_answerable=True,
+            citation_precision=0.0,
+            citation_recall=0.0,
+            correctness_score=0.0,
+        )
+        repo.save_evaluation(bad)
+        summary = repo.export_summary()
+        self.assertEqual(summary["total_evaluations"], 1)
+        self.assertEqual(summary["refused_unpublishable"], 1)
 
     def test_in_memory_repository(self):
         repo = InMemoryResultRepository()

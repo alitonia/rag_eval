@@ -108,22 +108,38 @@ class TestDocIdResolution(unittest.TestCase):
     """Test resolution of doc_ids from gold QA CSV."""
 
     def test_verified_gold_csv_state(self):
-        """Document verified state of data/gold/bank_qa_data.csv:
+        """Verify structural invariants of data/gold/bank_qa_data.csv.
 
-        64 questions, 57 resolved doc_ids, 7 unresolved, 12 distinct instruments.
-        Unresolved rows are retained and reported, never dropped.
+        The CSV is under active revision (64 rows on 2026-09-09, 88 on 2026-09-11),
+        so this asserts invariants recomputed from the raw file rather than literal
+        counts that would break on the next delivery: nothing is dropped, resolved
+        and unresolved partition the answerable set, unresolved rows keep their
+        marker, and probes plus answerable equal the total.
         """
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         csv_path = os.path.join(repo_root, "data", "gold", "bank_qa_data.csv")
         questions, report = load_and_report(csv_path, repo_root=repo_root)
 
-        self.assertEqual(report["questions"], 64)
-        self.assertEqual(report["doc_ids_resolved"], 57)
-        self.assertEqual(report["doc_ids_unresolved"], 7)
-        self.assertEqual(len(report["distinct_doc_ids"]), 12)
-        self.assertEqual(len(report["unresolved_rows"]), 7)
-        # Verify no rows were dropped
-        self.assertEqual(len(questions), 64)
+        with open(csv_path, newline="", encoding="utf-8-sig") as f:
+            raw_rows = [r for r in csv.DictReader(f) if (r.get("question") or "").strip()]
+
+        self.assertEqual(report["questions"], len(raw_rows))
+        self.assertEqual(len(questions), len(raw_rows), "no rows may be dropped")
+        self.assertEqual(
+            report["answerable_questions"] + report["unanswerable_probes"],
+            report["questions"],
+        )
+        self.assertEqual(
+            report["doc_ids_resolved"] + report["doc_ids_unresolved"],
+            report["answerable_questions"],
+        )
+        self.assertEqual(len(report["unresolved_rows"]), report["doc_ids_unresolved"])
+        for row in report["unresolved_rows"]:
+            self.assertTrue(
+                any(str(d).startswith("UNRESOLVED") for d in row["doc_ids"]),
+                f"unresolved row {row['id']} carries no UNRESOLVED marker: {row['doc_ids']}",
+            )
+        self.assertGreater(len(report["distinct_doc_ids"]), 0)
 
     def test_fixture_preserves_unresolved_rows(self):
         """Synthetic fixture test: unresolved rows must retain UNRESOLVED prefix and not drop."""
@@ -168,12 +184,13 @@ class TestCoverageInvariant(unittest.TestCase):
         self.csv_path = os.path.join(self.repo_root, "data", "gold", "bank_qa_data.csv")
         self.questions = load_gold_questions(self.csv_path, repo_root=self.repo_root)
 
-    def test_invariant_fails_against_corpus_chunks(self):
-        """Invariant currently FAILS against data/processed_chunks/corpus_chunks.json.
+    def test_invariant_partitions_against_live_corpus(self):
+        """Coverage against data/processed_chunks/corpus_chunks.json partitions cleanly.
 
-        data/processed_chunks/corpus_chunks.json contains only 22 chunks from 18/2024/TT-NHNN,
-        an instrument not cited by any of the 64 questions in bank_qa_data.csv.
-        True present state: 0/64 strict matches, 0/64 loose matches, 64 not found.
+        The corpus file is a live artifact (empty on 2026-09-09, 3,708 chunks from
+        2026-09-11), so no fixed match count is asserted here. The invariant that must
+        hold for ANY corpus is that every answerable row lands in exactly one bucket
+        and that probes are excluded from all of them.
         """
         chunks_path = os.path.join(self.repo_root, "data", "processed_chunks", "corpus_chunks.json")
         self.assertTrue(os.path.exists(chunks_path), f"Missing {chunks_path}")
@@ -182,14 +199,17 @@ class TestCoverageInvariant(unittest.TestCase):
             chunks = json.load(f)
 
         cov = check_passage_coverage(self.questions, chunks)
-        # True present state: exactly 0 of 64 match because corpus_chunks.json holds unrelated doc
+        n_answerable = sum(1 for q in self.questions if q.is_answerable)
         self.assertEqual(
-            cov["strict_matches"], 0,
-            "Expected 0 strict matches against corpus_chunks.json (holds only 18/2024/TT-NHNN)",
+            cov["strict_matches"] + cov["squash_matches"] + cov["loose_matches"] + cov["not_found"],
+            n_answerable,
+            "every answerable row must land in exactly one coverage bucket",
         )
-        self.assertEqual(cov["loose_matches"], 0)
-        self.assertEqual(cov["not_found"], 64)
-        self.assertLess(cov["strict_coverage_pct"], 1.0)
+        self.assertEqual(cov["answerable_questions"], n_answerable)
+        self.assertEqual(
+            cov["unanswerable_probes_excluded"],
+            sum(1 for q in self.questions if not q.is_answerable),
+        )
 
     def test_invariant_passes_against_tier1_corpus(self):
         """Invariant PASSES against Tier 1 corpus built inline from CSV gold passages.
@@ -215,8 +235,15 @@ class TestCoverageInvariant(unittest.TestCase):
                 )
 
         cov = check_passage_coverage(self.questions, tier1_chunks)
-        self.assertEqual(cov["strict_matches"], 64, "All 64 answerable questions must strictly match Tier 1")
+        n_answerable = sum(
+            1 for q in self.questions if q.is_answerable and q.gold_passage
+        )
+        self.assertEqual(
+            cov["strict_matches"], n_answerable,
+            "All answerable questions with a gold passage must strictly match Tier 1",
+        )
         self.assertEqual(cov["loose_matches"], 0, "No questions should match only at loose tier")
+        self.assertEqual(cov["squash_matches"], 0, "No questions should match only at squash tier")
         self.assertEqual(cov["not_found"], 0, "No questions should be missing in Tier 1")
         self.assertEqual(cov["strict_coverage_pct"], 100.0)
 
@@ -237,9 +264,37 @@ class TestCoverageInvariant(unittest.TestCase):
 
         cov = check_passage_coverage([q], [chunk])
         self.assertEqual(cov["strict_matches"], 0, "Stripped diacritics must NOT match at strict tier")
+        self.assertEqual(cov["squash_matches"], 0, "Stripped diacritics must not match at squash tier either")
         self.assertEqual(cov["loose_matches"], 1, "Must match at loose diacritic-folded tier")
         self.assertEqual(cov["not_found"], 0)
         self.assertIn("Q_TEST", cov["loose_question_ids"])
+
+    def test_squash_tier_diagnoses_intra_word_spacing_damage(self):
+        """Squash tier matches ONLY when intra-word spacing is damaged; reported distinctly.
+
+        The born-digital CÔNG BÁO layers ship with spurious spaces inside words
+        ("vi ệc", "th ường") while keeping every diacritic. Such a chunk must fail
+        the strict tier, pass the whitespace-squashed tier, and be reported under
+        squash_question_ids - never counted as a strict match.
+        """
+        q = GoldQuestion(
+            id="Q_SQUASH",
+            question="Thử nghiệm?",
+            is_answerable=True,
+            gold_passage="Điều 1. Việc mở tài khoản thanh toán phải tuân thủ quy định",
+        )
+        # Chunk identical except spaces inserted inside words (CÔNG BÁO damage mode)
+        chunk = {
+            "chunk_id": "C_SQUASH",
+            "text": "Điều 1. Vi ệc mở tài kho ản thanh to án phải tuân th ủ quy định",
+        }
+
+        cov = check_passage_coverage([q], [chunk])
+        self.assertEqual(cov["strict_matches"], 0, "Spacing damage must NOT count as strict")
+        self.assertEqual(cov["squash_matches"], 1, "Must match at whitespace-squashed tier")
+        self.assertEqual(cov["loose_matches"], 0, "Diacritics intact: loose tier is not the diagnosis")
+        self.assertEqual(cov["not_found"], 0)
+        self.assertIn("Q_SQUASH", cov["squash_question_ids"])
 
 
 class TestCacheKey(unittest.TestCase):

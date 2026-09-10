@@ -209,6 +209,21 @@ def fold_diacritics(text: str) -> str:
     return unicodedata.normalize("NFC", stripped).replace("đ", "d").replace("Đ", "D")
 
 
+def squash_ws(text: str) -> str:
+    """Third matching tier — NFC-normalise, then remove ALL whitespace.
+
+    The born-digital CÔNG BÁO PDF layers in this delivery insert spurious
+    intra-word spaces ("vi ệc", "th ường", "tổ ch ức tín d ụng"), so a
+    verbatim gold passage fails the strict tier even though every character
+    is present and in order. Squashing whitespace on both sides matches that
+    specific damage mode while still preserving diacritics and character
+    order, so it cannot manufacture a match between different provisions.
+    A match at this tier is reported as ``squash``, never as ``strict``:
+    an exact-tier claim must never be manufactured by deleting evidence.
+    """
+    return re.sub(r"\s+", "", unicodedata.normalize("NFC", text or ""))
+
+
 def manifest_path(repo_root: str) -> str:
     return os.path.join(repo_root, "data", "raw_legal", "DOC_MANIFEST.json")
 

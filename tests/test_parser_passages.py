@@ -22,19 +22,33 @@ class TestParserPassages(unittest.TestCase):
         csv_path = os.path.join(repo_root, "data", "gold", "bank_qa_data.csv")
         cls.questions = load_gold_questions(csv_path, repo_root=repo_root)
 
-    def test_64_passages_article_segmentation(self) -> None:
-        """Verify article segmentation on all 64 passages.
+    def test_passages_article_segmentation(self) -> None:
+        """Verify article segmentation on every passage that carries article gold.
 
-        63 of 64 passages segment cleanly to the expected article_id.
-        Question Q007 fails because its passage is a sub-clause point citation
-        ('Điểm c Khoản 1 Điều 18...') rather than a legal document article header.
-        This failure is documented as an empirical finding, not masked.
+        Rows split three ways, each asserted structurally rather than by literal id
+        lists, so the test survives the next CSV revision:
+          * probes carry no gold passage and are skipped;
+          * annex rows open with "Phụ lục" and carry no "Điều N" header, so article
+            gold is not derivable for them; they are counted and checked to be
+            exactly the rows whose passage has no article reference;
+          * every remaining row must segment to its expected article id.
         """
-        self.assertEqual(len(self.questions), 64)
-        failures = []
+        with_passage = [q for q in self.questions if q.gold_passage]
+        no_article_gold = [
+            q for q in with_passage if extract_article_id(q.gold_passage) is None
+        ]
+        self.assertTrue(
+            all(normalize_ws(q.gold_passage).lower().startswith("phụ lục")
+                for q in no_article_gold),
+            f"rows without article gold must be annex rows, got: "
+            f"{[q.id for q in no_article_gold]}",
+        )
 
-        for q in self.questions:
+        failures = []
+        for q in with_passage:
             expected_art = extract_article_id(q.gold_passage)
+            if expected_art is None:
+                continue
             parser = LegalDocumentParser(doc_id=q.id, doc_title="Test Document")
             chunks, report = parser.parse_with_report(q.gold_passage)
 
@@ -50,14 +64,16 @@ class TestParserPassages(unittest.TestCase):
                     }
                 )
 
-        # Q007 is the only genuine failure
         failed_ids = [f["question_id"] for f in failures]
         self.assertEqual(
             failed_ids,
-            ["Q007"],
-            f"Expected only Q007 to fail article segmentation, but got: {failed_ids}",
+            [],
+            f"Passages failing article segmentation: {failed_ids}",
         )
-        self.assertEqual(len(self.questions) - len(failures), 63)
+        self.assertEqual(
+            len(with_passage) - len(no_article_gold),
+            sum(1 for q in with_passage if extract_article_id(q.gold_passage)),
+        )
 
     def test_passages_text_preservation(self) -> None:
         """Verify no passage that segments loses text.
@@ -70,8 +86,8 @@ class TestParserPassages(unittest.TestCase):
         mismatches = []
 
         for q in self.questions:
-            if q.id == "Q007":
-                # Q007 does not contain an article header and is evaluated in test_64_passages_article_segmentation
+            if not q.gold_passage:
+                # probes carry no passage; nothing to preserve
                 continue
 
             parser = LegalDocumentParser(doc_id=q.id, doc_title="Test Document")
@@ -93,8 +109,10 @@ class TestParserPassages(unittest.TestCase):
             [],
             f"Passages with text loss: {mismatches}",
         )
-        # All 63 segmentable passages preserve text exactly under NFC normalisation
-        self.assertEqual(len(exact_matches), 63)
+        # Every passage that carries content preserves it exactly under NFC
+        # normalisation; annex and point-citation rows included.
+        n_with_passage = sum(1 for q in self.questions if q.gold_passage)
+        self.assertEqual(len(exact_matches), n_with_passage)
 
     def test_preamble_captured(self) -> None:
         """Verify preamble text before the first Điều is captured into a chunk and report."""
@@ -205,6 +223,40 @@ Không chứa quy định viện dẫn điều luật.
         self.assertTrue(
             any("No articles" in w for w in report["warnings"]),
             f"Expected warning about no articles, got: {report['warnings']}",
+        )
+
+    def test_articleless_whole_doc_opt_in(self) -> None:
+        """Opt-in whole-doc mode emits one chunk for article-less Công văn dispatches.
+
+        Default behaviour (previous test) still refuses. The opt-in exists so a
+        verified-complete dispatch - prose by nature, no numbered Điều - can be
+        ingested as retrievable context without weakening the truncation guard
+        for ordinary instruments.
+        """
+        raw_text = """NGÂN HÀNG NHÀ NƯỚC
+Số: 276/NHNN-TTGSNH
+Hà Nội, ngày 16 tháng 01 năm 2017
+Kính gửi: Các tổ chức tín dụng
+Về việc chuyển hoặc đặt bộ phận nghiệp vụ không giao dịch trực tiếp
+với khách hàng ngoài trụ sở.
+"""
+        parser = LegalDocumentParser(
+            doc_id="CV276",
+            doc_title="Công văn 276",
+            whole_doc_when_articleless=True,
+        )
+        chunks, report = parser.parse_with_report(raw_text)
+
+        self.assertEqual(len(chunks), 1)
+        self.assertEqual(chunks[0].chunk_id, "CV276_wholedoc")
+        self.assertEqual(chunks[0].article_id, "0")
+        self.assertIn("276/NHNN-TTGSNH", chunks[0].text)
+        self.assertIn("bộ phận nghiệp vụ", chunks[0].text)
+        self.assertEqual(report["articles_found"], 0)
+        self.assertEqual(report["lines_dropped"], 0)
+        self.assertTrue(
+            any("whole document" in w for w in report["warnings"]),
+            f"Expected whole-doc warning, got: {report['warnings']}",
         )
 
     def test_corpus_source_stamping(self) -> None:

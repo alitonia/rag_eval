@@ -26,6 +26,15 @@ class LegalDocumentParser:
         re.IGNORECASE,
     )
 
+    # Matches annex headers: "Phụ lục: Hệ số rủi ro 0% cho tiền mặt...", "PHỤ LỤC II. ..."
+    # Annexes carry no Điều number, so they are kept under a distinct article id
+    # ("PL", "PLII") rather than being dropped; citation gold at Điều level is
+    # still not derivable for them and canonical.extract_article_id returns None.
+    ANNEX_REGEX = re.compile(
+        r"^\s*(Phụ\s*lục)\s*([IVXLCDM\d]*)[\.\:\-\s]*(.*)$",
+        re.IGNORECASE,
+    )
+
     # Tolerant match for article headers: "Điều 15. Hạn mức", "Đi ều 8", "Điều8", "ĐIỀU 12:",
     # "TT61 - Điều 3:", markdown-wrapped "**... Điều 3. Tiêu đề**"
     ARTICLE_REGEX = re.compile(
@@ -45,17 +54,32 @@ class LegalDocumentParser:
         re.IGNORECASE,
     )
 
+    # Matches a line that OPENS with a point/clause citation into an article, e.g.
+    # "Điểm c Khoản 1 Điều 18 Thông tư 48/2018/TT-NHNN: ...". Such a line carries no
+    # article header of its own; anchored at the start so ordinary preamble prose
+    # that merely mentions an article is not mistaken for one.
+    INLINE_ARTICLE_RE = re.compile(
+        r"^\s*(?:Điểm\s*(?P<point>[a-zA-Z]+)\s*)?(?:Khoản\s*(?P<clause>\d+)\s*)?"
+        r"Điều\s*(?P<art>\d+[a-zA-Z]?)\b",
+        re.IGNORECASE,
+    )
+
     def __init__(
         self,
         doc_id: str,
         doc_title: str,
         corpus_source: str = CORPUS_TIER2,
         include_preamble: bool = True,
+        whole_doc_when_articleless: bool = False,
     ) -> None:
         self.doc_id = doc_id
         self.doc_title = doc_title
         self.corpus_source = corpus_source
         self.include_preamble = include_preamble
+        # Opt-in for documents that legitimately have no numbered articles
+        # (e.g. Công văn dispatches): emit the whole text as one chunk instead
+        # of returning []. Default False keeps the truncation guard intact.
+        self.whole_doc_when_articleless = whole_doc_when_articleless
 
     def parse(
         self, raw_text: str, corpus_source: Optional[str] = None
@@ -178,6 +202,21 @@ class LegalDocumentParser:
                 )
                 continue
 
+            # Check Phụ lục (annex) before the preamble branch, otherwise a
+            # single-line annex passage is swallowed as preamble text.
+            annex_match = self.ANNEX_REGEX.match(line_str)
+            if annex_match:
+                flush_clause()
+                annex_num = (annex_match.group(2) or "").strip()
+                current_article_id = f"PL{annex_num}" if annex_num else "PL"
+                if current_article_id not in unique_article_ids:
+                    unique_article_ids.append(current_article_id)
+                current_article_title = (annex_match.group(3) or "").strip()
+                current_clause_id = None
+                current_clause_lines.append(line_str)
+                article_header_pending = False
+                continue
+
             # Check Điều (Article)
             clean_line = line_str.strip("*").strip()
             art_match = self.ARTICLE_REGEX.match(clean_line)
@@ -207,6 +246,21 @@ class LegalDocumentParser:
                 else:
                     current_article_title = ""
                     pending_title_for_article = art_num
+                continue
+
+            # A line opening with a point/clause citation into an article has no
+            # header of its own; attribute it to the cited article so its text is
+            # preserved instead of being swallowed as preamble and then discarded.
+            inline = self.INLINE_ARTICLE_RE.match(line_str)
+            if inline and current_article_id is None:
+                flush_clause()
+                current_article_id = inline.group("art")
+                if current_article_id not in unique_article_ids:
+                    unique_article_ids.append(current_article_id)
+                current_article_title = ""
+                current_clause_id = inline.group("clause")
+                current_clause_lines.append(line_str)
+                article_header_pending = False
                 continue
 
             # Before first article, accumulate preamble lines
@@ -255,8 +309,45 @@ class LegalDocumentParser:
 
         flush_clause()
 
-        # If no articles were found at all, refuse to return chunks and warn
+        # If no articles were found at all, refuse to return chunks and warn -
+        # unless the caller explicitly opted in for article-less documents
+        # (e.g. a Công văn dispatch, which is prose by nature).
         if not unique_article_ids:
+            if self.whole_doc_when_articleless:
+                warnings.append(
+                    "No articles (Điều) found; emitting whole document as one chunk "
+                    "(whole_doc_when_articleless opt-in)"
+                )
+                whole_text = "\n".join(
+                    ln for ln in (preamble_lines + dropped_lines) if ln.strip()
+                ).strip()
+                chunk = LegalChunk(
+                    chunk_id=f"{self.doc_id}_wholedoc",
+                    doc_id=self.doc_id,
+                    doc_title=self.doc_title,
+                    chapter=None,
+                    article_id="0",
+                    article_title="Toàn văn (văn bản không có Điều)",
+                    clause_id=None,
+                    text=whole_text,
+                    metadata={
+                        "type": "whole_document_no_articles",
+                        "is_preamble": False,
+                    },
+                    corpus_source=source,
+                )
+                report = {
+                    "articles_found": 0,
+                    "clauses_found": 0,
+                    "preamble_captured": False,
+                    "preamble_text": "",
+                    "lines_dropped": 0,
+                    "dropped_lines": [],
+                    "articles_with_missing_title": missing_titles,
+                    "missing_titles": missing_titles,
+                    "warnings": warnings,
+                }
+                return [chunk], report
             warnings.append("No articles (Điều) found in document")
             dropped_lines.extend(preamble_lines)
             report = {

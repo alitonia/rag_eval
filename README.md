@@ -97,3 +97,24 @@ Two further guarantees follow from it:
 Verified state as of 2026-09-09 — 33 tests passing, data layer and provenance complete, **0 of 10 real instruments ingested** (downloads in progress), coverage 0/64 against Tier 2 and 64/64 against Tier 1, no generation results, no manuscript. Full detail and the day-by-day schedule are in [`docs/KANBAN.md`](docs/KANBAN.md).
 
 Note that `data/raw_legal/18_2024_TT_NHNN.txt` is quarantined: it is not an authentic legal text (43 lines, non-contiguous article numbers, none of the structural elements every Vietnamese circular carries) and its chunks were the entire previous corpus. See `INGEST_PLAN.json`.
+
+## vLLM model serving
+
+The benchmark generation models can be exposed through vLLM's
+OpenAI-compatible API. Install vLLM separately in a CUDA environment, then
+start one model (recommended for a single GPU):
+
+```bash
+python scripts/load_vllm_models.py --list
+python scripts/load_vllm_models.py --model qwen-7b --gpu-devices 0
+```
+
+To keep all five configured models loaded, assign one CUDA device to each
+server. They listen on consecutive ports starting at 8000:
+
+```bash
+python scripts/load_vllm_models.py --all --gpu-devices 0,1,2,3,4
+```
+
+Additional vLLM arguments may be placed after `--`, for example
+`-- --max-model-len 4096 --gpu-memory-utilization 0.85`.

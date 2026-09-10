@@ -1,7 +1,10 @@
 """Build Tier 1 development fixture corpus from QA CSV gold passages.
 
-This script constructs a 64-chunk retrieval corpus directly from the verbatim
-passages in `data/gold/bank_qa_data.csv`.
+This script constructs a retrieval corpus directly from the verbatim passages in
+`data/gold/bank_qa_data.csv` - one chunk per ANSWERABLE question that has a gold
+passage. Unanswerable probes have no passage by design, so there is nothing to
+build a chunk from; they are excluded here and reported by id, never silently
+dropped (see `probes_excluded` in the build summary).
 
 WARNING: Tier 1 is a DEVELOPMENT FIXTURE, not a scientific result. Because
 each question's gold passage is in the corpus by construction, Recall@3 is
@@ -45,13 +48,28 @@ def assert_safe_output_path(out_path: str) -> None:
 def build_tier1_chunks(questions: List[GoldQuestion]) -> Tuple[List[LegalChunk], Dict[str, object]]:
     """Convert GoldQuestion gold passages into LegalChunk objects.
 
+    Unanswerable probes (`is_answerable=False`) carry no gold passage, so there
+    is nothing to chunk; they are skipped and named in `probes_excluded` /
+    `probe_ids_excluded` rather than dropped quietly. An *answerable* question
+    with an empty passage is a data defect and is reported separately in
+    `empty_passage_excluded` so it cannot hide behind the probe bucket.
+
     Returns:
         Tuple of (chunks, summary_stats)
     """
     chunks: List[LegalChunk] = []
     seen_hashes: Counter = Counter()
+    probe_ids: List[str] = []
+    empty_passage_ids: List[str] = []
 
     for q in questions:
+        if not q.is_answerable:
+            probe_ids.append(q.id)
+            continue
+        if not (q.gold_passage or "").strip():
+            empty_passage_ids.append(q.id)
+            continue
+
         # Stable chunk_id derived from normalized content hash
         norm_passage = normalize_ws(q.gold_passage)
         h = hashlib.sha256(norm_passage.encode("utf-8")).hexdigest()[:16]
@@ -106,6 +124,11 @@ def build_tier1_chunks(questions: List[GoldQuestion]) -> Tuple[List[LegalChunk],
 
     stats: Dict[str, object] = {
         "chunks_built": len(chunks),
+        "questions_in": len(questions),
+        "probes_excluded": len(probe_ids),
+        "probe_ids_excluded": probe_ids,
+        "empty_passage_excluded": len(empty_passage_ids),
+        "empty_passage_ids_excluded": empty_passage_ids,
         "distinct_doc_ids": distinct_doc_ids,
         "distinct_doc_ids_count": len(distinct_doc_ids),
         "unresolved_count": len(unresolved_chunks),
@@ -146,7 +169,17 @@ def main() -> None:
         json.dump(serialized, f, ensure_ascii=False, indent=2)
 
     print("\n================ TIER 1 CORPUS BUILD SUMMARY ================")
+    print(f"Questions in CSV:       {stats['questions_in']}")
     print(f"Chunks built:           {stats['chunks_built']}")
+    print(f"Unanswerable probes excluded (no passage by design): {stats['probes_excluded']}")
+    if stats["probe_ids_excluded"]:
+        print(f"  probe ids:            {stats['probe_ids_excluded']}")
+    if stats["empty_passage_excluded"]:
+        print(
+            f"!! ANSWERABLE rows with no gold passage excluded (DATA DEFECT, not a probe): "
+            f"{stats['empty_passage_excluded']} -> {stats['empty_passage_ids_excluded']}",
+            file=sys.stderr,
+        )
     print(f"Distinct doc_ids ({stats['distinct_doc_ids_count']}):  {stats['distinct_doc_ids']}")
     print(f"UNRESOLVED doc_ids:     {stats['unresolved_count']} chunks: {stats['unresolved_question_ids']}")
     print(f"Chunks with clause_id:  {stats['with_clause_id_count']}")
