@@ -635,12 +635,18 @@ class TransformersQuantBackend(GenerationBackend):
             )
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.hf_id)
-        load_kwargs: Dict[str, Any] = {
-            "device_map": self.device_map,
-            "torch_dtype": getattr(torch, self.compute_dtype_name, torch.float16),
-        }
+        load_kwargs: Dict[str, Any] = {"device_map": self.device_map}
         if quantization_config is not None:
+            # Do NOT also pass torch_dtype/dtype here: on current transformers
+            # an explicit dtype alongside quantization_config makes the plain
+            # fp16 load win and no Linear is ever converted to Linear4bit
+            # (observed on Colab T4 2026-09-12: params came up float16 and the
+            # strict guard stopped the run). The compute dtype lives inside
+            # BitsAndBytesConfig(bnb_4bit_compute_dtype=...).
             load_kwargs["quantization_config"] = quantization_config
+        else:
+            load_kwargs["torch_dtype"] = getattr(
+                torch, self.compute_dtype_name, torch.float16)
         self.model = AutoModelForCausalLM.from_pretrained(self.hf_id, **load_kwargs)
         self.model.eval()
 
@@ -674,10 +680,17 @@ class TransformersQuantBackend(GenerationBackend):
         )
 
         if self.quant_verdict.degraded:
+            try:
+                from importlib.metadata import version as _pkg_version
+                env = (f" [torch {torch.__version__}, "
+                       f"transformers {_pkg_version('transformers')}, "
+                       f"bitsandbytes {_pkg_version('bitsandbytes')}]")
+            except Exception:
+                env = ""
             msg = (
                 f"QUANTIZATION DID NOT TAKE EFFECT for {self.hf_id}: "
                 f"{self.quant_verdict.reason} Tag recorded as "
-                f"{self.quant_verdict.quant_config!r}."
+                f"{self.quant_verdict.quant_config!r}.{env}"
             )
             self._stream.write(f"[ERROR] {msg}\n")
             self._stream.flush()
