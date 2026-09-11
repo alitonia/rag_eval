@@ -246,8 +246,8 @@ with open(_csv_path, encoding="utf-8-sig", newline="") as f:
 print(f"[REPO] gold CSV rows with a question: {len(_rows)}")
 if len(_rows) != 88:
     raise SystemExit(
-        f"[FATAL] Expected 88 rows in the gold CSV (65 answerable + 23 unanswerable "
-        f"probes), found {len(_rows)}. The 23 probes carry RQ2 (abstention); without "
+        f"[FATAL] Expected 88 rows in the gold CSV (64 answerable + 24 unanswerable "
+        f"probes), found {len(_rows)}. The 24 probes carry RQ2 (abstention); without "
         "them the campaign measures only RQ1/RQ3. The checkout is stale or the CSV "
         "was not pushed."
     )
@@ -361,7 +361,8 @@ code('''
 RUN_NAME = "regrag_vn_" + datetime.now(timezone.utc).strftime("%Y%m%d")
 
 # --- Drive (checkpoint medium, NOT the archive; see cell 15) -----------------
-DRIVE_ROOT = "/content/drive/MyDrive"
+DRIVE_MOUNT = "/content/drive"                # parent of the mountpoint must exist
+DRIVE_ROOT = f"{DRIVE_MOUNT}/MyDrive"         # valid only AFTER the mount
 DRIVE_SUBDIR = "regrag_vn_checkpoints"        # <-- the ONE Drive parameter
 DRIVE_DIR = f"{DRIVE_ROOT}/{DRIVE_SUBDIR}"
 
@@ -411,7 +412,7 @@ MATERIALIZE_EVERY = 25              # rows between repo-format materialisations
 SYNC_EVERY_MODELS = 1               # Drive sync after every N models
 PROGRESS_EVERY = 10                 # rows between progress lines
 
-# Models a human has eyeballed in the sanity probe (cell 11 fills this in).
+# Models approved for the campaign (cell 12 sets this; pre-filled there).
 HUMAN_APPROVED_MODELS = []
 
 print(f"RUN_NAME   : {RUN_NAME}")
@@ -444,7 +445,10 @@ code('''
 import os, shutil
 from google.colab import drive
 
-drive.mount(DRIVE_ROOT)
+# Mount at /content/drive (its parent /content always exists on Colab); the
+# MyDrive subtree appears after mounting. Mounting at .../MyDrive directly
+# fails on current Colab ("Mountpoint must be in a directory that exists").
+drive.mount(DRIVE_MOUNT)
 os.makedirs(DRIVE_DIR, exist_ok=True)
 os.makedirs(LOCAL_WORK, exist_ok=True)
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
@@ -474,7 +478,7 @@ md("""
 Loads the 88-row gold CSV through the harness loader and the chunk corpus, then
 reports exactly what the campaign is bound to. Both are loud:
 
-* the 23 unanswerable probes must be detected, or RQ2 cannot be measured;
+* the 24 unanswerable probes must be detected, or RQ2 cannot be measured;
 * probe ids derived from CSV **row order** are flagged, because inserting a row
   renumbers them and invalidates every cached probe generation;
 * a corpus with 0 chunks raises rather than letting the RAG modes silently
@@ -747,13 +751,13 @@ for alias, reports in PROBE_REPORTS.items():
 ''')
 
 code('''
-# [CELL 12] PROBE GATE — programmatic block + explicit human approval.
-# The campaign cell refuses to run unless every selected model is listed here.
-#
-# Set this BY HAND after reading cell 11's output. Example:
-#     HUMAN_APPROVED_MODELS = ["qwen-7b", "qwen-3b", "vistral-7b"]
-# Leaving it empty is the safe default: the campaign will not start.
-HUMAN_APPROVED_MODELS = []
+# [CELL 12] PROBE GATE — programmatic block + model approval.
+# Pre-filled with the selected model set (owner decision 2026-09-12: no manual
+# edit needed on Colab). READ CELL 11'S OUTPUT BEFORE RUNNING CELL 13 anyway —
+# the detectors below still block on template/repetition/refusal failures, but
+# only a human can judge whether the Vietnamese is fluent. To re-arm the manual
+# approval gate, set this list back to [].
+HUMAN_APPROVED_MODELS = list(MODEL_ALIASES)
 
 # 1. Programmatic gate: any blocking finding stops everything.
 for alias, reports in PROBE_REPORTS.items():
