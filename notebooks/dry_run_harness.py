@@ -146,8 +146,8 @@ def main() -> int:
         stage(1, "Load the real benchmark and corpus")
         bench = load_benchmark(GOLD_CSV, warn_stream=sys.stderr)
         check("88 questions loaded", len(bench.questions) == 88, f"got {len(bench.questions)}")
-        check("65 answerable", len(bench.answerable) == 65, f"got {len(bench.answerable)}")
-        check("23 unanswerable probes", len(bench.probes) == 23, f"got {len(bench.probes)}")
+        check("64 answerable", len(bench.answerable) == 64, f"got {len(bench.answerable)}")
+        check("24 unanswerable probes", len(bench.probes) == 24, f"got {len(bench.probes)}")
         check("question ids unique",
               len({q.id for q in bench.questions}) == len(bench.questions))
 
@@ -309,7 +309,7 @@ def main() -> int:
         check("backend-pooling guard passes", True)
 
         probe_rows = [r for r in recs if r.get("is_answerable") is False]
-        n_probe_expected = 23 * len(DEFAULT_MODEL_ALIASES) * len(DRY_RUN_MODES)
+        n_probe_expected = 24 * len(DEFAULT_MODEL_ALIASES) * len(DRY_RUN_MODES)
         check("probe rows are marked unanswerable",
               len(probe_rows) == n_probe_expected,
               f"got {len(probe_rows)}, want {n_probe_expected}")
@@ -350,7 +350,7 @@ def main() -> int:
         check("manifest written",
               os.path.exists(os.path.join(ckpt_dir, "run_manifest.json")))
         check("manifest records the benchmark split",
-              manifest["benchmark"]["unanswerable_probes"] == 23)
+              manifest["benchmark"]["unanswerable_probes"] == 24)
         check("manifest records the corpus tag",
               manifest["corpus"]["corpus_source"] == desc["corpus_source"])
         check("manifest records expected cell count",
