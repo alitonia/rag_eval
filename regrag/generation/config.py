@@ -128,20 +128,20 @@ RETRIEVAL_MODES: Tuple[str, ...] = ("closed_book", "rag_bm25", "rag_dense")
 TOP_K: int = 3
 DENSE_MODEL_NAME: str = "BAAI/bge-m3"
 
-#: RAG context budget, in characters. Two constraints bind (2026-09-12 OOM):
-#: (1) the peer with the smallest context window must fit prompt + answer -
-#:     Vistral-7B is Mistral-arch with an 8,192-token window, and its BPE
-#:     vocab is inefficient on Vietnamese (worst case ~1.8-2 chars/token),
-#:     so 12,000 chars + template stays inside the window even then, with
-#:     the 512-token answer to spare;
-#: (2) the T4 has no flash-attention: SDPA falls back to the math backend,
-#:     whose L x L attention matrix alone is ~17 GiB for an 18K-token prompt.
-#: The budget is in characters, not tokens, so it is tokenizer-agnostic and
-#: byte-reproducible; at ~2.5-3 chars/token this is a ~4,000-token context.
-#: Truncation and drops are stamped per row. The median prompt is far below
-#: the budget (p95 chunk ~1.4k chars) - it only bites on outlier passages.
-RAG_CONTEXT_TOTAL_CHARS: int = 12_000
-RAG_CONTEXT_PER_PASSAGE_CHARS: int = 5_000
+#: RAG context budget, in characters. Calibrated against the 2026-09-13
+#: RunPod preflight on an RTX 3090: a 12,900-char prompt peaked at
+#: 13.66 GiB (qwen-7b), 13.27 GiB (qwen-3b) and 16.63 GiB (vistral-7b),
+#: because Vietnamese legal text tokenizes at ~1.1-1.5 chars/token - a
+#: 12.9k-char prompt is ~11-12k TOKENS, past Vistral's 8,192-token window
+#: (Mistral-arch) and into math-backend attention whose L x L matrix
+#: dominates peak memory. 7,000 chars keeps even the worst tokenization
+#: inside Vistral's window with the 512-token answer to spare, and the
+#: measured peak scales to ~7-9 GiB. The budget is in characters (not
+#: tokens) so it is tokenizer-agnostic and byte-reproducible; it only
+#: bites outlier passages (p95 chunk ~1.4k chars). Truncation and drops
+#: are stamped per row.
+RAG_CONTEXT_TOTAL_CHARS: int = 7_000
+RAG_CONTEXT_PER_PASSAGE_CHARS: int = 3_500
 #: A passage whose remaining budget share is below this floor is dropped
 #: entirely (a 300-char fragment of a legal article is noise, not evidence).
 RAG_CONTEXT_MIN_PASSAGE_CHARS: int = 400

@@ -27,10 +27,20 @@ from regrag.generation.config import RAG_CONTEXT_TOTAL_CHARS
 _TEMPLATE_HEADROOM_CHARS = 900
 MAX_PROMPT_CHARS = RAG_CONTEXT_TOTAL_CHARS + _TEMPLATE_HEADROOM_CHARS
 
-# T4 nominal 16 GB -> 14.56 GiB usable; keep this much slack for the CUDA
-# context and allocator overheads that max_memory_allocated() cannot see.
-_GPU_BUDGET_GIB = 14.56
+# Keep this much slack at peak for the CUDA context and allocator overheads
+# that max_memory_allocated() cannot see. The card size is read from torch at
+# runtime - hardcoding the T4's 14.56 GiB misfired the gate on a 24 GB 3090
+# (2026-09-13: peaks of 13.7-16.6 GiB were actually inside that card).
 _PASS_HEADROOM_GIB = 1.5
+
+
+def _gpu_total_gib() -> float:
+    import torch
+
+    try:
+        return torch.cuda.get_device_properties(0).total_memory / 2**30
+    except Exception:
+        return 14.56  # T4-class fallback if the properties read fails
 
 _FILLER = (
     "Tổ chức cung ứng dịch vụ trung gian thanh toán phải đảm bảo an toàn, "
@@ -53,9 +63,11 @@ def preflight_memory(backends: Dict[str, Any]) -> Dict[str, Any]:
     """Generate once per backend at the worst-case prompt; report peak VRAM."""
     import torch
 
+    budget_gib = _gpu_total_gib()
     report: Dict[str, Any] = {}
     messages = build_worst_case_messages()
-    print(f"[PREFLIGHT] worst-case prompt: {len(messages[0]['content'])} chars")
+    print(f"[PREFLIGHT] worst-case prompt: {len(messages[0]['content'])} chars; "
+          f"card budget {budget_gib:.2f} GiB")
     for alias, backend in backends.items():
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.empty_cache()
@@ -64,7 +76,7 @@ def preflight_memory(backends: Dict[str, Any]) -> Dict[str, Any]:
             gen = backend.generate(messages)
             ok = bool(gen.text and gen.text.strip())
             peak_gib = torch.cuda.max_memory_allocated() / 2**30
-            free_gib = _GPU_BUDGET_GIB - peak_gib
+            free_gib = budget_gib - peak_gib
             verdict = "PASS" if (ok and free_gib >= _PASS_HEADROOM_GIB) else "WARN"
             report[alias] = {
                 "generated_chars": len(gen.text),
