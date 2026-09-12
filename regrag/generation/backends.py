@@ -178,6 +178,24 @@ def _census_summary(census: Optional[Dict[str, int]]) -> str:
     )
 
 
+def coerce_input_ids(encoded: Any) -> Any:
+    """Unwrap apply_chat_template(tokenize=True) output to the ids tensor.
+
+    Some transformers versions return a bare tensor there; 5.x returns a
+    BatchEncoding. Both must feed model.generate() as the input_ids tensor.
+    """
+    if hasattr(encoded, "keys"):
+        try:
+            return encoded["input_ids"]
+        except KeyError:
+            raise ProvenanceError(
+                f"apply_chat_template returned {type(encoded).__name__} with keys "
+                f"{sorted(encoded.keys())} and no 'input_ids'; cannot build the "
+                "generation input."
+            ) from None
+    return encoded
+
+
 def classify_quantization(
     requested_4bit: bool,
     quant_config_present: bool,
@@ -840,12 +858,15 @@ class TransformersQuantBackend(GenerationBackend):
             )
         torch = self._torch
         msgs = [dict(m) for m in messages]
-        input_ids = self.tokenizer.apply_chat_template(
+        encoded = self.tokenizer.apply_chat_template(
             msgs,
             tokenize=True,
             add_generation_prompt=True,
             return_tensors="pt",
-        ).to(self.model.device)
+        )
+        # transformers 5.x returns a BatchEncoding here; older versions a bare
+        # tensor. Either way generate() needs the input_ids tensor.
+        input_ids = coerce_input_ids(encoded).to(self.model.device)
         in_len = input_ids.shape[-1]
 
         gen_kwargs: Dict[str, Any] = {
