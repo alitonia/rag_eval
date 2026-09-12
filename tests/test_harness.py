@@ -1100,6 +1100,29 @@ class TestRagContextBudget(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class TestPreflightMemory(unittest.TestCase):
+    """The worst-case prompt builder for the preflight script: if its length
+    ever drifts below the budget max, the preflight stops proving the
+    campaign's true memory envelope."""
+
+    def test_worst_case_prompt_hits_max_length(self):
+        from scripts.preflight_memory import (
+            MAX_PROMPT_CHARS,
+            build_worst_case_messages,
+        )
+
+        messages = build_worst_case_messages()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0]["role"], "user")
+        self.assertEqual(len(messages[0]["content"]), MAX_PROMPT_CHARS)
+        self.assertGreater(MAX_PROMPT_CHARS, 12_000)  # tracks the budget config
+
+    def test_explicit_max_is_respected(self):
+        from scripts.preflight_memory import build_worst_case_messages
+
+        self.assertEqual(len(build_worst_case_messages(500)[0]["content"]), 500)
+
+
 # --- backend selection -------------------------------------------------------
 
 
