@@ -37,6 +37,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+from typing import Optional
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if REPO_ROOT not in sys.path:
@@ -179,11 +180,20 @@ def main() -> int:
         raise SystemExit("[FATAL] HF_TOKEN not set - Vistral (gated) and artifact "
                          "uploads both need it.")
 
-    run_id = datetime.now(timezone.utc).strftime("pod_%Y%m%d_%H%M")
-    local_work = os.path.join(POD_WORK, run_id)
+    resumed_dir = latest_resumable_run(POD_WORK)
+    if resumed_dir:
+        run_id = os.path.basename(resumed_dir)
+        local_work = resumed_dir
+        print(f"[RESUME] reusing {run_id} (existing checkpoint found; "
+              "cached rows are skipped, not regenerated)")
+    else:
+        run_id = datetime.now(timezone.utc).strftime("pod_%Y%m%d_%H%M")
+        local_work = os.path.join(POD_WORK, run_id)
+        print(f"[RUN] fresh run {run_id}")
     ckpt_dir = os.path.join(local_work, "checkpoints")
     results_dir = os.path.join(local_work, "results")
     os.makedirs(ckpt_dir, exist_ok=True)
+    os.makedirs(results_dir, exist_ok=True)
 
     bench, chunks, corpus_path, desc = _load_inputs()
     gpu_info = gpu_report()
