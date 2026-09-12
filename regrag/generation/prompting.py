@@ -14,13 +14,41 @@ Duplicating it as a system message would send the persona twice.
 
 from __future__ import annotations
 
-from typing import Dict, List, Sequence
+from typing import Dict, List, Optional, Sequence, Tuple
 
-from regrag.generation.prompts import build_closed_book_prompt, build_rag_prompt
+from regrag.generation.prompts import (
+    RagContextReport,
+    build_closed_book_prompt,
+    build_rag_prompt_with_report,
+)
 from regrag.models import GoldQuestion, RetrievedResult
 
 CLOSED_BOOK = "closed_book"
 RAG_MODES = ("rag_bm25", "rag_dense")
+
+
+def build_messages_with_report(
+    question_text: str,
+    retrieval_mode: str,
+    retrieved: Sequence[RetrievedResult] = (),
+) -> Tuple[List[Dict[str, str]], Optional[RagContextReport]]:
+    """Render the chat messages for one (question, mode) cell.
+
+    RAG prompts are built under the character budget (config: RAG_CONTEXT_*),
+    and the report of what was truncated or dropped is returned so the row can
+    carry it. Closed-book returns a ``None`` report.
+    """
+    if retrieval_mode == CLOSED_BOOK:
+        content = build_closed_book_prompt(question_text)
+        report = None
+    elif retrieval_mode in RAG_MODES:
+        content, report = build_rag_prompt_with_report(question_text, list(retrieved))
+    else:
+        raise ValueError(
+            f"Unknown retrieval mode {retrieval_mode!r}. Expected one of "
+            f"{(CLOSED_BOOK,) + RAG_MODES}."
+        )
+    return [{"role": "user", "content": content}], report
 
 
 def build_messages(
@@ -29,16 +57,8 @@ def build_messages(
     retrieved: Sequence[RetrievedResult] = (),
 ) -> List[Dict[str, str]]:
     """Render the chat messages for one (question, mode) cell."""
-    if retrieval_mode == CLOSED_BOOK:
-        content = build_closed_book_prompt(question_text)
-    elif retrieval_mode in RAG_MODES:
-        content = build_rag_prompt(question_text, list(retrieved))
-    else:
-        raise ValueError(
-            f"Unknown retrieval mode {retrieval_mode!r}. Expected one of "
-            f"{(CLOSED_BOOK,) + RAG_MODES}."
-        )
-    return [{"role": "user", "content": content}]
+    messages, _report = build_messages_with_report(question_text, retrieval_mode, retrieved)
+    return messages
 
 
 def messages_from_question(

@@ -86,7 +86,7 @@ from regrag.generation.sanity import (
     probe_gate,
     run_probe,
 )
-from regrag.models import GenerationResult, GoldQuestion, LegalChunk
+from regrag.models import GenerationResult, GoldQuestion, LegalChunk, RetrievedResult
 from regrag.provenance import (
     CORPUS_TIER1,
     CORPUS_TIER2,
@@ -934,6 +934,151 @@ class TestGpuResidency(unittest.TestCase):
             self.assertEqual(_max_resident_backends(), 3)
             os.environ["REGRAG_MAX_RESIDENT_BACKENDS"] = "not-a-number"
             self.assertEqual(_max_resident_backends(), 1)
+
+
+def _budget_chunk(text: str, cid: str = "c") -> LegalChunk:
+    return LegalChunk(
+        chunk_id=cid,
+        doc_id="18/2024/TT-NHNN",
+        doc_title="Quy định hoạt động thẻ ngân hàng",
+        chapter="Chương II",
+        article_id="14",
+        article_title="Hạn mức giao dịch thẻ",
+        clause_id="2",
+        text=text,
+        corpus_source=CORPUS_TIER1,
+    )
+
+
+def _budget_retrieved(*texts: str):
+    return [
+        RetrievedResult(chunk=_budget_chunk(t, cid=f"c{i}"), score=1.0 / (i + 1),
+                        rank=i + 1, retriever_backend="bm25-rank_bm25+pyvi")
+        for i, t in enumerate(texts)
+    ]
+
+
+class TestRagContextBudget(unittest.TestCase):
+    """The 2026-09-12 OOM: unbounded top-k concatenation built an ~18K-token
+    prompt (tier1 has 14.6k-char chunks plus duplicates). RAG prompts are now
+    budgeted, and what was cut is reported, never silent."""
+
+    def test_budgeted_prompt_equals_legacy_when_everything_fits(self):
+        from regrag.generation.prompts import build_rag_prompt, build_rag_prompt_with_report
+
+        retrieved = _budget_retrieved("điều 14 quy định", "khoản 2 nêu rõ", "hạn mức 100 triệu")
+        budgeted, report = build_rag_prompt_with_report("Hạn mức?", retrieved)
+        legacy = build_rag_prompt("Hạn mức?", retrieved)
+        self.assertEqual(budgeted, legacy)
+        self.assertFalse(report.touched)
+        self.assertGreater(report.budget_chars, report.context_chars)
+
+    def test_giant_passage_is_truncated_and_reported(self):
+        from regrag.generation.prompts import (
+            CONTEXT_TRUNCATION_MARKER,
+            build_rag_prompt_with_report,
+        )
+
+        giant = "x" * 20_000
+        prompt, report = build_rag_prompt_with_report("Q?", _budget_retrieved(giant))
+        self.assertIn(CONTEXT_TRUNCATION_MARKER, prompt)
+        self.assertEqual(report.truncated_ranks, (1,))
+        self.assertEqual(report.dropped_ranks, ())
+        # The context block stays inside the per-passage cap; the marker adds a
+        # few chars, hence the small slack.
+        self.assertLess(report.context_chars, 6_200)
+
+    def test_budget_exhaustion_drops_later_ranks(self):
+        from regrag.generation.prompts import build_rag_prompt_with_report
+
+        # A tighter budget than the defaults exercises the drop path
+        # deterministically: with the default 15k total and 6k per passage,
+        # two blocks can never exhaust the budget at top_k=3.
+        retrieved = _budget_retrieved("y" * 5_000, "y" * 5_000, "ngắn")
+        prompt, report = build_rag_prompt_with_report(
+            "Q?", retrieved, total_context_chars=8_000
+        )
+        # rank 1 fits whole; rank 2 is truncated into what is left; rank 3
+        # finds less than the floor remaining and is dropped entirely.
+        self.assertEqual(report.truncated_ranks, (2,))
+        self.assertEqual(report.dropped_ranks, (3,))
+        self.assertNotIn("[3]", prompt.split("Câu hỏi")[0])
+
+    def test_build_messages_with_report_carries_report_for_rag_only(self):
+        from regrag.generation.prompting import build_messages_with_report
+
+        messages, report = build_messages_with_report("Q?", "closed_book")
+        self.assertIsNone(report)
+        self.assertIn("Câu hỏi: Q?", messages[0]["content"])
+
+        messages, report = build_messages_with_report(
+            "Q?", "rag_bm25", _budget_retrieved("z" * 20_000)
+        )
+        self.assertIsNotNone(report)
+        self.assertEqual(report.truncated_ranks, (1,))
+        self.assertIn("Tài liệu tham khảo", messages[0]["content"])
+
+    def test_campaign_row_stamps_the_context_report(self):
+        """A row whose context was cut must say so - never a silent trim."""
+        tmp = tempfile.mkdtemp()
+        try:
+            store = CheckpointStore(os.path.join(tmp, "ckpt"), warn_stream=io.StringIO())
+            runner = CampaignRunner(
+                benchmark=make_benchmark(),
+                chunks=[_budget_chunk("y" * 20_000)],
+                corpus_path="tier1://fixture",
+                checkpoint_store=store,
+                modes=("rag_bm25",),
+                results_dir=None,
+            )
+            runner.run_model(MODEL_REGISTRY["qwen-7b"], FakeBackend())
+            rows = store.records()
+            self.assertEqual(len(rows), len(make_benchmark().questions))
+            for row in rows:
+                self.assertIn("rag_context_chars", row)
+                self.assertIn("rag_context_budget_chars", row)
+                self.assertEqual(row["rag_context_truncated_ranks"], [1])
+                self.assertEqual(row["rag_context_dropped_ranks"], [])
+                self.assertLess(row["rag_context_chars"], 6_200)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_purge_retires_cached_rows_for_regeneration(self):
+        """A cached row is skipped forever; the only way to regenerate it under
+        a new prompt policy is to purge it from the store first."""
+        tmp = tempfile.mkdtemp()
+        try:
+            ckpt = os.path.join(tmp, "ckpt_p")
+            store = CheckpointStore(ckpt, warn_stream=io.StringIO())
+            runner = CampaignRunner(
+                benchmark=make_benchmark(),
+                chunks=make_chunks(),
+                corpus_path="<synthetic>",
+                checkpoint_store=store,
+                modes=("closed_book", "rag_bm25"),
+                results_dir=None,
+            )
+            runner.run_model(MODEL_REGISTRY["qwen-7b"], FakeBackend())
+            n_closed = sum(
+                1 for r in store.records() if r["retrieval_mode"] == "closed_book"
+            )
+            self.assertEqual(len(store), n_closed * 2)
+
+            purged = store.purge(lambda r: r["retrieval_mode"] != "closed_book")
+            self.assertEqual(len(purged), n_closed)
+            self.assertEqual(len(store), n_closed)
+            self.assertTrue(all(
+                r["retrieval_mode"] == "closed_book" for r in store.records()
+            ))
+
+            # The rewrite is durable: a fresh store over the same dir agrees.
+            store2 = CheckpointStore(ckpt, warn_stream=io.StringIO())
+            self.assertEqual(len(store2), n_closed)
+
+            # Idempotent second purge touches nothing.
+            self.assertEqual(store.purge(lambda r: r["retrieval_mode"] != "closed_book"), [])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 # --- backend selection -------------------------------------------------------
