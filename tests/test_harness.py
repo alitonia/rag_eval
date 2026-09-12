@@ -986,21 +986,22 @@ class TestRagContextBudget(unittest.TestCase):
         self.assertEqual(report.dropped_ranks, ())
         # The context block stays inside the per-passage cap; the marker adds a
         # few chars, hence the small slack.
-        self.assertLess(report.context_chars, 6_200)
+        self.assertLess(report.context_chars, 5_200)
 
     def test_budget_exhaustion_drops_later_ranks(self):
         from regrag.generation.prompts import build_rag_prompt_with_report
 
         # A tighter budget than the defaults exercises the drop path
-        # deterministically: with the default 15k total and 6k per passage,
+        # deterministically: with the default 12k total and 5k per passage,
         # two blocks can never exhaust the budget at top_k=3.
         retrieved = _budget_retrieved("y" * 5_000, "y" * 5_000, "ngắn")
         prompt, report = build_rag_prompt_with_report(
             "Q?", retrieved, total_context_chars=8_000
         )
-        # rank 1 fits whole; rank 2 is truncated into what is left; rank 3
-        # finds less than the floor remaining and is dropped entirely.
-        self.assertEqual(report.truncated_ranks, (2,))
+        # rank 1 spills just past the per-passage cap (formatted_context adds
+        # a header); rank 2 is truncated into what is left; rank 3 finds less
+        # than the floor remaining and is dropped entirely.
+        self.assertEqual(report.truncated_ranks, (1, 2))
         self.assertEqual(report.dropped_ranks, (3,))
         self.assertNotIn("[3]", prompt.split("Câu hỏi")[0])
 
@@ -1039,16 +1040,20 @@ class TestRagContextBudget(unittest.TestCase):
                 self.assertIn("rag_context_budget_chars", row)
                 self.assertEqual(row["rag_context_truncated_ranks"], [1])
                 self.assertEqual(row["rag_context_dropped_ranks"], [])
-                self.assertLess(row["rag_context_chars"], 6_200)
+                self.assertLess(row["rag_context_chars"], 5_200)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_purge_retires_cached_rows_for_regeneration(self):
         """A cached row is skipped forever; the only way to regenerate it under
-        a new prompt policy is to purge it from the store first."""
+        a new prompt policy is to purge it from the store first. With
+        results_dir, the purge must ALSO clean generations.json - materialise()
+        only ever adds rows there, so a purged row would otherwise survive in
+        the analysis output forever."""
         tmp = tempfile.mkdtemp()
         try:
             ckpt = os.path.join(tmp, "ckpt_p")
+            results = os.path.join(tmp, "results")
             store = CheckpointStore(ckpt, warn_stream=io.StringIO())
             runner = CampaignRunner(
                 benchmark=make_benchmark(),
@@ -1056,20 +1061,34 @@ class TestRagContextBudget(unittest.TestCase):
                 corpus_path="<synthetic>",
                 checkpoint_store=store,
                 modes=("closed_book", "rag_bm25"),
-                results_dir=None,
+                results_dir=results,
             )
             runner.run_model(MODEL_REGISTRY["qwen-7b"], FakeBackend())
             n_closed = sum(
                 1 for r in store.records() if r["retrieval_mode"] == "closed_book"
             )
             self.assertEqual(len(store), n_closed * 2)
+            store.materialize(results)
+            with open(os.path.join(results, "generations.json"), encoding="utf-8") as f:
+                self.assertEqual(len(json.load(f)), n_closed * 2)
 
-            purged = store.purge(lambda r: r["retrieval_mode"] != "closed_book")
+            purged = store.purge(
+                lambda r: r["retrieval_mode"] != "closed_book", results_dir=results
+            )
             self.assertEqual(len(purged), n_closed)
             self.assertEqual(len(store), n_closed)
             self.assertTrue(all(
                 r["retrieval_mode"] == "closed_book" for r in store.records()
             ))
+            with open(os.path.join(results, "generations.json"), encoding="utf-8") as f:
+                on_disk = json.load(f)
+            self.assertEqual(len(on_disk), n_closed)
+            self.assertTrue(all(
+                r["retrieval_mode"] == "closed_book" for r in on_disk
+            ))
+            with open(os.path.join(results, "generations_meta.jsonl"), encoding="utf-8") as f:
+                meta_modes = [json.loads(line)["retrieval_mode"] for line in f if line.strip()]
+            self.assertTrue(all(m == "closed_book" for m in meta_modes))
 
             # The rewrite is durable: a fresh store over the same dir agrees.
             store2 = CheckpointStore(ckpt, warn_stream=io.StringIO())
