@@ -156,9 +156,26 @@ class QuantizationVerdict:
     reason: str
 
 
-# bitsandbytes packs 4-bit weights into uint8 tensors, so uint8 is the observable
-# evidence that a 4-bit load really happened. Anything else means it did not.
+# bitsandbytes packs 4-bit weights into uint8 tensors -- but the FIRST
+# parameter of these models is the embedding table, which bnb deliberately
+# never quantizes (embeddings and norms stay at checkpoint dtype). A
+# first-param dtype probe therefore reports bfloat16 even on a fully
+# successful 4-bit load; it cannot distinguish success from fallback. The
+# trustworthy evidence is the module census: bnb swaps every nn.Linear for a
+# Linear4bit, so "4bit" in the Linear-family module-type names (or uint8
+# params, in the legacy no-census path below) is what proves the load.
 _BNB_4BIT_DTYPE = "uint8"
+# lm_head is occasionally left unconverted (tied/kept-in-hf modules): a real
+# Qwen2.5-7B load is 203/204 = 0.995. A true fallback measures 0.0.
+_QUANTIZED_SHARE_FLOOR = 0.95
+
+
+def _census_summary(census: Optional[Dict[str, int]]) -> str:
+    if not census:
+        return "(no Linear-family modules)"
+    return " ".join(
+        f"{name}={count}" for name, count in sorted(census.items(), key=lambda kv: -kv[1])
+    )
 
 
 def classify_quantization(
@@ -167,6 +184,7 @@ def classify_quantization(
     observed_param_dtype: str,
     requested_quant_type: str = "nf4",
     compute_dtype: str = "float16",
+    linear_census: Optional[Dict[str, int]] = None,
 ) -> QuantizationVerdict:
     """Classify a loaded model's precision. Pure function - no torch, no model.
 
@@ -174,6 +192,12 @@ def classify_quantization(
     bitsandbytes is unusable on the runtime, transformers loads the model in
     full precision and the run continues happily at 4x the VRAM, either OOMing
     later or - worse - succeeding slowly while every row claims 4-bit.
+
+    ``observed_param_dtype`` is the FIRST parameter's dtype -- for these models
+    the embedding table, which bnb never quantizes -- so it only names the
+    unquantized payload precision. ``linear_census`` (module type name ->
+    count over Linear-family modules) is the decisive evidence and should
+    always be supplied by a real load.
     """
     dtype = (observed_param_dtype or "unknown").replace("torch.", "")
 
@@ -185,6 +209,57 @@ def classify_quantization(
             reason="4-bit was not requested; model loaded at observed precision.",
         )
 
+    if linear_census is None:
+        # Legacy no-census path: judge from the first-param dtype. Biased
+        # degraded-by-default (only uint8 passes) because this probe cannot
+        # see the Linear layers where 4-bit actually lives.
+        if not quant_config_present:
+            return QuantizationVerdict(
+                quant_config=degraded(f"quantization-not-applied-loaded-{dtype}"),
+                verified_4bit=False,
+                degraded=True,
+                reason=(
+                    "load_in_4bit was requested but model.config.quantization_config "
+                    "is absent, so transformers did not quantize. Most likely "
+                    "bitsandbytes is missing or unsupported on this runtime."
+                ),
+            )
+        if dtype != _BNB_4BIT_DTYPE:
+            return QuantizationVerdict(
+                quant_config=degraded(f"quantization-fell-back-to-{dtype}"),
+                verified_4bit=False,
+                degraded=True,
+                reason=(
+                    f"quantization_config is present but the first parameter is "
+                    f"{dtype}, not {_BNB_4BIT_DTYPE}. No module census was "
+                    "supplied, so 4-bit could not be verified from the Linear "
+                    "layers; refusing to assume it took effect."
+                ),
+            )
+        return QuantizationVerdict(
+            quant_config=f"bnb-4bit-{requested_quant_type}+{compute_dtype}",
+            verified_4bit=True,
+            degraded=False,
+            reason="4-bit verified from parameter dtype (legacy probe, no census).",
+        )
+
+    total = sum(linear_census.values())
+    quantized = sum(
+        count for name, count in linear_census.items() if "4bit" in name.lower()
+    )
+    census_note = _census_summary(linear_census)
+
+    if total == 0:
+        return QuantizationVerdict(
+            quant_config=degraded("quantization-unverifiable-no-linear-modules"),
+            verified_4bit=False,
+            degraded=True,
+            reason=(
+                "load_in_4bit was requested but the model exposes no "
+                "Linear-family modules, so a 4-bit load cannot be verified."
+            ),
+        )
+
     if not quant_config_present:
         return QuantizationVerdict(
             quant_config=degraded(f"quantization-not-applied-loaded-{dtype}"),
@@ -192,27 +267,45 @@ def classify_quantization(
             degraded=True,
             reason=(
                 "load_in_4bit was requested but model.config.quantization_config is "
-                "absent, so transformers did not quantize. Most likely bitsandbytes "
-                "is missing or unsupported on this runtime."
+                f"absent, so transformers did not quantize. Linear census: "
+                f"{census_note}. Most likely bitsandbytes is missing or "
+                "unsupported on this runtime."
             ),
         )
 
-    if dtype != _BNB_4BIT_DTYPE:
+    share = quantized / total
+    if share >= _QUANTIZED_SHARE_FLOOR:
+        return QuantizationVerdict(
+            quant_config=f"bnb-4bit-{requested_quant_type}+{compute_dtype}",
+            verified_4bit=True,
+            degraded=False,
+            reason=(
+                f"{quantized}/{total} Linear-family modules are 4-bit "
+                f"({census_note}); embeddings/norms stay {dtype} by design."
+            ),
+        )
+
+    if quantized == 0:
         return QuantizationVerdict(
             quant_config=degraded(f"quantization-fell-back-to-{dtype}"),
             verified_4bit=False,
             degraded=True,
             reason=(
-                f"quantization_config is present but parameters are {dtype}, not "
-                f"{_BNB_4BIT_DTYPE}. The 4-bit load did not take effect."
+                f"quantization_config is present but no Linear module was "
+                f"converted to a 4-bit type; parameters are {dtype}. Linear "
+                f"census: {census_note}. The 4-bit load did not take effect."
             ),
         )
 
     return QuantizationVerdict(
-        quant_config=f"bnb-4bit-{requested_quant_type}+{compute_dtype}",
-        verified_4bit=True,
-        degraded=False,
-        reason="4-bit load verified from quantization_config and parameter dtype.",
+        quant_config=degraded(f"partial-4bit-{quantized}of{total}-linear-modules"),
+        verified_4bit=False,
+        degraded=True,
+        reason=(
+            f"only {quantized}/{total} Linear-family modules are 4-bit "
+            f"({census_note}); a partial quantization is a mixed-precision "
+            "load, not a verified 4-bit one."
+        ),
     )
 
 
@@ -671,13 +764,33 @@ class TransformersQuantBackend(GenerationBackend):
         except StopIteration:
             observed_dtype = "no-parameters"
 
+        # The decisive evidence: bnb swaps nn.Linear -> Linear4bit on a
+        # successful 4-bit load. The first parameter (embed_tokens) is never
+        # quantized and cannot serve as the probe.
+        linear_census: Dict[str, int] = {}
+        dtype_histogram: Dict[str, int] = {}
+        for module in self.model.modules():
+            type_name = type(module).__name__
+            if "linear" in type_name.lower():
+                linear_census[type_name] = linear_census.get(type_name, 0) + 1
+        for param in self.model.parameters():
+            param_dtype = str(param.dtype).replace("torch.", "")
+            dtype_histogram[param_dtype] = dtype_histogram.get(param_dtype, 0) + 1
+
         self.quant_verdict = classify_quantization(
             requested_4bit=self.load_in_4bit,
             quant_config_present=getattr(self.model.config, "quantization_config", None) is not None,
             observed_param_dtype=observed_dtype,
             requested_quant_type=self.bnb_4bit_quant_type,
             compute_dtype=self.compute_dtype_name,
+            linear_census=linear_census,
         )
+        if self.quant_verdict.verified_4bit:
+            self._stream.write(
+                f"[OK] 4-bit verified for {self.hf_id}: "
+                f"{self.quant_verdict.reason} Param dtypes: {dtype_histogram}.\n"
+            )
+            self._stream.flush()
 
         if self.quant_verdict.degraded:
             try:
@@ -690,7 +803,8 @@ class TransformersQuantBackend(GenerationBackend):
             msg = (
                 f"QUANTIZATION DID NOT TAKE EFFECT for {self.hf_id}: "
                 f"{self.quant_verdict.reason} Tag recorded as "
-                f"{self.quant_verdict.quant_config!r}.{env}"
+                f"{self.quant_verdict.quant_config!r}.{env} "
+                f"Param dtypes: {dtype_histogram}."
             )
             self._stream.write(f"[ERROR] {msg}\n")
             self._stream.flush()
