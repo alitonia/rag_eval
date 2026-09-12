@@ -45,6 +45,7 @@ provenance stamping are untouched.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from abc import ABC, abstractmethod
@@ -623,6 +624,43 @@ def wait_for_vllm(
 # --- transformers 4-bit backend (FALLBACK) -----------------------------------
 
 
+# --- GPU residency: one quantized model on the card at a time ----------------
+#
+# A 16 GB T4 fits roughly two 4-bit 7B models, so loading every peer up front
+# OOMs mid-campaign once generation KV-cache grows. Loaded transformers
+# backends register below; a new load FIFO-evicts the oldest resident (weights
+# freed, tokenizer and provenance tags kept, lazy reload on next use).
+# Override with REGRAG_MAX_RESIDENT_BACKENDS (values < 1 disable the cap).
+_RESIDENT_QUANT_BACKENDS: List["TransformersQuantBackend"] = []
+
+
+def _max_resident_backends() -> int:
+    try:
+        return int(os.environ.get("REGRAG_MAX_RESIDENT_BACKENDS", "1"))
+    except ValueError:
+        return 1
+
+
+def _evict_to_make_room(
+    registry: List["TransformersQuantBackend"],
+    cap: int,
+    arriving_hf_id: str,
+    stream,
+) -> None:
+    """FIFO-evict resident backends until one slot is free. cap < 1 = no cap."""
+    if cap < 1:
+        return
+    while len(registry) >= cap and registry:
+        victim = registry.pop(0)
+        victim._evict_model()
+        stream.write(
+            f"[BACKEND] GPU residency cap {cap}: freed {victim.hf_id} "
+            f"before loading {arriving_hf_id}; it will lazily reload from "
+            "cache if used again.\n"
+        )
+        stream.flush()
+
+
 class TransformersQuantBackend(GenerationBackend):
     """Direct HF load with 4-bit BitsAndBytes, verified rather than assumed.
 
@@ -658,6 +696,7 @@ class TransformersQuantBackend(GenerationBackend):
         self.model = None
         self.tokenizer = None
         self._torch = None
+        self._evicted = False
         self.quant_verdict: Optional[QuantizationVerdict] = None
         self.template_name: Optional[str] = None
 
@@ -704,6 +743,12 @@ class TransformersQuantBackend(GenerationBackend):
         """Load tokenizer + model. Raises rather than degrading silently."""
         if self.model is not None:
             return self  # idempotent: safe to call again after a crash/re-run
+        _evict_to_make_room(
+            _RESIDENT_QUANT_BACKENDS,
+            _max_resident_backends(),
+            self.hf_id,
+            self._stream,
+        )
         try:
             import torch
             import transformers
@@ -828,6 +873,9 @@ class TransformersQuantBackend(GenerationBackend):
             self._stream.flush()
             if self.strict_quantization:
                 raise ProvenanceError(msg + " strict_quantization=True, so the run stops.")
+        self._evicted = False
+        if self not in _RESIDENT_QUANT_BACKENDS:
+            _RESIDENT_QUANT_BACKENDS.append(self)
         return self
 
     # -- generation ----------------------------------------------------------
@@ -853,9 +901,16 @@ class TransformersQuantBackend(GenerationBackend):
 
     def generate(self, messages: Sequence[Dict[str, str]]) -> Generation:
         if self.model is None or self.tokenizer is None:
-            raise ProvenanceError(
-                f"TransformersQuantBackend for {self.hf_id} is not loaded; call load() first."
-            )
+            if self._evicted and self.tokenizer is not None:
+                self._stream.write(
+                    f"[BACKEND] {self.hf_id} was evicted for GPU residency; "
+                    "reloading weights from cache.\n"
+                )
+                self.load()
+            else:
+                raise ProvenanceError(
+                    f"TransformersQuantBackend for {self.hf_id} is not loaded; call load() first."
+                )
         torch = self._torch
         msgs = [dict(m) for m in messages]
         encoded = self.tokenizer.apply_chat_template(
@@ -896,11 +951,28 @@ class TransformersQuantBackend(GenerationBackend):
             usage={"prompt_tokens": int(in_len), "completion_tokens": n_new},
         )
 
+    def _evict_model(self) -> None:
+        """Registry eviction: free the weights only. The tokenizer and the
+        recorded quantization verdict stay, so prompts can still be rendered
+        and generate() can lazily reload."""
+        if self.model is None:
+            return
+        self.model = None
+        self._evicted = True
+        if self._torch is not None:
+            try:
+                self._torch.cuda.empty_cache()
+            except Exception:
+                pass
+
     def close(self) -> None:
         """Free VRAM before the next model loads. Without this, loading model N+1
         OOMs on a 16 GB T4 even though model N would have fit alone."""
+        if self in _RESIDENT_QUANT_BACKENDS:
+            _RESIDENT_QUANT_BACKENDS.remove(self)
         self.model = None
         self.tokenizer = None
+        self._evicted = False
         if self._torch is not None:
             try:
                 self._torch.cuda.empty_cache()

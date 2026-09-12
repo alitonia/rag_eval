@@ -45,6 +45,8 @@ from regrag.generation.backends import (
     RenderedPrompt,
     TransformersQuantBackend,
     VLLMHttpBackend,
+    _evict_to_make_room,
+    _max_resident_backends,
     classify_quantization,
     coerce_input_ids,
     gpu_report,
@@ -877,6 +879,61 @@ class TestCoerceInputIds(unittest.TestCase):
         encoding = {"attention_mask": object()}
         with self.assertRaises(ProvenanceError):
             coerce_input_ids(encoding)
+
+
+class TestGpuResidency(unittest.TestCase):
+    """One quantized model resident at a time: a new load FIFO-evicts the
+    oldest (the 2026-09-12 OOM at row 81 had all three peers resident)."""
+
+    class _FakeResident:
+        def __init__(self, hf_id):
+            self.hf_id = hf_id
+            self.evictions = 0
+            self.model = object()
+
+        def _evict_model(self):
+            self.evictions += 1
+            self.model = None
+
+    def test_cap_one_evicts_fifo(self):
+        a = self._FakeResident("a")
+        b = self._FakeResident("b")
+        reg = [a, b]
+        _evict_to_make_room(reg, 1, "c", io.StringIO())
+        self.assertEqual(reg, [])
+        self.assertEqual(a.evictions, 1)
+        self.assertEqual(b.evictions, 1)
+        self.assertIsNone(a.model)
+        self.assertIsNone(b.model)
+
+    def test_room_available_evicts_nothing(self):
+        a = self._FakeResident("a")
+        reg = [a]
+        _evict_to_make_room(reg, 2, "b", io.StringIO())
+        self.assertEqual(reg, [a])
+        self.assertEqual(a.evictions, 0)
+
+    def test_cap_below_one_disables_the_cap(self):
+        reg = [self._FakeResident("a"), self._FakeResident("b")]
+        _evict_to_make_room(reg, 0, "c", io.StringIO())
+        self.assertEqual(len(reg), 2)
+
+    def test_empty_registry_is_noop(self):
+        reg = []
+        _evict_to_make_room(reg, 1, "c", io.StringIO())
+        self.assertEqual(reg, [])
+
+    def test_default_cap_is_one(self):
+        import os
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("REGRAG_MAX_RESIDENT_BACKENDS", None)
+            self.assertEqual(_max_resident_backends(), 1)
+            os.environ["REGRAG_MAX_RESIDENT_BACKENDS"] = "3"
+            self.assertEqual(_max_resident_backends(), 3)
+            os.environ["REGRAG_MAX_RESIDENT_BACKENDS"] = "not-a-number"
+            self.assertEqual(_max_resident_backends(), 1)
 
 
 # --- backend selection -------------------------------------------------------
