@@ -88,6 +88,25 @@ PROGRESS_EVERY = 10
 POD_WORK = os.environ.get("POD_WORK", "/workspace/regrag_pod")
 
 
+def latest_resumable_run(work_root: str) -> Optional[str]:
+    """Newest pod_* run dir carrying a non-empty checkpoint, or None.
+
+    A wedged generation kill must not cost the 600+ banked rows: relaunching
+    the driver reuses the newest checkpointed run instead of opening a fresh
+    one (dir names sort chronologically by construction).
+    """
+    if not os.path.isdir(work_root):
+        return None
+    best = None
+    for name in sorted(os.listdir(work_root)):
+        if not name.startswith("pod_"):
+            continue
+        ckpt = os.path.join(work_root, name, "checkpoints", "generations.jsonl")
+        if os.path.isfile(ckpt) and os.path.getsize(ckpt) > 0:
+            best = os.path.join(work_root, name)
+    return best
+
+
 def _upload_to_hub(local_dir: str, remote_path: str, commit_msg: str) -> bool:
     """Folder upload to the private artifacts repo; guarded, non-fatal."""
     repo = os.environ.get("HF_ARTIFACTS_REPO", "hunopapa/regrag-artifacts")
