@@ -46,6 +46,7 @@ from regrag.generation.backends import (
     TransformersQuantBackend,
     VLLMHttpBackend,
     classify_quantization,
+    coerce_input_ids,
     gpu_report,
     resolve_backend,
 )
@@ -857,6 +858,25 @@ class TestQuantizationClassification(unittest.TestCase):
             b.generate([{"role": "user", "content": "hi"}])
         with self.assertRaises(ProvenanceError):
             b.render_prompt([{"role": "user", "content": "hi"}])
+
+
+class TestCoerceInputIds(unittest.TestCase):
+    """apply_chat_template(tokenize=True) is a bare tensor on some transformers
+    versions and a BatchEncoding on 5.x; generate() needs the ids tensor."""
+
+    def test_bare_tensor_passes_through(self):
+        tensor = object()
+        self.assertIs(coerce_input_ids(tensor), tensor)
+
+    def test_batch_encoding_is_unwrapped(self):
+        tensor = object()
+        encoding = {"input_ids": tensor}  # dict stand-in: has .keys/__getitem__
+        self.assertIs(coerce_input_ids(encoding), tensor)
+
+    def test_batch_encoding_without_input_ids_fails_loud(self):
+        encoding = {"attention_mask": object()}
+        with self.assertRaises(ProvenanceError):
+            coerce_input_ids(encoding)
 
 
 # --- backend selection -------------------------------------------------------
