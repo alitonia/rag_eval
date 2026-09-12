@@ -16,6 +16,7 @@ be audited for the "never write a row that looks clean when it is not" rule.
 
 from __future__ import annotations
 
+import gc
 import os
 import sys
 import time
@@ -451,6 +452,7 @@ class CampaignRunner:
 
     def materialize(self, results_dir: Optional[str] = None) -> Dict[str, Any]:
         """Write the checkpointed rows out in the repo's own record format."""
+        gc.collect()
         target = results_dir or self.results_dir
         if target is None:
             return {"skipped": "no results_dir configured"}

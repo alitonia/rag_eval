@@ -58,6 +58,28 @@ class DenseIndex:
             normalize_embeddings=True,
         )
         self.backend = self.model_name
+        self._release_gpu()
+
+    def _release_gpu(self) -> None:
+        """Return the GPU to the generation phase after index build.
+
+        The 2026-09-12 campaign OOMed at row ~171 with BGE-M3 resident
+        (~2.3 GiB fp32) beside a 4-bit 7B and its attention transients.
+        Retrieval needs the encoder for one query at a time, which the CPU
+        serves in ~100 ms - orders of magnitude below a generation step."""
+        if self._model is not None:
+            try:
+                self._model.to("cpu")
+            except Exception:
+                pass
+        emb = getattr(self, "_embeddings", None)
+        if emb is not None and hasattr(emb, "is_cuda") and emb.is_cuda:
+            self._embeddings = emb.cpu()
+        try:
+            if torch is not None and torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
 
     def search(self, query: str, top_k: int = 3) -> List[RetrievedResult]:
         """Retrieve top_k chunks by cosine similarity."""

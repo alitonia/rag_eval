@@ -84,6 +84,20 @@ class TestProvenance(unittest.TestCase):
                 index.search("hạn mức thẻ")
             self.assertIn("not been built or contains no chunks", str(cm.exception))
 
+    def test_dense_build_releases_gpu_after_indexing(self):
+        """BGE-M3 must not stay resident beside a 4-bit 7B during generation
+        (2026-09-12 OOM at row ~171: ~2.3 GiB of fp32 encoder held the VRAM
+        that attention transients needed)."""
+        mock_st_cls = MagicMock()
+        mock_model = MagicMock()
+        mock_model.encode.return_value = torch.tensor([[1.0, 0.0]])
+        mock_st_cls.return_value = mock_model
+        with patch.object(dense, "HAS_SENTENCE_TRANSFORMERS", True), \
+             patch.object(dense, "SentenceTransformer", mock_st_cls):
+            index = DenseIndex([self.sample_chunk])
+            index.build()
+            mock_model.to.assert_called_once_with("cpu")
+
     # 2. DenseIndex stamps non-UNSET, non-DEGRADED retriever_backend when available
     def test_dense_stamps_truthful_backend_when_available(self):
         mock_st_cls = MagicMock()
