@@ -986,17 +986,18 @@ class TestRagContextBudget(unittest.TestCase):
         self.assertEqual(report.dropped_ranks, ())
         # The context block stays inside the per-passage cap; the marker adds a
         # few chars, hence the small slack.
-        self.assertLess(report.context_chars, 5_200)
+        self.assertLess(report.context_chars, 3_800)
 
     def test_budget_exhaustion_drops_later_ranks(self):
         from regrag.generation.prompts import build_rag_prompt_with_report
 
         # A tighter budget than the defaults exercises the drop path
-        # deterministically: with the default 12k total and 5k per passage,
-        # two blocks can never exhaust the budget at top_k=3.
+        # deterministically (explicit per-passage keeps the arithmetic stable
+        # against config changes): with 8k total and 5k per passage, two
+        # blocks can never exhaust the budget at top_k=3.
         retrieved = _budget_retrieved("y" * 5_000, "y" * 5_000, "ngắn")
         prompt, report = build_rag_prompt_with_report(
-            "Q?", retrieved, total_context_chars=8_000
+            "Q?", retrieved, total_context_chars=8_000, per_passage_chars=5_000
         )
         # rank 1 spills just past the per-passage cap (formatted_context adds
         # a header); rank 2 is truncated into what is left; rank 3 finds less
@@ -1040,7 +1041,7 @@ class TestRagContextBudget(unittest.TestCase):
                 self.assertIn("rag_context_budget_chars", row)
                 self.assertEqual(row["rag_context_truncated_ranks"], [1])
                 self.assertEqual(row["rag_context_dropped_ranks"], [])
-                self.assertLess(row["rag_context_chars"], 5_200)
+                self.assertLess(row["rag_context_chars"], 3_800)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
@@ -1115,7 +1116,7 @@ class TestPreflightMemory(unittest.TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0]["role"], "user")
         self.assertEqual(len(messages[0]["content"]), MAX_PROMPT_CHARS)
-        self.assertGreater(MAX_PROMPT_CHARS, 12_000)  # tracks the budget config
+        self.assertGreater(MAX_PROMPT_CHARS, 6_500)  # tracks the budget config
 
     def test_explicit_max_is_respected(self):
         from scripts.preflight_memory import build_worst_case_messages
