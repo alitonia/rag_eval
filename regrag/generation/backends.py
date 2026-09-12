@@ -749,6 +749,10 @@ class TransformersQuantBackend(GenerationBackend):
             self.hf_id,
             self._stream,
         )
+        # Reduce fragmentation across varying prompt lengths (torch reads this
+        # when the caching allocator first initialises, which happens at the
+        # from_pretrained below, not at import time).
+        os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
         try:
             import torch
             import transformers

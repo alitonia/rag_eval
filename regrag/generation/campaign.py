@@ -38,7 +38,7 @@ from regrag.generation.config import (
     SamplingConfig,
 )
 from regrag.generation.corpus_io import corpus_hash, corpus_source_of, describe_corpus
-from regrag.generation.prompting import build_messages
+from regrag.generation.prompting import build_messages_with_report
 from regrag.models import GenerationResult, GoldQuestion, LegalChunk, RetrievedResult
 from regrag.provenance import CORPUS_UNSET, ProvenanceError, is_degraded, publishable_corpus
 
@@ -264,6 +264,7 @@ class CampaignRunner:
         retrieved: Sequence[RetrievedResult],
         retriever_backend: str,
         backend,
+        rag_context=None,
     ) -> Dict[str, Any]:
         text = generation.text or ""
         answer_text = text.strip()
@@ -304,6 +305,13 @@ class CampaignRunner:
         record["corpus_path"] = self.corpus_path
         record["retrieved_chunk_ids"] = [r.chunk.chunk_id for r in retrieved]
         record["retrieved_scores"] = [round(float(r.score), 6) for r in retrieved]
+        if rag_context is not None:
+            # What the RAG_CONTEXT_* budget did to this prompt. Absent on
+            # closed-book rows and on pre-budget rows = nothing was cut.
+            record["rag_context_chars"] = rag_context.context_chars
+            record["rag_context_budget_chars"] = rag_context.budget_chars
+            record["rag_context_truncated_ranks"] = list(rag_context.truncated_ranks)
+            record["rag_context_dropped_ranks"] = list(rag_context.dropped_ranks)
         record["generated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
         # The rule: never write a row that looks clean when it is not.
@@ -387,7 +395,7 @@ class CampaignRunner:
                         continue
 
                 retrieved, retriever_backend = self.retrieve_for(q, mode)
-                messages = build_messages(q.question, mode, retrieved)
+                messages, rag_context = build_messages_with_report(q.question, mode, retrieved)
                 rendered = backend.render_prompt(messages)
 
                 try:
@@ -413,6 +421,7 @@ class CampaignRunner:
                 record = self._make_record(
                     q, model_spec, mode, key, rendered.prompt_field(),
                     generation, retrieved, retriever_backend, backend,
+                    rag_context=rag_context,
                 )
                 self.store.append(record)
                 written += 1

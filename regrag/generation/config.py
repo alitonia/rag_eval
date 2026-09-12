@@ -128,6 +128,24 @@ RETRIEVAL_MODES: Tuple[str, ...] = ("closed_book", "rag_bm25", "rag_dense")
 TOP_K: int = 3
 DENSE_MODEL_NAME: str = "BAAI/bge-m3"
 
+#: RAG context budget, in characters. Two constraints bind (2026-09-12 OOM):
+#: (1) the peer with the smallest context window must fit prompt + answer -
+#:     Vistral-7B is Mistral-arch with an 8,192-token window, so an unbounded
+#:     concatenation of top-k passages is invalid for the matrix even when it
+#:     does not OOM the GPU;
+#: (2) the T4 has no flash-attention: SDPA falls back to the math backend,
+#:     whose L x L attention matrix alone is ~17 GiB for an 18K-token prompt.
+#: The budget is in characters, not tokens, so it is tokenizer-agnostic and
+#: byte-reproducible; Vietnamese runs ~2.5-3 chars/token, so 15,000 chars is
+#: roughly a 5,000-token context - inside Vistral's window with room for the
+#: 512-token answer, and small enough that the math-backend attention matrix
+#: stays ~2.5 GiB. Truncation and drops are stamped per row.
+RAG_CONTEXT_TOTAL_CHARS: int = 15_000
+RAG_CONTEXT_PER_PASSAGE_CHARS: int = 6_000
+#: A passage whose remaining budget share is below this floor is dropped
+#: entirely (a 300-char fragment of a legal article is noise, not evidence).
+RAG_CONTEXT_MIN_PASSAGE_CHARS: int = 400
+
 #: The gold CSV marks an unanswerable probe with this exact answer string.
 UNANSWERABLE_SENTINEL: str = "Không có trong kho văn bản"
 

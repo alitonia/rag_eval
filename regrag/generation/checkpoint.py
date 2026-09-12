@@ -213,6 +213,30 @@ class CheckpointStore:
     def records(self) -> List[Dict[str, Any]]:
         return [self._records[k] for k in self._insertion_order if k in self._records]
 
+    def purge(self, predicate) -> List[str]:
+        """Drop rows whose record matches ``predicate(record)``; rewrite the
+        checkpoint JSONL atomically. Returns the purged cache_keys.
+
+        For retiring cached rows whose prompt policy changed mid-campaign
+        (e.g. rag rows generated before the RAG_CONTEXT_* budget): a cached
+        row is skipped forever, so the only way to regenerate it under the
+        new policy is to remove it from the store first.
+        """
+        doomed = [k for k, rec in self._records.items() if predicate(rec)]
+        if not doomed:
+            return []
+        for k in doomed:
+            self._records.pop(k, None)
+        self._insertion_order = [k for k in self._insertion_order if k in self._records]
+        tmp = self.path + ".purge-tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            for rec in self.records():
+                f.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, self.path)
+        return doomed
+
     def backends_present(self) -> Dict[str, int]:
         """Row counts per generation_backend, for the pooling guard."""
         counts: Dict[str, int] = {}
