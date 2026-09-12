@@ -769,30 +769,72 @@ class TestProvenanceEnforcement(unittest.TestCase):
 class TestQuantizationClassification(unittest.TestCase):
     """`load_in_4bit=True` is a request, not evidence. These pin the verdicts."""
 
-    def test_verified_4bit(self):
-        v = classify_quantization(True, True, "torch.uint8")
+    def test_verified_4bit_from_linear_census(self):
+        """The real T4 signature: every Linear swapped to Linear4bit while the
+        embedding table (first parameter) legitimately stays bfloat16."""
+        v = classify_quantization(
+            True, True, "torch.bfloat16", linear_census={"Linear4bit": 204}
+        )
         self.assertTrue(v.verified_4bit)
         self.assertFalse(v.degraded)
         self.assertEqual(v.quant_config, "bnb-4bit-nf4+float16")
 
+    def test_verified_4bit_tolerates_unconverted_lm_head(self):
+        v = classify_quantization(
+            True, True, "torch.bfloat16", linear_census={"Linear4bit": 203, "Linear": 1}
+        )
+        self.assertTrue(v.verified_4bit)
+        self.assertFalse(v.degraded)
+
     def test_requested_4bit_but_not_applied(self):
         """bitsandbytes missing -> transformers loads fp16 and says nothing."""
-        v = classify_quantization(True, False, "torch.float16")
+        v = classify_quantization(
+            True, False, "torch.float16", linear_census={"Linear": 204}
+        )
         self.assertFalse(v.verified_4bit)
         self.assertTrue(v.degraded)
         self.assertTrue(v.quant_config.startswith("DEGRADED:"))
         self.assertIn("float16", v.quant_config)
         self.assertTrue(is_degraded(v.quant_config))
 
-    def test_requested_4bit_but_fell_back_to_fp32(self):
+    def test_requested_4bit_but_nothing_converted(self):
+        """Config recorded but zero Linear modules converted: the true
+        fallback case the strict gate must still stop."""
+        v = classify_quantization(
+            True, True, "torch.bfloat16", linear_census={"Linear": 204}
+        )
+        self.assertTrue(v.degraded)
+        self.assertFalse(v.verified_4bit)
+        self.assertIn("fell-back-to-bfloat16", v.quant_config)
+
+    def test_partial_4bit_is_degraded(self):
+        v = classify_quantization(
+            True, True, "torch.bfloat16",
+            linear_census={"Linear4bit": 100, "Linear": 104},
+        )
+        self.assertTrue(v.degraded)
+        self.assertFalse(v.verified_4bit)
+        self.assertIn("partial-4bit", v.quant_config)
+
+    def test_census_without_linear_modules_is_degraded(self):
+        v = classify_quantization(True, True, "torch.bfloat16", linear_census={})
+        self.assertTrue(v.degraded)
+        self.assertFalse(v.verified_4bit)
+
+    def test_legacy_no_census_probe_still_supported(self):
+        """Callers without a census keep the old dtype-biased verdicts."""
+        v = classify_quantization(True, True, "torch.uint8")
+        self.assertTrue(v.verified_4bit)
+        self.assertEqual(v.quant_config, "bnb-4bit-nf4+float16")
         v = classify_quantization(True, True, "torch.float32")
         self.assertTrue(v.degraded)
         self.assertIn("fell-back-to-float32", v.quant_config)
-
-    def test_unknown_dtype_is_degraded_not_assumed(self):
         v = classify_quantization(True, True, "unknown")
         self.assertTrue(v.degraded)
         self.assertFalse(v.verified_4bit)
+        v = classify_quantization(True, False, "torch.float16")
+        self.assertTrue(v.degraded)
+        self.assertTrue(is_degraded(v.quant_config))
 
     def test_full_precision_is_honest_not_degraded(self):
         v = classify_quantization(False, False, "torch.bfloat16")
