@@ -1124,6 +1124,45 @@ class TestPreflightMemory(unittest.TestCase):
         self.assertEqual(len(build_worst_case_messages(500)[0]["content"]), 500)
 
 
+class TestPodDriverResume(unittest.TestCase):
+    """After a wedged-generation kill, the driver must reuse the newest
+    checkpointed run - a fresh dir would silently discard 600+ banked rows."""
+
+    def _make_run(self, root, name, with_checkpoint):
+        ckpt = os.path.join(root, name, "checkpoints")
+        os.makedirs(ckpt, exist_ok=True)
+        if with_checkpoint:
+            with open(os.path.join(ckpt, "generations.jsonl"), "w") as f:
+                f.write('{"cache_key": "k"}\n')
+
+    def test_picks_newest_nonempty_checkpoint(self):
+        from scripts.run_campaign_pod import latest_resumable_run
+
+        root = tempfile.mkdtemp()
+        try:
+            self.assertIsNone(latest_resumable_run(root))
+            self._make_run(root, "pod_20260912_1800", with_checkpoint=True)
+            self._make_run(root, "pod_20260912_1854", with_checkpoint=True)
+            self._make_run(root, "pod_20260912_1900", with_checkpoint=False)  # empty ckpt
+            self.assertEqual(
+                latest_resumable_run(root),
+                os.path.join(root, "pod_20260912_1854"),
+            )
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_ignores_non_pod_dirs_and_missing_root(self):
+        from scripts.run_campaign_pod import latest_resumable_run
+
+        self.assertIsNone(latest_resumable_run("/nonexistent_root_for_test"))
+        root = tempfile.mkdtemp()
+        try:
+            os.makedirs(os.path.join(root, "not_a_run", "checkpoints"))
+            self.assertIsNone(latest_resumable_run(root))
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 # --- backend selection -------------------------------------------------------
 
 
