@@ -213,18 +213,23 @@ class CheckpointStore:
     def records(self) -> List[Dict[str, Any]]:
         return [self._records[k] for k in self._insertion_order if k in self._records]
 
-    def purge(self, predicate) -> List[str]:
+    def purge(self, predicate, results_dir: Optional[str] = None) -> List[str]:
         """Drop rows whose record matches ``predicate(record)``; rewrite the
         checkpoint JSONL atomically. Returns the purged cache_keys.
 
         For retiring cached rows whose prompt policy changed mid-campaign
         (e.g. rag rows generated before the RAG_CONTEXT_* budget): a cached
         row is skipped forever, so the only way to regenerate it under the
-        new policy is to remove it from the store first.
+        new policy is to remove it from the store first. When ``results_dir``
+        is given, matching rows are also removed from the materialised
+        generations.json / generations_meta.jsonl - materialise() only ever
+        adds to those files, so a purged row would otherwise survive in the
+        analysis output forever.
         """
         doomed = [k for k, rec in self._records.items() if predicate(rec)]
         if not doomed:
             return []
+        doomed_set = set(doomed)
         for k in doomed:
             self._records.pop(k, None)
         self._insertion_order = [k for k in self._insertion_order if k in self._records]
@@ -235,6 +240,36 @@ class CheckpointStore:
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp, self.path)
+
+        if results_dir:
+            gen_path = os.path.join(results_dir, "generations.json")
+            if os.path.exists(gen_path):
+                with open(gen_path, "r", encoding="utf-8") as f:
+                    rows = json.load(f)
+                kept = [r for r in rows if r.get("cache_key") not in doomed_set]
+                tmp_gen = gen_path + ".purge-tmp"
+                with open(tmp_gen, "w", encoding="utf-8") as f:
+                    json.dump(kept, f, ensure_ascii=False, indent=2)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(tmp_gen, gen_path)
+            meta_path = os.path.join(results_dir, "generations_meta.jsonl")
+            if os.path.exists(meta_path):
+                kept_lines = []
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        try:
+                            if json.loads(line).get("cache_key") in doomed_set:
+                                continue
+                        except json.JSONDecodeError:
+                            pass  # torn line: keep as-is, not our concern here
+                        kept_lines.append(line if line.endswith("\n") else line + "\n")
+                tmp_meta = meta_path + ".purge-tmp"
+                with open(tmp_meta, "w", encoding="utf-8") as f:
+                    f.writelines(kept_lines)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(tmp_meta, meta_path)
         return doomed
 
     def backends_present(self) -> Dict[str, int]:

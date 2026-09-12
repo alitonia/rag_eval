@@ -130,18 +130,18 @@ DENSE_MODEL_NAME: str = "BAAI/bge-m3"
 
 #: RAG context budget, in characters. Two constraints bind (2026-09-12 OOM):
 #: (1) the peer with the smallest context window must fit prompt + answer -
-#:     Vistral-7B is Mistral-arch with an 8,192-token window, so an unbounded
-#:     concatenation of top-k passages is invalid for the matrix even when it
-#:     does not OOM the GPU;
+#:     Vistral-7B is Mistral-arch with an 8,192-token window, and its BPE
+#:     vocab is inefficient on Vietnamese (worst case ~1.8-2 chars/token),
+#:     so 12,000 chars + template stays inside the window even then, with
+#:     the 512-token answer to spare;
 #: (2) the T4 has no flash-attention: SDPA falls back to the math backend,
 #:     whose L x L attention matrix alone is ~17 GiB for an 18K-token prompt.
 #: The budget is in characters, not tokens, so it is tokenizer-agnostic and
-#: byte-reproducible; Vietnamese runs ~2.5-3 chars/token, so 15,000 chars is
-#: roughly a 5,000-token context - inside Vistral's window with room for the
-#: 512-token answer, and small enough that the math-backend attention matrix
-#: stays ~2.5 GiB. Truncation and drops are stamped per row.
-RAG_CONTEXT_TOTAL_CHARS: int = 15_000
-RAG_CONTEXT_PER_PASSAGE_CHARS: int = 6_000
+#: byte-reproducible; at ~2.5-3 chars/token this is a ~4,000-token context.
+#: Truncation and drops are stamped per row. The median prompt is far below
+#: the budget (p95 chunk ~1.4k chars) - it only bites on outlier passages.
+RAG_CONTEXT_TOTAL_CHARS: int = 12_000
+RAG_CONTEXT_PER_PASSAGE_CHARS: int = 5_000
 #: A passage whose remaining budget share is below this floor is dropped
 #: entirely (a 300-char fragment of a legal article is noise, not evidence).
 RAG_CONTEXT_MIN_PASSAGE_CHARS: int = 400
