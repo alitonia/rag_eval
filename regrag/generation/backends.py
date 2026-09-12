@@ -48,6 +48,15 @@ import json
 import os
 import sys
 import time
+
+
+# Fragmentation guard for the varying prompt lengths of a 3x3x88 campaign.
+# Must be set BEFORE the CUDA caching allocator initialises - i.e. before the
+# first CUDA tensor is allocated anywhere in the process, which includes the
+# dense-index build in an earlier notebook cell - so it lives at import time,
+# not inside load(). (Verified the hard way: set inside load(), it was too
+# late and the 2026-09-12 run fragmentated anyway.)
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -749,10 +758,6 @@ class TransformersQuantBackend(GenerationBackend):
             self.hf_id,
             self._stream,
         )
-        # Reduce fragmentation across varying prompt lengths (torch reads this
-        # when the caching allocator first initialises, which happens at the
-        # from_pretrained below, not at import time).
-        os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
         try:
             import torch
             import transformers
