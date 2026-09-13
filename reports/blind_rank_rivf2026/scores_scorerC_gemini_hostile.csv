@@ -1,0 +1,50 @@
+id,novelty,rigor,evidence,reproducibility,clarity,significance,overall,verdict,fatal_flaw
+R01,2,3,2,2,5,2,3,reject,No empirical evaluation or quantitative results reported to justify effectiveness.
+R02,3,4,3,2,5,3,3,reject,Zero quantitative evidence provided in the abstract to support claims of improved efficiency.
+R03,4,4,4,2,6,4,4,reject,Inequitable comparison to single-modality baselines rather than state-of-the-art multimodal approaches.
+R04,3,3,3,2,5,2,3,reject,Relies on outdated Random Forest classification on basic features without modern deep learning or robustness benchmarks.
+R05,4,4,3,2,5,4,3,reject,"The reported baseline performance (UNet++ at 20.14%) is unrealistically low, indicating fundamentally flawed experimental design."
+R06,2,2,1,1,4,2,2,reject,Appears to be a literature review or theoretical framework with absolutely no empirical validation or implementation details.
+R07,3,4,3,2,6,3,3,reject,Lacks quantitative performance metrics or specific dataset benchmarks in the abstract to substantiate claims of improvement.
+R08,4,5,4,3,6,4,4,reject,"Fails to provide concrete quantitative improvements over baselines, only claiming equal or superior success rates."
+R09,3,3,3,4,6,3,3,reject,Relies entirely on circular LLM-as-a-judge evaluation without independent human expert validation of the generated syllabi.
+R10,3,4,3,2,6,3,3,reject,"No quantitative results or comparisons are reported, rendering the performance claims unverifiable."
+R11,4,3,3,2,5,2,3,reject,Extremely high claimed accuracy in short-term cryptocurrency prediction strongly suggests lookahead bias or data leakage in the evaluation.
+R12,4,4,3,2,6,4,3,reject,"Omits critical detection performance metrics (mAP/recall) for the stated challenge of tiny object detection, reporting only inference speed."
+R13,2,3,4,2,6,2,3,reject,"Offers negligible scientific novelty, applying an off-the-shelf YOLOv5 model to a widely solved smart parking application."
+R14,3,4,3,3,6,3,3,reject,"Lacks quantitative findings or specific percentage changes in aerodynamic coefficients, providing only qualitative conclusions."
+R15,3,4,5,2,6,3,4,reject,Incremental RAG engineering over existing techniques without sharing the dataset or code to verify the unusually high nDCG score.
+R16,2,3,4,3,6,2,3,reject,"Methodologically obsolete, using classic TF-IDF and Logistic Regression instead of modern NLP embeddings or LLMs for text classification."
+R17,4,4,3,2,5,3,3,reject,"Fails to report any quantitative evaluation results (e.g., ROUGE scores) or human evaluation for the generated reviews."
+R18,3,4,5,2,6,4,4,reject,Merely concatenates known architectures into an ensemble without contributing novel architectural or theoretical insights.
+R19,4,4,4,2,6,3,3,reject,"Evaluated on an extremely small, closed dataset of only 836 images, making the robustness of the 58.4% mAP highly questionable."
+R20,4,4,3,2,5,4,3,reject,"Omits quantitative results regarding the accuracy-fairness tradeoff, preventing assessment of the true cost of the proposed fairness constraints."
+R21,4,4,3,2,5,4,3,reject,Vague evaluation that lacks quantitative scale metrics and fails to specify the actual vulnerabilities discovered.
+R22,3,4,4,3,6,3,4,reject,Entirely theoretical simulation lacking real-world channel measurements or hardware-in-the-loop validation of the multi-level modulation.
+R23,3,3,2,2,5,2,2,reject,Applies a standard off-the-shelf optimizer to a well-known problem without providing any quantitative performance benchmarks.
+R24,2,3,4,1,5,2,2,reject,"Evaluated exclusively on an undisclosed, proprietary in-house dataset, rendering the accuracy claim unverifiable and irreproducible."
+R25,4,5,5,2,6,4,4,reject,The incredibly high 0.934 Macro-F1 for trimodal emotion recognition strongly suggests dataset overlap or a lack of sufficient subject diversity.
+R26,5,4,4,2,6,5,5,major revision,"Does not compare the generated evasion techniques against existing state-of-the-art adversary emulation tools, limiting claims of superiority."
+R27,4,5,5,5,6,5,5,major revision,"Fails to quantify the exact segmentation accuracy degradation resulting from the 88.9% parameter compression, claiming only competitive accuracy."
+R28,4,4,3,5,6,5,5,major revision,"Relies heavily on a custom-built, unvalidated benchmark to claim superiority, introducing significant evaluation bias."
+R29,5,4,3,3,6,4,4,reject,"Validates the financial credit scoring model exclusively on synthetic data, completely detaching the findings from real-world applicability."
+R30,3,4,2,2,5,3,3,reject,"Utterly devoid of quantitative evaluation metrics, relying entirely on qualitative assertions that modalities consistently improve performance."
+R31,3,3,2,2,5,3,2,reject,"Fails to report any baseline comparisons, numerical results, or specific dataset names to substantiate its superiority claims."
+R32,2,3,4,3,6,2,3,reject,"Purely an engineering integration exercise with zero algorithmic novelty, just fine-tuning YOLOv9 for a Raspberry Pi deployment."
+R33,5,6,6,4,7,5,5,major revision,"The evaluation is restricted to models under 7B parameters, artificially inflating the failure rates without assessing capable state-of-the-art LLMs."
+R34,4,5,3,3,6,4,4,reject,Abstract contains no quantitative evidence of the magnitude of performance or robustness gains achieved by the proposed search method.
+R35,2,3,2,2,5,2,2,reject,"Proposes a trivially outdated approach (GA-tuned PID controllers) without any modern algorithmic comparison or numerical validation."
+R36,3,4,5,2,6,3,4,reject,"Evaluated on an undisclosed, proprietary in-house dataset with standard algorithms, making the high mAP scores unverified and irreproducible."
+R37,2,3,3,3,5,2,2,reject,An arbitrary application of a niche metaheuristic to standard deep learning without providing any numerical impact metrics.
+R38,4,5,5,6,6,4,5,major revision,"The proposed baseline is just a slightly modified U-Net; the primary contribution is purely the dataset, lacking significant methodological innovation."
+R39,3,4,5,3,6,3,4,reject,"Focuses exclusively on system integration of off-the-shelf components without proposing any novel AI methodologies, algorithms, or architectures."
+R40,4,4,4,5,6,4,5,major revision,"Relies solely on correlation analysis (p < 0.05) rather than establishing causal links between visual features and socioeconomic perceptions."
+R41,4,4,3,6,6,3,4,reject,"Fails to report baseline metric scores in the abstract, leaving the difficulty and utility of the proposed benchmark completely unverified."
+R42,5,5,4,2,6,5,5,major revision,"Proposes new evaluation metrics (ASD, VBAR) but provides zero numerical values in the abstract to demonstrate the magnitude of the attack."
+R43,5,4,3,5,6,5,5,major revision,"Totally lacks quantitative evaluation metrics for image quality (e.g., FID, CLIP scores) to back up its subjective claims of superiority."
+R44,3,4,5,2,4,3,3,reject,"The absolute SNR improvement (to only 7.6 dB) remains extremely poor for practical application, indicating the method is practically insufficient."
+R45,4,4,5,5,6,4,4,reject,"The incredibly low F1 score of 0.3367 despite high precision indicates severe recall failure, rendering the system unusable for comprehensive trend detection."
+R46,4,4,2,2,6,3,3,reject,"Contains zero quantitative metrics regarding sum-rate improvements or beam training overhead reduction, relying purely on subjective claims."
+R47,3,4,3,3,5,3,3,reject,"Entirely simulation-based with theoretical modeling; completely lacks physical fabrication and experimental validation of the proposed RIS."
+R48,3,3,2,2,5,2,2,reject,A superficial overview proposing codebook strategies without providing any quantitative performance evaluations or specific results.
+R49,2,2,4,2,5,2,2,reject,"The claim of 100% testing accuracy is an unmistakable indicator of severe data leakage, overfitting, or a trivially simple, non-representative dataset."

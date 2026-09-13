@@ -1,0 +1,50 @@
+id,is_ours,doi,n_chars,title
+E01,False,10.1145/3661167.3661188,1011,A Folklore Confirmation on the Removal of Dead Code
+E02,False,10.1145/3756681.3756991,895,PRIMG : Efficient LLM-driven Test Generation Using Mutant Prioritization
+E03,False,10.1145/3661167.3661223,1557,Design and Evaluation of High-Quality Symbiotic AI Systems through a Human-Centered Approach
+E04,False,10.1145/3661167.3661277,869,Teaching Scrum with a focus on efficiency and inclusiveness
+E05,False,10.1145/3661167.3661168,772,LEGION: Harnessing Pre-trained Language Models for GitHub Topic Recommendations with Distribution-Balance Loss
+E06,False,10.1145/3661167.3661266,691,Evidence-Based Research for Supporting Software Security in Software Development: Methodological Challenges &amp; Strategies
+E07,False,10.1145/3727967.3756831,1357,"Integrating LLMs in Software Engineering Education: Motivators, Demotivators, and a Roadmap Towards a Framework for Finnish Higher Education Institutes"
+E08,False,10.1145/3661167.3661214,965,Trustworthy AI in practice: an analysis of practitioners' needs and challenges
+E09,False,10.1145/3727967.3756847,957,Assessing Software Product Quality in DevOps: An ISO 25010:2023 Perspective
+E10,False,10.1145/3661167.3661192,465,AI-Generated Test Scripts for Web E2E Testing with ChatGPT and Copilot: A Preliminary Study
+E11,False,10.1145/3661167.3661229,1516,What You Use is What You Get: Unforced Errors in Studying Cultural Aspects in Agile Software Development
+E12,False,10.1145/3756681.3757047,993,Proposal of the Assessment of the 4-Workflow Model for Secure Agile Process Practices
+E13,False,10.1145/3756681.3757009,922,Designing a Custom Chaos Engineering Framework for Enhanced System Resilience at Softtech
+E14,False,10.1145/3756681.3757019,1486,Further Evidence on a Controversial Topic about Human-Based Experiments: Professionals vs. Students
+E15,False,10.1145/3756681.3757045,905,Validation Framework for E-Contract and Smart Contract
+E16,False,10.1145/3661167.3661219,1081,A Comprehensive Framework Proposal to Design Symbiotic AI Systems
+E17,False,10.1145/3756681.3756952,903,A Survey for What Developers Require in AI-powered Tools that Aid in Component Selection in CBSD
+E18,False,10.1145/3756681.3757050,376,"Exploring turnover, retention and growth in an OSS Ecosystem"
+E19,False,10.1145/3727967.3756841,1001,"Comparative Analysis of AI-Driven Security Approaches in DevSecOps: Challenges, Solutions, and Future Directions"
+E20,False,10.1145/3661167.3661235,1087,Insight AI Risk Detection Model - Vulnerable People Emotional Situation Support
+E21,True,LOCAL:paper/main.tex,1350,Citation-Level Unfaithfulness of Small Language Models on Vietnamese Banking Regulation: A Provenance-Guarded RAG Benchmark
+E22,False,10.1145/3756681.3756958,322,Automatic Classification of Software Repositories: a Systematic Mapping Study
+E23,False,10.1145/3727967.3756840,1193,The Role of Generative AI in Strengthening Secure Software Coding Practices: A Systematic Perspective
+E24,False,10.1145/3661167.3661183,481,On the Use of ChatGPT for Code Review: Do Developers Like Reviews By ChatGPT?
+E25,False,10.1145/3661167.3661185,805,Harnessing No-Code Blockchain for DeFi: A Microcredit Case Study on AstraKode Blockchain
+E26,False,10.1145/3661167.3661272,312,Gamifying Business Process Modeling Education: A Longitudinal Study
+E27,False,10.1145/3756681.3756940,836,Accelerating Delta Debugging through Probabilistic Monotonicity Assessment
+E28,False,10.1145/3727967.3756843,1274,Fortifying the Future: A Hybrid Machine Learning Model Against Evolving Malware Threats
+E29,False,10.1145/3727967.3756845,318,Mitigating Insider Threats: Insights from Software Security Experts for Process Improvement and Risk Reduction
+E30,False,10.1145/3756681.3756946,1516,Tracking the Moving Target: A Framework for Continuous Evaluation of LLM Test Generation in Industry
+E31,False,10.1145/3661167.3661263,576,LLM Security Guard for Code
+E32,False,10.1145/3756681.3756953,1724,The Impact of Environment Configurations on the Stability of AI-Enabled Systems
+E33,False,10.1145/3727967.3756850,1320,Challenges in the Adoption of DevOps as a Service in the Software Industry: Initial Results
+E34,False,10.1145/3727967.3756849,1155,Persona-driven approach to enhance security requirement elicitation
+E35,False,10.1145/3661167.3661205,618,Negative Complement of a Set of Vulnerability-Fixing Commits: Method and Dataset
+E36,False,10.1145/3661167.3661211,1353,VulDL: Tree-based and Graph-based Neural Networks for Vulnerability Detection and Localization
+E37,False,10.1145/3756681.3756957,1603,Critical Considerations on Effort-aware Software Defect Prediction Metrics
+E38,False,10.1145/3756681.3757021,719,Benchmarking Large Language Models for Autonomous Run-time Error Repair: Toward Self-Healing Software Systems
+E39,False,10.1145/3661167.3661224,950,Motivation Research Using Labeling Functions
+E40,False,10.1145/3661167.3661221,959,A Performance Study of LLM-Generated Code on Leetcode
+E41,False,10.1145/3756681.3757048,1358,Testing Individual Fairness in Graph Neural Networks
+E42,False,10.1145/3756681.3757028,747,Re-evaluation of Logical Specification in Behavioural Verification
+E43,False,10.1145/3661167.3661182,1074,Human-Centered Interventions to Empower Gender Diversity in Software Engineering
+E44,False,10.1145/3661167.3661176,1380,Analyzing Prerequistes of known Deserializtion Vulnerabilities on Java Applications
+E45,False,10.1145/3756681.3757003,1280,LLM Code Customization with Visual Results: A Benchmark on TikZ
+E46,False,10.1145/3756681.3757053,1487,NRevisit: A Cognitive Behavioral Metric for Code Understandability Assessment
+E47,False,10.1145/3727967.3756834,1253,IoT-AI Security for Dynamic Data-driven Environments
+E48,False,10.1145/3756681.3756988,1924,Towards Automated Detection of Inline Code Comment Smells
+E49,False,10.1145/3661167.3661280,1317,Securing Agile: Assessing the Impact of Security Activities on Agile Development

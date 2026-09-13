@@ -1,0 +1,50 @@
+id,is_ours,doi,n_chars,title
+R01,False,10.1109/rivf68649.2025.11365126,959,A Customized AI Chatbot for Educational Environments: Integrating Retrieval-Augmented Generation with Curriculum-Aligned Responses
+R02,False,10.1109/rivf68649.2025.11365058,960,Energy-Based Pattern-Inspired Sampling for Motion Analysis
+R03,False,10.1109/rivf68649.2025.11365036,1470,Classifying Pulmonary Diseases Using Small Multimodal Model on X-Ray Images and Reports
+R04,False,10.1109/rivf68649.2025.11365260,907,EEG-Based Brain-Computer Interface for Directional Control Using Machine Learning on Overt Spatial Attention
+R05,False,10.1109/rivf68649.2025.11365120,1143,WeakSegFormer: A Transformer-Based Weakly Supervised Framework for Brain Tumor MRI Segmentation
+R06,False,10.1109/rivf68649.2025.11365188,977,A Segment-Based CRM System With High Personalization Using AI Agents and RPA to Enhance Customer Lifetime Value in E-Commerce
+R07,False,10.1109/rivf68649.2025.11365046,895,Improving the DF-Louvain Algorithm Through Random Walk-Based Refinement
+R08,False,10.1109/rivf68649.2025.11365242,1355,Natural Evolution Strategy for Camouflaged Adversarial Patches
+R09,False,10.1109/rivf68649.2025.11365100,1344,Can LLMs Construct Valid Syllabi? Vietnamese High School Math Case Study
+R10,False,10.1109/rivf68649.2025.11365147,1145,Advancing Time Series Anomaly Detection Using Transformer-Based Models
+R11,False,10.1109/rivf68649.2025.11365170,1410,Multimodal Deep Learning for Cryptocurrency Trend Prediction via Candlestick Charts and Technical Indicators
+R12,False,10.1109/rivf68649.2025.11365235,1599,Remote Sensing-Based Human Detection Using a Custom-Built Coaxial UAV System
+R13,False,10.1109/rivf68649.2025.11365041,1062,YOLOv5-Powered Smart Parking System with IoT-Based Real-Time Slot Monitoring
+R14,False,10.1109/rivf68649.2025.11365203,1296,CFD-Based Analysis of Car Aerodynamic Performances under Restricted Operating Conditions
+R15,False,10.1109/rivf68649.2025.11365175,636,From Keywords to Context: An AI Agent for Natural Language Document Lookup in the Enterprise
+R16,False,10.1109/rivf68649.2025.11365110,1259,Machine Learning-Based News Classification in Big Data Environments
+R17,False,10.1109/rivf68649.2025.11365128,1025,DoraReviewer: Vietnamese Virtual Reviewer with GraphRAG and LLM
+R18,False,10.1109/rivf68649.2025.11365223,1209,Enhancing Chest Radiograph Classification via a Dual-Model Ensemble
+R19,False,10.1109/rivf68649.2025.11365135,1189,Detecting “Nine-Dash Line” Images in Digital Content via Faster R-CNN and DINOv2-Based Knowledge Distillation
+R20,False,10.1109/rivf68649.2025.11365194,786,Multi-Stakeholder Fairness in Recommendation Systems Using Distance Correlation
+R21,False,10.1109/rivf68649.2025.11365119,953,A Parallel UE/gNB Emulator for Large-Scale Validation of 5G Core Networks
+R22,False,10.1109/rivf68649.2025.11365179,785,Introducing Multi-Level Modulation for Improving Spectral Efficiency in Modified Walsh-Hadamard Code Division Multiplexing
+R23,False,10.1109/rivf68649.2025.11365066,1005,Array Pattern Synthesis Using Adaptive Gradient Method for RIS-Aided Wireless Networks
+R24,False,10.1109/rivf68649.2025.11365219,989,Real-Time Multi-Behavior Driver Monitoring with a Single-Stage Detector
+R25,False,10.1109/rivf68649.2025.11365050,1076,ViMER-Tri: A Trimodal Vietnamese Emotion Recognition System with Adaptive Missing-Modality Fusion
+R26,False,10.1109/rivf68649.2025.11365129,1752,EvoSIEM: Detecting and Generating SIEM Rule Evasion Behaviors in Network Systems
+R27,False,10.1109/rivf68649.2025.11365106,1430,A Knowledge Distillation Approach for Diffusion-Based Generative Skin Lesion Segmentation
+R28,False,10.1109/rivf68649.2025.11365054,1225,GPTViet: An Open-Source Vietnamese Foundation Model from Pretraining to Domain Specialization
+R29,False,10.1109/rivf68649.2025.11365220,1311,Debate-to-Decide: A Deliberative Multi-Agent Framework for Fair and Explainable Student Credit Scoring
+R30,False,10.1109/rivf68649.2025.11365182,1238,Beyond Time-Series: Aligning Modalities and Architectures for Student Dropout Prediction
+R31,False,10.1109/rivf68649.2025.11365178,758,Improving the Performance of the Lightweight Detector Through Effective Collaboration with Visibility Enhancement Technique
+R32,False,10.1109/rivf68649.2025.11365079,1072,Development of YOLO-Based Fall Detection with Real-Time Monitoring System on Raspberry Pi 5
+R33,True,LOCAL:paper/main.tex,1350,Citation-Level Unfaithfulness of Small Language Models on Vietnamese Banking Regulation: A Provenance-Guarded RAG Benchmark
+R34,False,10.1109/rivf68649.2025.11365115,1160,Empirical Evaluation of Evolutionary NAS with Training-Free Metrics for Discovering Robust Networks Under Adversarial Training
+R35,False,10.1109/rivf68649.2025.11365180,1202,Genetic Algorithm Optimized Controllers for Wind Power Fluctuation Mitigation in Power Grids
+R36,False,10.1109/rivf68649.2025.11365216,1297,Visual Inspection of CNC Milling Tool Defects: A Study with Few-Shot Learning
+R37,False,10.1109/rivf68649.2025.11365197,1082,An Experimental Study of Walrus Optimization-Based Deep Learning Models for Software Effort Estimation
+R38,False,10.1109/rivf68649.2025.11365158,1407,SilkLDP: A Pixel-Level Annotated Dataset and Deep Learning Approach for Silkworm Disease Detection
+R39,False,10.1109/rivf68649.2025.11364526,1322,Development of a Humanoid Robot Prototype for Multimodal Human-Robot Interaction
+R40,False,10.1109/rivf68649.2025.11365082,1274,Urban Perception Analysis via Transformer-Based Image Segmentation: A Deep Dive Into City Understanding
+R41,False,10.1109/rivf68649.2025.11365035,1258,A Two-Tiered Vietnamese Benchmark Dataset for TikTok Engagement Prediction in the Cosmetics Sector
+R42,False,10.1109/rivf68649.2025.11365060,1577,ASA-IDS: Attribution-Stealth Adversarial Attacks for Network Intrusion Detection Systems
+R43,False,10.1109/rivf68649.2025.11364527,1435,O2O: Fine-Tuning Diffusion Models with Reinforcement Learning Using A Hybrid of Generated and Real Images
+R44,False,10.1109/rivf68649.2025.11365085,1740,An Increased Superdirective Beamformer's Performance Based on Likelihood Estimation
+R45,False,10.1109/rivf68649.2025.11365256,2010,ViTrend: A Real-Time System for Topic-Based Social Media Trend Analysis on Vietnamese Facebook
+R46,False,10.1109/rivf68649.2025.11365095,1061,High-Fidelity Beam Selection in the Upper Mid-Band Using Digital Twin Ray-Tracing and Deep Learning
+R47,False,10.1109/rivf68649.2025.11365257,1346,"A 1-Bit Reconfigurable Intelligent Surface: Design, Theory and Beam Steering in S and C Band"
+R48,False,10.1109/rivf68649.2025.11365209,692,Codebook Design and Hybrid Reference Signaling for AI/ML-Based Beam Management
+R49,False,10.1109/rivf68649.2025.11365143,1414,Computer Vision in Agriculture: Cacao Bean Sorting Using Deep Learning

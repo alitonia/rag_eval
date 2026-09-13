@@ -1,0 +1,50 @@
+id,novelty,rigor,evidence,reproducibility,clarity,significance,overall,verdict,note
+E01,5,6,6,6,7,5,6,major revision,Solid 23-project dead-code removal study with concrete structural/resource measurements, but the "folklore confirmation" framing limits novelty.
+E02,6,5,4,5,6,6,5,major revision,Interesting integration of subsumption-graph based mutant prioritization with LLM test generation for Solidity, but no evaluation results are reported.
+E03,4,4,3,3,5,4,4,reject,Human-centered SAI design proposal with only preliminary unspecified results; overlaps thematically with E16.
+E04,4,5,5,5,6,5,5,major revision,Five-edition Scrum teaching experience report with useful lessons, though evaluation is qualitative and single-institution.
+E05,5,4,3,4,5,5,4,reject,Abstract ends at motivation only; no method or results are presented for the GitHub topic recommendation approach.
+E06,3,3,2,2,6,4,3,reject,A tutorial extended abstract rather than an empirical research paper; belongs in the tutorial track.
+E07,6,5,5,6,7,6,6,major revision,Structured preliminary mapping of 25 motivators and 30 demotivators for LLMs in SE education; useful feasibility contribution pending the planned SLR.
+E08,6,6,6,5,7,6,6,major revision,Survey plus interviews on trustworthy-AI practitioner needs, but the abstract omits sample size and specific findings.
+E09,4,4,3,3,5,5,4,reject,Claims an ISO 25010 evaluation of DevOps but presents no method, data, or results.
+E10,4,4,3,4,5,4,4,reject,Preliminary ChatGPT/Copilot E2E test-script study with no experimental details or quantitative outcomes in the abstract.
+E11,7,6,6,5,7,7,6,major revision,Four-case (2 Japan, 2 Germany) study with a valuable punchline—case-specific measurement undermines Hofstede-based assumptions—but scale is small and exploratory.
+E12,5,5,4,5,6,5,5,major revision,Proposal of a secure-agile 4-workflow model backed by a multivocal literature survey and metrics taxonomy, with evaluation only planned.
+E13,4,4,3,4,5,4,4,reject,Context-rich industrial chaos-engineering framework design proposal for a financial-sector company but no empirical validation.
+E14,5,6,6,6,7,6,6,major revision,Counter-intuitive 62-student vs 42-professional bug-fixing comparison that challenges student-validity assumptions, though settings were not controlled across groups.
+E15,5,4,3,5,5,5,4,reject,Future-tense proposal of an e-contract/smart-contract validation framework with no implemented or evaluated results.
+E16,4,3,2,3,5,4,3,reject,PhD proposal for a symbiotic-AI design framework with no empirical content; overlaps E03.
+E17,6,6,6,5,7,6,6,major revision,Mixed-methods survey of ~100 CBSD practitioners on AI-driven component-selection needs; solid scope but limited detail on findings.
+E18,5,5,5,5,5,5,5,major revision,Component-level sentiment-driven turnover analysis of the 23-year Gentoo ecosystem, but the abstract reports no results.
+E19,5,6,5,6,7,6,6,major revision,Systematic review of AI-driven DevSecOps approaches identifying validation and scalability gaps; method is sound but no included-study counts are given.
+E20,5,4,4,4,6,5,5,major revision,Real deployment context (7,000+ chats) but the model is only evaluated on synthetic utterances, and no accuracy metrics appear in this sensitive mental-health domain.
+E21,8,8,8,9,8,8,8,accept,Rigorous provenance-guarded RAG benchmark for Vietnamese banking regulation with concrete citation-fidelity numbers and honest reporting of failure cases.
+E22,5,4,4,4,5,5,5,major revision,Systematic mapping study of repository classification whose abstract is too thin—no study counts or findings are reported.
+E23,4,4,3,3,5,5,4,reject,Vague systematic-perspective essay on GenAI for secure coding lacking method and results.
+E24,4,3,3,4,5,5,4,reject,Motivation-only abstract that never states method, data, or findings for developer reception of ChatGPT code review.
+E25,5,4,4,4,5,5,5,major revision,No-code blockchain microcredit case study on AstraKode, but evidence and evaluation details are thin.
+E26,4,4,3,4,4,4,4,reject,Despite the "longitudinal study" title, the abstract contains only a definition of gamification and no study content.
+E27,7,6,5,6,7,6,6,major revision,Clever relaxation of delta-debugging's monotonicity assumption via probabilistic assessment, but the abstract gives no quantitative gains.
+E28,4,5,5,5,6,4,5,major revision,Standard hybrid NN+LightGBM malware-detection comparison on CIC-Malmem 2022 with no reported metrics in the abstract.
+E29,5,4,3,4,4,5,4,reject,Abstract stops at context; no objective, method, or results for the insider-threat expert study.
+E30,7,7,7,7,7,7,7,accept,Longitudinal industrial evaluation framework for commercial LLM test generators with concrete integration details (SonarQube, leakage controls); strong fit for EASE.
+E31,6,5,4,6,6,6,5,major revision,Open-source LLMSecGuard combining static analyzers and LLMs with a benchmarking feature, but no evaluation numbers are presented.
+E32,7,7,8,7,8,7,7,accept,Well-executed 8-configuration x 30-project study quantifying environment-induced instability across three metrics with concrete percentages.
+E33,5,5,5,5,6,5,5,major revision,Mixed-methods DevOps-as-a-Service adoption study, but the sample is small (12 interviews, 18 survey responses) and labeled initial results.
+E34,5,4,3,4,5,5,4,reject,Persona-based security-requirements-elicitation approach that needs evaluation; validation is not presented.
+E35,6,5,5,6,6,6,5,major revision,Valuable niche—negative complement sets for vulnerability-fix commits—but no dataset size or quality assessment is reported.
+E36,6,6,7,5,7,6,7,accept,VulDL reports remarkably high detection/localization F1 scores on a comparative benchmark, though near-ceiling numbers warrant scrutiny of dataset construction.
+E37,8,7,6,6,8,8,7,accept,Sharp mathematical-plus-empirical critique showing effort-aware defect metrics are actually size-aware; high significance for how EAM results are interpreted.
+E38,5,4,3,4,5,5,4,reject,Motivation-only abstract for LLM run-time error repair; no benchmark, method, or results.
+E39,7,6,7,6,7,7,7,accept,Large-scale labeling-function study over 150K GitHub developers with survey validation and striking quantitative deltas.
+E40,6,6,6,6,6,6,6,major revision,18-LLM LeetCode performance comparison with a new efficiency measurement method and honest contamination discussion.
+E41,5,3,2,3,5,5,4,reject,PhD proposal on GNN individual-fairness testing with only planned work.
+E42,5,5,4,5,5,5,5,major revision,Re-evaluation of logical-specification methods that is too vague on what was reproduced and what was found.
+E43,5,4,4,4,5,6,4,reject,Gender-diversity doctoral agenda without concrete empirical results; the abstract reports no specific intervention outcomes.
+E44,7,7,7,6,6,6,7,accept,Broad experimental mapping of 46 gadget chains over 244 JDK and 5,455 dependency versions—large-scale and directly useful for deserialization risk assessment.
+E45,8,7,6,6,7,7,7,accept,vTikZ is a first benchmark for visual-feedback code customization with parameterized ground truths; clear novelty despite modest evaluation scope.
+E46,7,7,7,6,7,7,7,accept,Eye-tracking-based NRevisit understandability metric validated against EEG cognitive load with very high correlations, though the near-perfect rs values invite scrutiny.
+E47,4,3,2,3,4,4,3,reject,Generic AI/ML predictive-analytics design proposal with an algorithm but no evaluation results.
+E48,5,6,6,7,7,5,6,major revision,Honest comment-smell detection study with open artifacts and a clear RF baseline (69% accuracy, MCC 0.44), plus a documented GPT-4 augmentation gain.
+E49,5,5,4,5,6,5,5,major revision,Small 34-respondent survey on security activities in Agile yielding the modest finding that practitioners doubt security activities' actual impact.

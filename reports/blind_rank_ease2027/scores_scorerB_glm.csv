@@ -1,0 +1,50 @@
+id,novelty,rigor,evidence,reproducibility,clarity,significance,overall,verdict,note
+E01,5,6,6,6,7,5,5,accept,Complete and statistically grounded confirmation study over 23 Java applications; novelty limited to confirming expected effects
+E02,7,4,3,4,6,6,5,major revision,Novel mutation-prioritized LLM test generation for Solidity but the abstract reports no empirical evaluation
+E03,4,3,2,2,4,4,3,reject,Preliminary PhD-stage plans for Symbiotic AI design with no results; belongs in a doctoral symposium
+E04,4,5,5,4,6,4,5,accept,Useful five-edition experience report on teaching Scrum; rigor and generalizability are limited and fit is education/experience track
+E05,6,4,3,4,6,5,5,major revision,PLM-based topic recommendation with distribution-balance loss is promising but no method detail or results are given
+E06,2,2,2,2,5,3,3,reject,Extended abstract for a tutorial rather than a research contribution
+E07,5,4,4,4,7,5,5,major revision,Systematic thematic mapping of 55 motivators and demotivators is useful but explicitly preliminary groundwork
+E08,6,6,5,5,7,6,6,accept,Solid survey and interview study of Trustworthy AI practitioners with actionable recommendations; sample sizes unstated
+E09,4,3,3,3,6,5,4,reject,ISO 25010 analysis of DevOps lacks any described method or concrete findings
+E10,5,4,3,3,6,4,4,reject,Preliminary two-tool feasibility test with no reported results or metrics
+E11,6,6,6,5,8,6,6,accept,Well-structured multiple case study showing country-level cultural dimensions mislead SE research; valuable methodological warning
+E12,5,4,4,4,5,5,5,major revision,Security-in-agile 4-workflow proposal with a multivocally derived taxonomy but no empirical validation
+E13,5,4,4,3,6,5,5,major revision,Concrete industry-grounded chaos engineering design proposal that currently lacks any evaluation
+E14,5,6,6,5,7,6,6,accept,Honest n=104 student-vs-professional comparison on a bug-fixing task with provocative divergent findings
+E15,4,2,2,2,4,4,3,reject,Vague framework proposal with no method or evaluation
+E16,4,2,2,2,6,4,3,reject,PhD proposal describing aims only; no research contribution yet
+E17,5,6,6,5,6,5,5,major revision,Sizable mixed-methods survey on CBSD component selection needs but findings are not reported
+E18,5,2,2,2,6,5,4,reject,Motivation-only abstract with no method or results on Gentoo developer dynamics
+E19,4,4,4,3,6,5,5,major revision,Topical SLR of AI-driven DevSecOps security but with no corpus size or protocol detail
+E20,5,3,3,2,4,5,4,reject,Architecture sketch for emotional-support risk detection without evaluation or validation
+E21,7,7,7,7,7,7,7,accept,Rigorous provenance-guarded Vietnamese legal RAG benchmark with clause-level citation metrics and honest negative findings
+E22,4,4,4,4,6,5,5,major revision,Mapping study addressing a real gap but reports no protocol details or findings
+E23,4,3,3,3,5,5,4,reject,Loosely specified review of GenAI for secure coding with no protocol or concrete findings
+E24,5,2,2,2,6,5,3,reject,Background-only abstract with no method or findings on ChatGPT code review perception
+E25,4,3,3,2,6,4,4,reject,Single no-code blockchain case study that reads as platform promotion with limited evaluative depth
+E26,4,2,2,2,5,4,3,reject,Background-only abstract despite the longitudinal-study claim in the title
+E27,7,5,4,5,7,6,6,accept,Clean algorithmic enhancement of delta debugging relaxing the monotonicity assumption; empirical gains not quantified in the abstract
+E28,3,4,3,5,6,4,4,reject,Routine hybrid-ML malware classifier on a public dataset with no reported results
+E29,5,2,2,2,6,5,3,reject,Context-only abstract for an expert-interview study with no method or findings
+E30,7,6,6,5,7,7,7,accept,Practical longitudinal framework for continuously re-evaluating industrial LLM test generation addressing leakage and reproducibility
+E31,5,4,4,6,6,5,5,major revision,Open-source static-analyzer plus LLM security framework whose effectiveness evidence is absent from the abstract
+E32,6,7,7,6,7,6,7,accept,Well-controlled 30-system 8-configuration experiment quantifying environment-induced instability with concrete numbers
+E33,5,6,5,4,7,5,5,accept,First mixed-methods evidence on DaaS adoption barriers from 12 interviews and 18 survey respondents
+E34,5,3,2,3,6,5,4,reject,Persona-based security requirements approach described without any validation
+E35,6,3,3,5,6,6,5,major revision,Needed dataset contribution but the negative-example construction method and quality controls are undescribed
+E36,6,5,5,5,7,6,5,major revision,Promising joint detection and localization design but near-ceiling F1s on curated datasets raise leakage concerns
+E37,7,7,6,6,8,7,7,accept,Sharp mathematical and empirical demonstration that effort-aware defect prediction metrics are actually size-aware
+E38,6,2,2,2,6,6,4,reject,Motivation-only abstract for an LLM run-time-repair benchmark with no design or results
+E39,7,6,6,5,7,7,7,accept,Creative validated labeling-function operationalization of motivation applied at 150k-developer scale
+E40,5,6,6,5,7,6,6,accept,Broad 18-LLM runtime-efficiency comparison on Leetcode with candid treatment of contamination and measurement reliability
+E41,6,2,2,2,7,6,4,reject,PhD project plan for GNN individual-fairness testing without initial results
+E42,5,5,5,5,5,4,5,major revision,Worthwhile replication of automated logical specification but underspecified provers and benchmarks prevent assessment
+E43,5,3,2,2,6,5,4,reject,Doctoral plan for gender-diversity interventions without initial results
+E44,7,7,7,6,6,7,7,accept,Large-scale systematic study of deserialization gadget-chain prerequisites with a practical detection tool and sobering findings
+E45,7,6,6,6,7,6,7,accept,First benchmark for visually faithful LLM code customization with parameterized ground truths and a revealing evaluation
+E46,7,6,6,5,7,6,6,accept,Novel gaze-based personalized understandability metric strongly correlated with EEG cognitive load in a 35-participant experiment; ground-truth validity needs scrutiny
+E47,3,2,2,2,4,4,3,reject,Buzzword-heavy proposed methodology with no evaluation dataset or metrics
+E48,5,6,6,7,7,5,6,accept,Transparently reported ML vs GPT-4 comment-smell classification with released artifacts despite modest accuracy
+E49,5,5,5,4,7,5,5,accept,Clear 34-practitioner survey showing belief in security activities without confidence in their security impact
