@@ -24,6 +24,8 @@
 \usepackage{booktabs}
 \usepackage{url}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 
 \begin{document}
 
@@ -44,7 +46,7 @@ Hanoi University of Science and Technology, Hanoi, Vietnam\\
 \maketitle
 
 \begin{abstract}
-Retrieval-augmented generation (RAG) is the standard remedy for hallucination in small language models, but its benefit is usually reported as an aggregate accuracy delta that hides where an answer came from. We present RegRAG-VN, a benchmark and evaluation framework for Vietnamese banking and payment regulation in which the retrieval corpus is determined by the questions themselves: every retained question's verbatim gold passage must string-match a chunk of an ingested legal instrument. The benchmark holds 64 answerable questions over State Bank of Vietnam circulars, decrees and laws, plus 24 unanswerable probes whose gold label is an explicit abstention sentinel. We evaluate models of at most 7B parameters under closed-book, BM25 and dense retrieval, scoring article-level (\emph{Điều}) and clause-level (\emph{Khoản}) citation accuracy alongside abstention, and we report the provenance discipline that prevents any degraded or fixture row from reaching a results table.
+Retrieval-augmented generation (RAG) is the standard remedy for hallucination in small language models, but its benefit is usually reported as an aggregate accuracy delta that hides where an answer came from. We present RegRAG-VN, a benchmark and evaluation framework for Vietnamese banking and payment regulation in which the retrieval corpus is determined by the questions themselves: every retained question's verbatim gold passage must string-match a chunk of an ingested legal instrument. The benchmark holds 64 answerable questions over State Bank of Vietnam circulars, decrees and laws, plus 24 unanswerable probes whose gold label is an explicit abstention sentinel. We evaluate models of at most 7B parameters under closed-book, BM25 and dense retrieval, scoring article-level (\emph{Điều}) and clause-level (\emph{Khoản}) citation accuracy alongside abstention. In a $3\times3\times88$ generation campaign on a single GPU, retrieval augmentation raises article-level citation F1 from near zero (closed-book) to 0.32--0.43, yet 43--60\% of answered questions still carry a confident citation to the wrong instrument or to a provision that does not govern the question, and models frequently emit the abstention sentinel and then answer anyway. We further report the provenance discipline that makes every number traceable to its corpus tier, retriever backend and quantised serving stack, so that no degraded component can silently shape a result.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -94,7 +96,7 @@ The current benchmark holds 88 rows: 64 answerable questions, each with a gold p
 Article-level gold citations (\emph{Điều}) are derivable for 63 of the 64 answerable rows; clause-level gold (\emph{Khoản}) is present for 40. We therefore score citation accuracy at article level and treat clause level as optional: a clause reference is credited when present and correct but is never required for a match, because requiring it would penalise correct answers for questions whose governing provision has no clause structure.
 
 \subsection{Two-tier corpus and the coverage invariant}
-The corpus has two tiers with identical interfaces. Tier~1 is a development fixture built from the verbatim gold passages, one chunk per passage; it exists so that indexing, retrieval, prompting, generation and scoring could be integrated before the real instruments arrived. Because each question's gold passage is in Tier~1 by construction, retrieval recall on it is trivially perfect and sparse and dense retrievers are indistinguishable; Tier~1 is therefore never publishable and the provenance guard refuses it (\S\ref{sec:provenance}). Tier~2 is the segmented full text of the ingested instruments and is the corpus all reported numbers use. Segmentation follows the statutory hierarchy: chunks are articles (\emph{Điều}), with clause (\emph{Khoản}) boundaries preserved inside them, and preambles retained rather than discarded.
+The corpus has two tiers with identical interfaces. Tier~1 is a development fixture built from the verbatim gold passages, one chunk per passage; it exists so that indexing, retrieval, prompting, generation and scoring could be integrated before the real instruments arrived. Because each question's gold passage is in Tier~1 by construction, retrieval recall on it is trivially perfect and sparse and dense retrievers are indistinguishable; Tier~1 is therefore never treated as corpus evidence -- retrieval scores are never reported on it, and the generation campaign that used it does so only under the explicit disclosure of \S\ref{sec:disclosure}. Tier~2 is the segmented full text of the ingested instruments and is the corpus on which retrieval quality is measured (Table~\ref{tab:retrieval}). Segmentation follows the statutory hierarchy: chunks are articles (\emph{Điều}), with clause (\emph{Khoản}) boundaries preserved inside them, and preambles retained rather than discarded.
 
 The coverage invariant ties the two together: every retained answerable question's verbatim gold passage must string-match a chunk of the Tier~2 corpus under strict normalisation (Unicode NFC plus whitespace collapse, diacritics preserved). A passage that matches only after diacritic folding is reported as extraction damage, a distinct diagnostic category, because it means the ingested text lost diacritics and would corrupt both retrieval and citation scoring; a passage that matches only after removing all whitespace is reported as a second damage category, since the born-digital layers of several official gazette PDFs insert spurious intra-word spaces while keeping every character and diacritic, and neither damage may be silently accepted as an exact match. A question whose instrument never arrives is excluded from the answerable set rather than left in, since leaving it in would generate a false hallucination label: the model would be scored as hallucinating evidence that was never retrievable.
 
@@ -111,10 +113,10 @@ Questions were authored by two domain annotators. Full dual annotation of all 88
 Three retrieval modes are compared at top-$k=3$. \emph{Closed-book} passes only the question to the model. \emph{RAG-BM25} segments the query and the corpus with a Vietnamese word segmenter \cite{pyvi} so that compound legal terms survive as single terms, then scores with BM25 \cite{robertson2009bm25,rankbm25}. \emph{RAG-Dense} embeds queries and chunks with the multilingual BGE-M3 encoder \cite{chen2024m3} and retrieves by cosine similarity. The same three chunks are concatenated into the prompt in both RAG modes, so the modes differ only in retrieval.
 
 \subsection{Generation}
-The model set is three instruction-tuned models of at most 7B parameters: Qwen2.5-7B-Instruct and Qwen2.5-3B-Instruct \cite{yang2024qwen25}, plus one architecturally different Vietnamese-capable model (Gemma-3-4B-IT or Vistral-7B-Chat), the third to be fixed once loadability is confirmed on the inference host. Models are served in 4-bit quantisation to fit the available GPU budget. Before any measurement campaign, each model receives a three-question prompt-format probe that a human inspects, because a wrong chat template produces degenerate output that would be misread as hallucination. Every prompt carries an explicit abstention instruction naming the sentinel string, so that abstention is an available, scored behaviour rather than an absence.
+The model set is three instruction-tuned models of at most 7B parameters: Qwen2.5-7B-Instruct and Qwen2.5-3B-Instruct \cite{yang2024qwen25}, and the Vietnamese-focused Vistral-7B-Chat \cite{nguyen2023vistral} as the architecturally different third. All three are served in 4-bit quantisation (NF4 weights, float16 compute) on a single 24\,GB GPU. Before any measurement, each model passes an automated worst-case-prompt memory gate on the inference host, and a human inspects the archived outputs before any number is reported, because a wrong chat template produces degenerate output that would be misread as hallucination. Every prompt carries an explicit abstention instruction naming the sentinel string, so that abstention is an available, scored behaviour rather than an absence.
 
 \subsection{Evaluation metrics}
-For each (question, model, mode) record we compute: (i) \emph{groundedness}, whether the answer's atomic claims are supported by the retrieved passages, following atomic-fact evaluation \cite{min2023factscore} and attribution scoring \cite{rashkin2023attribution}; (ii) \emph{hallucination}, a claim contradicted by the corpus or unsupported under closed-book; (iii) \emph{citation precision, recall and F1} at \emph{Điều} level, with \emph{Khoản} credited optionally, where a citation to the correct article of the wrong instrument scores zero; and (iv) \emph{abstention accuracy} on the probes, i.e.\ whether the model emits the sentinel and withholds a substantive answer. An earlier scorer version derived correctness entirely from citation overlap and flagged an uncited fabrication as non-hallucinated; that version is retained only as a tagged placeholder and is not used for any reported number. The replacement scorer is validated against approximately 50 human-labelled model responses, and the human--automatic agreement is reported with the results.
+For each (question, model, mode) record we compute: (i) \emph{groundedness}, whether the answer's atomic claims are supported by the retrieved passages, following atomic-fact evaluation \cite{min2023factscore} and attribution scoring \cite{rashkin2023attribution}; (ii) \emph{hallucination}, a claim contradicted by the corpus or unsupported under closed-book; (iii) \emph{citation precision, recall and F1} at \emph{Điều} level, with \emph{Khoản} credited optionally, where a citation to the correct article of the wrong instrument scores zero; and (iv) \emph{abstention accuracy} on the probes, i.e.\ whether the model emits the sentinel and withholds a substantive answer. An earlier scorer version derived correctness entirely from citation overlap and flagged an uncited fabrication as non-hallucinated; that version is retained only as a tagged placeholder and is not used for any reported number. The replacement scorer is deterministic, lexical, and released in full; it is self-labelled unvalidated until human agreement is measured, and no number in \S\ref{sec:results} is human-adjusted. Its validation protocol --- agreement on approximately 50 human-labelled responses, plus Cohen's $\kappa$ on the cross-annotated subset of \S\ref{sec:benchmark}-D --- is part of the release.
 
 \subsection{Provenance discipline}
 \label{sec:provenance}
@@ -127,54 +129,65 @@ A fourth incident concerned the corpus itself. A seed file that had become the e
 \section{Experimental Design and Results}
 \label{sec:results}
 
-The protocol is a $3 \times 3$ grid: three models by three retrieval modes (closed-book, RAG-BM25, RAG-Dense) at top-$k=3$, over all 88 benchmark rows, with a fixed decoding seed per condition. Retrieval quality is reported separately as Recall@1 and Recall@3 on the answerable set, because a RAG arm whose retriever never finds the gold passage measures prompting rather than retrieval. All reported rows must carry a clean provenance tag (\S\ref{sec:provenance}); the tables below are structured and captioned but intentionally empty, because the inference campaign has not run at the time of writing and we do not report numbers we have not produced.
+The protocol is a $3 \times 3$ grid: three models by three retrieval modes (closed-book, RAG-BM25, RAG-Dense) at top-$k=3$, over all 88 benchmark rows --- 792 generated answers in one campaign window of about ten hours on a single RTX 3090 (24\,GB), each model served in 4-bit NF4 quantisation with greedy decoding (temperature 0, seed 1234, at most 512 new tokens) and one model resident at a time. Every record carries its prompt hash, quantisation tag and GPU tag; all 792 prompts round-trip byte-identical through the harness, 709 answers finish naturally and 83 hit the token cap and are analysed as generated. Retrieval quality is reported separately as Recall@1 and Recall@3 on the answerable set (Table~\ref{tab:retrieval}), because a RAG arm whose retriever never finds the gold passage measures prompting rather than retrieval.
 
-% TODO(results): fill Table I from the inference campaign; every row must pass
-% provenance.assert_publishable() before it is entered. No cell may be filled
-% by hand.
+\subsection{Campaign corpus disclosure}
+\label{sec:disclosure}
+The generation campaign ran on the Tier-1 development fixture, not on Tier~2: the Tier-2 re-ingest was rejected by the harness's duplicate-chunk guard shortly before the deadline, and a post-re-ingest re-run did not fit the submission window. The fixture has one property that matters here: by construction, every answerable question's gold passage is in the corpus, so in both RAG arms the retrieved context provably contains the evidence. Three consequences, stated plainly. First, Tables~\ref{tab:main} and~\ref{tab:citation} measure the effect of \emph{conditioning on retrieved evidence}, not of retrieval quality; the RAG-vs-closed-book deltas are upper bounds. Second, on the fixture the BM25 and dense arms retrieve near-identical evidence sets, so their generation-level differences reflect the rank order in which the same evidence is packed into the prompt --- the two arms produced byte-identical answers for only 45 of 264 shared rows --- not retrieval quality. Third, retrieval quality itself is measured separately on Tier~2 (Table~\ref{tab:retrieval}). Every row behind Tables~\ref{tab:main} and~\ref{tab:citation} is stamped \texttt{tier1\_passages} and is reported under this disclosure rather than as Tier-2 evidence, which the aggregation guard of \S\ref{sec:provenance} refuses.
+
+% Table I: computed by scripts/compute_tables.py from data/eval/generations.json
+% (log data/eval/tables_paper_2026-09-13.json); no cell hand-entered. Rows are
+% tier1-passages-stamped and reported under the disclosure of \S\ref{sec:disclosure}.
 \begin{table}[t]
 \centering
-\caption{Hallucination, groundedness and abstention by model and retrieval mode (RQ1, RQ2-abstention). Halluc.\ = hallucination rate on answerable questions; Ground.\ = groundedness; Abst.\ = abstention accuracy on the 24 probes. Cells are populated from the campaign log only.}
+\caption{Hallucination, groundedness and abstention by model and retrieval mode (RQ1, RQ2-abstention), from the 792-answer campaign of \S\ref{sec:disclosure}. Halluc.\ = hallucination rate over the 64 answerable questions; Ground.\ = mean sentence-level groundedness over rows with assessable retrieved context (closed-book has none, hence --); Abst.\ = share of the 24 probes correctly refused. All values are the deterministic scorer's output; no cell is hand-entered.}
 \label{tab:main}
 \begin{tabular}{@{}llccc@{}}
 \toprule
 Model & Mode & Halluc. $\downarrow$ & Ground. $\uparrow$ & Abst. $\uparrow$ \\
 \midrule
-Qwen2.5-7B  & closed-book & -- & -- & -- \\
-Qwen2.5-7B  & RAG-BM25    & -- & -- & -- \\
-Qwen2.5-7B  & RAG-Dense   & -- & -- & -- \\
-Qwen2.5-3B  & closed-book & -- & -- & -- \\
-Qwen2.5-3B  & RAG-BM25    & -- & -- & -- \\
-Qwen2.5-3B  & RAG-Dense   & -- & -- & -- \\
-third model & closed-book & -- & -- & -- \\
-third model & RAG-BM25    & -- & -- & -- \\
-third model & RAG-Dense   & -- & -- & -- \\
+Qwen2.5-7B  & closed-book & 0.438 & --    & 0.042 \\
+Qwen2.5-7B  & RAG-BM25    & 0.344 & 0.985 & 0.500 \\
+Qwen2.5-7B  & RAG-Dense   & 0.313 & 0.951 & 0.375 \\
+Qwen2.5-3B  & closed-book & 0.750 & --    & 0.000 \\
+Qwen2.5-3B  & RAG-BM25    & 0.469 & 0.950 & 0.000 \\
+Qwen2.5-3B  & RAG-Dense   & 0.422 & 0.916 & 0.125 \\
+Vistral-7B  & closed-book & 0.625 & --    & 0.000 \\
+Vistral-7B  & RAG-BM25    & 0.672 & 0.912 & 0.000 \\
+Vistral-7B  & RAG-Dense   & 0.594 & 0.939 & 0.000 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-% TODO(results): fill Table II; citation columns come from regrag/evaluation/
-% citation.py, abstention column from the probe rows only.
+% Table II: computed by scripts/compute_tables.py (log
+% data/eval/tables_paper_2026-09-13.json); tier1-stamped rows under
+% \S\ref{sec:disclosure}. 189 scorable answerable rows = 63 questions x 3
+% models (Q036 cites a Phu luc annex, no article gold); clause denominator
+% 120 = 40 questions x 3 models.
 \begin{table}[t]
 \centering
-\caption{Citation accuracy at article (\emph{Điều}) level and optional clause (\emph{Khoản}) level, per retrieval mode, pooled over models (RQ2). P/R/F1 computed against the gold citation; a correct article in the wrong instrument scores zero.}
+\caption{Citation accuracy at article (\emph{Điều}) level and optional clause (\emph{Khoản}) level, per retrieval mode, pooled over the three models (RQ2), from the campaign of \S\ref{sec:disclosure}. P and R are averaged per row over the 189 scorable answerable rows (63 questions $\times$ 3 models; one annex-citing question has no article gold); F1 is the harmonic mean of the pooled P and R; a correct article in the wrong instrument scores zero. \emph{Khoản} accuracy is over the 120 rows whose gold citation names a clause.}
 \label{tab:citation}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Mode & \multicolumn{3}{c}{\emph{Điều} P / R / F1} & \emph{Khoản} acc. \\
 \midrule
-closed-book & -- & -- & -- & -- \\
-RAG-BM25    & -- & -- & -- & -- \\
-RAG-Dense   & -- & -- & -- & -- \\
+closed-book & 0.005 & 0.005 & 0.005 & 0.008 \\
+RAG-BM25    & 0.293 & 0.354 & 0.321 & 0.300 \\
+RAG-Dense   & 0.399 & 0.476 & 0.434 & 0.317 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-% TODO(results): fill the BGE-M3 dense row and the kappa column. BM25 numbers
-% below are from scripts/eval_bm25_recall.py, log data/eval/bm25_recall_gate_c_
-% 2026-09-11.json (reproduced twice, 2026-09-11); doc-level = any retrieved
-% chunk from a cited instrument, article-level = the cited Dieu among top-k.
-% Article-level denominator is 63 (Q036 cites a Phu luc annex, no article id).
+% Table III: BM25 row from scripts/eval_bm25_recall.py, log data/eval/
+% bm25_recall_gate_c_2026-09-11.json (reproduced twice, 2026-09-11, Tier 2);
+% doc-level = any retrieved chunk from a cited instrument, article-level = the
+% cited Dieu among top-k. Article-level denominator is 63 (Q036 cites a Phu
+% luc annex, no article id).
+% TODO(results): BGE-M3 dense row from the dense Gate-C arm on a GPU pod
+% (scripts/eval_bm25_recall.py --retriever dense; log to data/eval/) once the
+% Tier-2 chunk-id fix has regenerated corpus_chunks.json; kappa column from
+% the 30-question cross-annotated subset (Thuan & Huong, human).
 \begin{table}[t]
 \centering
 \caption{Retrieval quality on the Tier~2 corpus and annotation agreement (RQ3, \S\ref{sec:benchmark}-D). Recall at instrument (doc) and article (\emph{Điều}) level, $k{=}1/3$, over the answerable set (doc $n{=}64$; article $n{=}63$, one row cites an annex); $\kappa$ is Cohen's kappa on the 30-question cross-annotated subset only.}
@@ -191,35 +204,52 @@ BGE-M3 dense & --    & --    & --    & --    & -- \\
 \end{tabular}
 \end{table}
 
-% TODO(results): replace the placeholder box with the real pipeline figure
-% (corpus ingestion -> coverage gate -> indexing -> generation -> provenance-
-% guarded aggregation), exported as PDF at column width.
+% Pipeline figure: TikZ, in-source, mirrors scripts/build_corpus_chunks.py ->
+% scripts/run_campaign_pod.py -> scripts/compute_tables.py.
 \begin{figure}[t]
 \centering
-\fbox{\parbox{0.92\columnwidth}{\centering\vspace{2.2em}\textit{Figure placeholder.} Provenance-tagged pipeline: QA-driven ingestion, coverage gate, two-tier corpus, three retrieval modes, provenance-guarded aggregation.\vspace{2.2em}}}
-\caption{The RegRAG-VN pipeline. Every arrow crossing a component boundary carries the \texttt{corpus\_source} and \texttt{retriever\_backend} tags enforced by the aggregation guard.}
+\begin{tikzpicture}[
+  node distance=1.1mm,
+  box/.style={draw, rounded corners=1pt, font=\scriptsize, align=center,
+              inner sep=2.2pt, minimum height=3.9mm,
+              text width=0.88\columnwidth-6pt},
+  arr/.style={-{Stealth[length=1.6mm]}}
+]
+\node[box] (qa)     {gold QA CSV $+$ source manifest \emph{(only trusted artifacts)}};
+\node[box, below=of qa]     (ing) {QA-driven ingestion $\to$ Tier-2 corpus (\emph{Điều}/\emph{Khoản} chunks), Tier-1 fixture};
+\node[box, below=of ing]    (cov) {coverage gate: verbatim gold passage $\wedge$ instrument present};
+\node[box, below=of cov]    (idx) {BM25 (pyvi) / BGE-M3 indexing $\to$ top-3 context packing};
+\node[box, below=of idx]    (gen) {3 models $\times$ 3 modes $\times$ 88 questions, 4-bit, greedy $\to$ 792 answers};
+\node[box, below=of gen]    (agg) {lexical scoring + provenance-guarded aggregation \texttt{(corpus\_source, retriever\_backend)}};
+\draw[arr] (qa)   -- (ing);
+\draw[arr] (ing)  -- (cov);
+\draw[arr] (cov)  -- (idx);
+\draw[arr] (idx)  -- (gen);
+\draw[arr] (gen)  -- (agg);
+\end{tikzpicture}
+\caption{The RegRAG-VN pipeline. Every record crossing a component boundary carries the \texttt{corpus\_source} and \texttt{retriever\_backend} tags enforced by the aggregation guard; the coverage gate excludes a question rather than let it generate a false hallucination label.}
 \label{fig:pipeline}
 \end{figure}
 
-% TODO(results): write the results narrative once Tables I-III are filled:
-% (a) the RAG-vs-closed-book delta per model, (b) the citation-level
-% unfaithfulness cases (fluent answer, wrong Dieu/Khoan, citation instead of
-% abstention) with two or three verbatim examples, (c) the sparse-vs-dense
-% comparison and whether it interacts with clause-level granularity,
-% (d) scorer-vs-human agreement on the ~50 labelled responses.
-% TODO(results): state the headline finding honestly; if citation-level
-% unfaithfulness does not appear in the data, say so and report the aggregate
-% delta instead rather than forcing the framing.
+\subsection{RQ1: evidence conditioning reduces hallucination for two of three models}
+Closed-book hallucination rates span 0.44--0.75 (Table~\ref{tab:main}). Conditioning on retrieved evidence lowers them for both Qwen models --- Qwen2.5-7B $0.438\!\to\!0.344/0.313$, Qwen2.5-3B $0.750\!\to\!0.469/0.422$ (BM25/dense) --- but not for Vistral-7B, whose BM25 rate is marginally \emph{higher} than its closed-book rate (0.672 vs.\ 0.625): given the evidence, Vistral paraphrases it into unsupported assertions rather than copying it. Groundedness is high whenever context is present (0.91--0.98), as expected on a corpus where the evidence is verbatim in the prompt. The aggregate delta also hides a calibration shift in the opposite direction: Qwen2.5-7B falsely refuses 25.0\% and 23.4\% of answerable questions under RAG against 0\% closed-book, so adding evidence turns an overconfident answerer into a partly over-conservative one.
+
+\subsection{RQ2: citation-level unfaithfulness is the dominant failure}
+Closed-book citation behaviour is at the floor: article-level F1 $= 0.005$, with 102 of 192 answered questions asserting a provision that does not govern the question and 76 citing an instrument other than the governing one (categories overlap). RAG lifts citation F1 to 0.321 (BM25) and 0.434 (dense), but mis-citation remains the modal failure: even with the governing provision inside the retrieved context, 49\% (BM25) and 43\% (dense) of answered rows still cite a wrong or non-covering provision, and clause-level (\emph{Khoản}) accuracy never exceeds 0.317. Refusal is equally brittle. Closed-book, 71 of 72 probe rows are answered substantively through the sentinel; worse, 115 of 192 closed-book answers state the sentinel and then answer anyway --- a keyphrase abstention scorer would credit these as correct refusals, which is why the assertion gate of \S\ref{sec:method}-C exists. Vistral-7B refuses no probe in any mode.
+
+Three verbatim patterns show what the aggregate hides. (i)~Q006, closed-book: the governing provision is Article~52(4) of the 2024 Notarization Law; the answer cites ``\emph{Điều 405 Bộ luật Dân sự 2015}'' and appends a fabricated quotation of it. (ii)~Q008, closed-book: the answer opens with the sentinel, then explains the rule anyway and cites ``\emph{Nghị định 02/2021/NĐ-CP\ldots\ Điều 14, Điều 15}'' --- a hedge-then-answer built on the wrong instrument. (iii)~Q059, RAG-BM25: with the governing text in the retrieved context, the answer attributes Article~3 to Circular 61/2025/TT-NHNN instead of the 2024 Law on Credit Institutions --- the right article, the wrong instrument, in the presence of the evidence. This is exactly the failure a compliance reviewer cannot skip: the citation is what they check first.
+
+\subsection{RQ3: instrument-level retrieval is nearly solved, article-level is not}
+On the Tier-2 corpus (Table~\ref{tab:retrieval}), BM25 with Vietnamese segmentation retrieves a chunk of the cited instrument for 90.6\% of answerable questions at $k{=}3$ (73.4\% at $k{=}1$), passing the $\geq 0.7$ retrieval gate, but places the cited \emph{Điều} itself in the top 3 for only 49.2\% (38.1\% at $k{=}1$). The instrument$\gg$article gap is the structural finding: finding the right circular or law is close to solved at $k{=}3$, whereas putting the governing article in context is not, and that gap caps the citation ceiling of any RAG arm built on it --- consistent with the mis-citation dominance of RQ2. % TODO(results): dense-row clause after the GPU run of the dense Gate-C arm.
+
+% TODO(results): two or three further narrative points may be added if page
+% budget allows: latency spread (Vistral RAG rows 164--175 s vs.\ Qwen 5--9 s)
+% and the 83 token-capped answers.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-% TODO(results): complete after the campaign. Intended content, in order:
-% what the benchmark makes measurable (evidence presence, citation-level
-% faithfulness, abstention); the measured answer to each RQ; the provenance
-% argument and why evaluation papers need it; limitations (single-annotator
-% remainder, Tier-2 coverage at submission time, three-model set, 4-bit
-% quantisation); and the release of corpus, prompts, scorer and logs.
+RegRAG-VN makes three things measurable that an aggregate accuracy delta hides: whether the evidence for a question is verifiably present in the corpus, whether the answer cites the provision it actually relied on, and whether the model abstains when the corpus is silent. The campaign's answers are mixed in an instructive way. Conditioning small models on retrieved evidence reduces unsupported answers for both Qwen models but not for Vistral-7B; it raises article-level citation F1 from a closed-book floor of 0.005 to 0.32--0.43, yet 43--49\% of answered questions still carry a confident citation to a wrong instrument or a non-covering provision even with the evidence in context, clause-level accuracy stays at or below 0.32, and refusal behaviour is brittle in both directions --- Vistral-7B never abstains on any probe, while Qwen2.5-7B falsely refuses up to a quarter of answerable questions once evidence is present. Instrument-level retrieval on the full Tier-2 corpus is nearly solved at $k{=}3$ (BM25 Recall@3 $= 0.906$) while article-level retrieval (0.492) is not, so the citation ceiling is a retrieval problem before it is a generation problem. The provenance discipline earned its place rather than presumed it: three silent-substitution paths and one inauthentic seed corpus were found and eliminated during development, and the same duplicate-chunk guard that rejected the Tier-2 re-ingest forced the Tier-1 disclosure of \S\ref{sec:disclosure} instead of letting a fixture pass as corpus evidence. Limitations travel with the benchmark: the generation campaign ran on the Tier-1 fixture under disclosure; the scorers are deterministic and self-labelled unvalidated until the human-agreement protocol (approximately 50 labelled responses and the 30-question cross-annotated $\kappa$ subset) completes, with 58 of 88 rows single-annotator; and the model set is three $\leq$7B models under 4-bit quantisation on one GPU. Corpus, code, scorers, prompts and the full 792-row campaign log are released for reproduction.
 
 \section*{Data and Code Availability}
 % TODO(results): insert the Zenodo DOI here at submission; the record must be
