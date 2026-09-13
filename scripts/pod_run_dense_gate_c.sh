@@ -81,19 +81,35 @@ SSH "echo SSH-up" >/dev/null
 printf 'export HF_TOKEN=%s\nexport HF_ARTIFACTS_REPO=%s\n' "$HF_TOKEN" "$HF_REPO" \
   | SSH "cat > /root/.hfenv && chmod 600 /root/.hfenv && wc -c /root/.hfenv"
 
-# [4] pip in background (marker pattern with aliyun mirror fallback)
-SSH "if test -f /workspace/.pip_dense_done || test -f /workspace/.pip_done; then echo 'pip done - skip'; else nohup bash -c 'pip install --break-system-packages -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \"numpy<2\" sentence-transformers rank_bm25 pyvi requests \"huggingface_hub[cli]\" > /workspace/pip_dense.log 2>&1 && touch /workspace/.pip_dense_done' >/dev/null 2>&1 & echo 'pip launched'; fi" </dev/null
+# [4] pip in background (marker pattern with aliyun mirror fallback). Skip when
+#     a marker exists OR a pip is already mid-flight (re-run safety: never two
+#     pips racing; campaign lesson 2026-09-13).
+SSH "if test -f /workspace/.pip_dense_done || test -f /workspace/.pip_done || pgrep -f 'pip instal[l]' >/dev/null; then echo 'pip done/running - skip'; else nohup bash -c 'pip install --break-system-packages -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \"numpy<2\" sentence-transformers rank_bm25 pyvi requests \"huggingface_hub[cli]\" > /workspace/pip_dense.log 2>&1 && touch /workspace/.pip_dense_done' >/dev/null 2>&1 & echo 'pip launched'; fi" </dev/null
+
+# [4b] code + inputs pull — a fresh pod has no /workspace/rag_eval; stage the
+#      CURRENT repo state (fixed corpus + dense arm) from the HF artifacts
+#      repo, exactly like pod_run_campaign.sh [5]. Waits for pip FIRST: the
+#      pull needs the hf CLI that pip installs (first deploy failed with
+#      'hf: command not found' because the pull raced the background pip).
+echo "[4b] waiting for pip, then pulling code + inputs from $HF_REPO..."
+SSH "for i in \$(seq 1 120); do (test -f /workspace/.pip_dense_done || test -f /workspace/.pip_done) && break; sleep 5; done; (test -f /workspace/.pip_dense_done || test -f /workspace/.pip_done) || { echo '[FATAL] pip did not finish'; tail -5 /workspace/pip_dense.log 2>/dev/null; exit 1; }; command -v hf >/dev/null || { echo '[FATAL] hf missing after pip'; tail -20 /workspace/pip_dense.log 2>/dev/null; exit 1; }; set -a; . /root/.hfenv 2>/dev/null; set +a; [ -n \"\${HF_TOKEN:-}\" ] || { echo 'no HF_TOKEN'; exit 1; }; rm -rf /ws_code; hf download '$HF_REPO' --repo-type dataset --include 'regrag/code/*' --include 'regrag/inputs/*' --local-dir /ws_code && mkdir -p /workspace/rag_eval && cp -r /ws_code/regrag/code/regrag /ws_code/regrag/code/scripts /workspace/rag_eval/ && mkdir -p /workspace/rag_eval/data/gold /workspace/rag_eval/data/processed_chunks && cp /ws_code/regrag/inputs/bank_qa_data.csv /workspace/rag_eval/data/gold/ && cp /ws_code/regrag/inputs/processed_chunks/*.json /workspace/rag_eval/data/processed_chunks/ && find /workspace/rag_eval -name '*.py' | wc -l"
 
 # [5] sync eval script to the pod (assumes repo structure in /workspace/rag_eval)
 echo "[5] syncing eval script to pod..."
 SSH "mkdir -p /workspace/rag_eval/scripts /workspace/rag_eval/data/eval /workspace/logs"
 cat scripts/eval_bm25_recall.py | SSH "cat > /workspace/rag_eval/scripts/eval_bm25_recall.py"
 
-# [6] wait for pip, then verify imports + GPU
+# [5b] canonical gold (own ssh call, md5 both sides — truncation trap)
+echo "[5b] syncing canonical gold..."
+md5sum data/gold/questions_canonical.json
+cat data/gold/questions_canonical.json | SSH "cat > /workspace/rag_eval/data/gold/questions_canonical.json && md5sum /workspace/rag_eval/data/gold/questions_canonical.json"
+
+# [6] wait for pip, then verify imports + GPU + staged corpus
 echo "[6] waiting for pip..."
 SSH "for i in \$(seq 1 120); do (test -f /workspace/.pip_dense_done || test -f /workspace/.pip_done) && break; sleep 5; done; (test -f /workspace/.pip_dense_done || test -f /workspace/.pip_done) || { echo '[FATAL] pip did not finish'; tail -5 /workspace/pip_dense.log 2>/dev/null; exit 1; }; echo pip-done"
 SSH "python3 -c 'import torch; print(torch.__version__, torch.cuda.get_device_name(0), torch.cuda.get_device_properties(0).total_memory//2**30, \"GiB\")'"
 SSH "cd /workspace/rag_eval && python3 -c 'from regrag.indexing.dense import DenseIndex; print(\"dense import OK\")'"
+SSH "python3 -c \"import json; ch=json.load(open('/workspace/rag_eval/data/processed_chunks/corpus_chunks.json')); ids=[c['chunk_id'] for c in ch]; assert len(ids)==len(set(ids)), 'DUPLICATE CHUNK IDS STAGED'; print('staged corpus:', len(ch), 'chunks, ids unique')\""
 
 # [7] runner with sentinels + empty-log guards, launched under nohup.
 #     mkdir BEFORE redirecting: a missing logs dir kills stdout redirect before bash execs.
@@ -105,6 +121,7 @@ mkdir -p /workspace/logs data/eval
 echo "[start] dense_gate_c $(date -u +%H:%M:%S)" >> /workspace/logs/status.log
 set -a; . /root/.hfenv 2>/dev/null; set +a
 [ -n "${HF_TOKEN:-}" ] || { echo "[FAILED] no HF_TOKEN in runner" >> /workspace/logs/status.log; exit 1; }
+HF_REPO="${HF_ARTIFACTS_REPO:-hunopapa/regrag-artifacts}"
 
 DATE_TAG=$(date -u +%Y-%m-%d)
 OUT_JSON="data/eval/dense_recall_gate_c_${DATE_TAG}.json"

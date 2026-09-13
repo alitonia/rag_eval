@@ -180,14 +180,14 @@ RAG-Dense   & 0.399 & 0.476 & 0.434 & 0.317 \\
 \end{table}
 
 % Table III: BM25 row from scripts/eval_bm25_recall.py, log data/eval/
-% bm25_recall_gate_c_2026-09-11.json (reproduced twice, 2026-09-11, Tier 2);
-% doc-level = any retrieved chunk from a cited instrument, article-level = the
-% cited Dieu among top-k. Article-level denominator is 63 (Q036 cites a Phu
-% luc annex, no article id).
-% TODO(results): BGE-M3 dense row from the dense Gate-C arm on a GPU pod
-% (scripts/eval_bm25_recall.py --retriever dense; log to data/eval/) once the
-% Tier-2 chunk-id fix has regenerated corpus_chunks.json; kappa column from
-% the 30-question cross-annotated subset (Thuan & Huong, human).
+% bm25_recall_gate_c_2026-09-11.json (reproduced twice, 2026-09-11; reproduced
+% a third time, identically, after the chunk-id fix). Dense row from the same
+% script's dense arm, log data/eval/dense_recall_gate_c_2026-09-13.json
+% (RunPod RTX 3090, 2026-09-13). doc-level = any retrieved chunk from a cited
+% instrument, article-level = the cited Dieu among top-k. Article-level
+% denominator is 63 (Q036 cites a Phu luc annex, no article id).
+% TODO(results): kappa column from the 30-question cross-annotated subset
+% (Thành & Hương, human).
 \begin{table}[t]
 \centering
 \caption{Retrieval quality on the Tier~2 corpus and annotation agreement (RQ3, \S\ref{sec:benchmark}-D). Recall at instrument (doc) and article (\emph{Điều}) level, $k{=}1/3$, over the answerable set (doc $n{=}64$; article $n{=}63$, one row cites an annex); $\kappa$ is Cohen's kappa on the 30-question cross-annotated subset only.}
@@ -199,7 +199,7 @@ RAG-Dense   & 0.399 & 0.476 & 0.434 & 0.317 \\
 Retriever & Doc@1 & Doc@3 & Điều@1 & Điều@3 & $\kappa$ (subset) \\
 \midrule
 BM25 (pyvi) & 0.734 & 0.906 & 0.381 & 0.492 & -- \\
-BGE-M3 dense & --    & --    & --    & --    & -- \\
+BGE-M3 dense & 0.719 & 0.891 & 0.365 & 0.524 & -- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -240,7 +240,7 @@ Closed-book citation behaviour is at the floor: article-level F1 $= 0.005$, with
 Three verbatim patterns show what the aggregate hides. (i)~Q006, closed-book: the governing provision is Article~52(4) of the 2024 Notarization Law; the answer cites ``\emph{Điều 405 Bộ luật Dân sự 2015}'' and appends a fabricated quotation of it. (ii)~Q008, closed-book: the answer opens with the sentinel, then explains the rule anyway and cites ``\emph{Nghị định 02/2021/NĐ-CP\ldots\ Điều 14, Điều 15}'' --- a hedge-then-answer built on the wrong instrument. (iii)~Q059, RAG-BM25: with the governing text in the retrieved context, the answer attributes Article~3 to Circular 61/2025/TT-NHNN instead of the 2024 Law on Credit Institutions --- the right article, the wrong instrument, in the presence of the evidence. This is exactly the failure a compliance reviewer cannot skip: the citation is what they check first.
 
 \subsection{RQ3: instrument-level retrieval is nearly solved, article-level is not}
-On the Tier-2 corpus (Table~\ref{tab:retrieval}), BM25 with Vietnamese segmentation retrieves a chunk of the cited instrument for 90.6\% of answerable questions at $k{=}3$ (73.4\% at $k{=}1$), passing the $\geq 0.7$ retrieval gate, but places the cited \emph{Điều} itself in the top 3 for only 49.2\% (38.1\% at $k{=}1$). The instrument$\gg$article gap is the structural finding: finding the right circular or law is close to solved at $k{=}3$, whereas putting the governing article in context is not, and that gap caps the citation ceiling of any RAG arm built on it --- consistent with the mis-citation dominance of RQ2. % TODO(results): dense-row clause after the GPU run of the dense Gate-C arm.
+On the Tier-2 corpus (Table~\ref{tab:retrieval}), BM25 with Vietnamese segmentation retrieves a chunk of the cited instrument for 90.6\% of answerable questions at $k{=}3$ (73.4\% at $k{=}1$), passing the $\geq 0.7$ retrieval gate, but places the cited \emph{Điều} itself in the top 3 for only 49.2\% (38.1\% at $k{=}1$). The dense arm passes the same gate (89.1\% doc-level at $k{=}3$) and flips the article-level ordering at $k{=}3$ --- 52.4\% against BM25's 49.2\% --- while BM25 keeps a small instrument-level lead (90.6\% vs.\ 89.1\%): the retrievers genuinely differ, with opposite orderings at the two granularities. The instrument$\gg$article gap itself persists under both (a factor of 1.8$\times$ for BM25 and 1.7$\times$ for dense), so the structural finding stands: finding the right circular or law is close to solved at $k{=}3$, putting the governing article in context is not, and the gap caps the citation ceiling of any RAG arm built on it --- consistent with the mis-citation dominance of RQ2.
 
 % TODO(results): two or three further narrative points may be added if page
 % budget allows: latency spread (Vistral RAG rows 164--175 s vs.\ Qwen 5--9 s)
@@ -249,7 +249,7 @@ On the Tier-2 corpus (Table~\ref{tab:retrieval}), BM25 with Vietnamese segmentat
 \section{Conclusion}
 \label{sec:conclusion}
 
-RegRAG-VN makes three things measurable that an aggregate accuracy delta hides: whether the evidence for a question is verifiably present in the corpus, whether the answer cites the provision it actually relied on, and whether the model abstains when the corpus is silent. The campaign's answers are mixed in an instructive way. Conditioning small models on retrieved evidence reduces unsupported answers for both Qwen models but not for Vistral-7B; it raises article-level citation F1 from a closed-book floor of 0.005 to 0.32--0.43, yet 43--49\% of answered questions still carry a confident citation to a wrong instrument or a non-covering provision even with the evidence in context, clause-level accuracy stays at or below 0.32, and refusal behaviour is brittle in both directions --- Vistral-7B never abstains on any probe, while Qwen2.5-7B falsely refuses up to a quarter of answerable questions once evidence is present. Instrument-level retrieval on the full Tier-2 corpus is nearly solved at $k{=}3$ (BM25 Recall@3 $= 0.906$) while article-level retrieval (0.492) is not, so the citation ceiling is a retrieval problem before it is a generation problem. The provenance discipline earned its place rather than presumed it: three silent-substitution paths and one inauthentic seed corpus were found and eliminated during development, and the same duplicate-chunk guard that rejected the Tier-2 re-ingest forced the Tier-1 disclosure of \S\ref{sec:disclosure} instead of letting a fixture pass as corpus evidence. Limitations travel with the benchmark: the generation campaign ran on the Tier-1 fixture under disclosure; the scorers are deterministic and self-labelled unvalidated until the human-agreement protocol (approximately 50 labelled responses and the 30-question cross-annotated $\kappa$ subset) completes, with 58 of 88 rows single-annotator; and the model set is three $\leq$7B models under 4-bit quantisation on one GPU. Corpus, code, scorers, prompts and the full 792-row campaign log are released for reproduction.
+RegRAG-VN makes three things measurable that an aggregate accuracy delta hides: whether the evidence for a question is verifiably present in the corpus, whether the answer cites the provision it actually relied on, and whether the model abstains when the corpus is silent. The campaign's answers are mixed in an instructive way. Conditioning small models on retrieved evidence reduces unsupported answers for both Qwen models but not for Vistral-7B; it raises article-level citation F1 from a closed-book floor of 0.005 to 0.32--0.43, yet 43--49\% of answered questions still carry a confident citation to a wrong instrument or a non-covering provision even with the evidence in context, clause-level accuracy stays at or below 0.32, and refusal behaviour is brittle in both directions --- Vistral-7B never abstains on any probe, while Qwen2.5-7B falsely refuses up to a quarter of answerable questions once evidence is present. Instrument-level retrieval on the full Tier-2 corpus is nearly solved at $k{=}3$ for both retrievers (BM25 Recall@3 $= 0.906$, BGE-M3 $0.891$) while article-level retrieval is not ($0.492$ and $0.524$), and the two retrievers order differently at the two granularities, so the citation ceiling is a retrieval-structure problem before it is a generation problem and not an artifact of the sparse-versus-dense choice. The provenance discipline earned its place rather than presumed it: three silent-substitution paths and one inauthentic seed corpus were found and eliminated during development, and the same duplicate-chunk guard that rejected the Tier-2 re-ingest forced the Tier-1 disclosure of \S\ref{sec:disclosure} instead of letting a fixture pass as corpus evidence. Limitations travel with the benchmark: the generation campaign ran on the Tier-1 fixture under disclosure; the scorers are deterministic and self-labelled unvalidated until the human-agreement protocol (approximately 50 labelled responses and the 30-question cross-annotated $\kappa$ subset) completes, with 58 of 88 rows single-annotator; and the model set is three $\leq$7B models under 4-bit quantisation on one GPU. Corpus, code, scorers, prompts and the full 792-row campaign log are released for reproduction.
 
 \section*{Data and Code Availability}
 % TODO(results): insert the Zenodo DOI here at submission; the record must be
