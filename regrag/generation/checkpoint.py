@@ -368,7 +368,12 @@ class CheckpointStore:
         meta_rows = 0
         with open(meta_path, "w", encoding="utf-8") as f:
             for rec in self.records():
-                _gen, meta, _unknown = split_record(rec)
+                _gen, meta, unknown = split_record(rec)
+                # Unknown fields (e.g. rag_context_* stamped by newer drivers)
+                # belong in the meta sidecar, not in the void: the warning
+                # above promises they survive here, so merge them.
+                for k in unknown:
+                    meta[k] = rec[k]
                 meta["cache_key"] = rec.get("cache_key")
                 meta["question_id"] = rec.get("question_id")
                 meta["model_name"] = rec.get("model_name")

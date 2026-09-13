@@ -1,0 +1,32 @@
+{
+  "run_id": "pod_20260912_1854",
+  "grid": {
+    "models": 3,
+    "modes": 3,
+    "questions": 88,
+    "cells": 792
+  },
+  "rows_in_checkpoint": 792,
+  "corpus": "/workspace/rag_eval/data/processed_chunks/tier1_chunks.json",
+  "gpu_info": {
+    "torch_present": true,
+    "cuda_available": true,
+    "device_count": 1,
+    "device_names": [
+      "NVIDIA GeForce RTX 3090"
+    ],
+    "device_memory_gb": [
+      23.56
+    ],
+    "cuda_version": "12.8",
+    "gpu_backend_tag": "cuda:NVIDIA GeForce RTX 3090"
+  },
+  "elapsed_s": 29473.9,
+  "sampling": {
+    "max_new_tokens": 512,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "do_sample": false,
+    "seed": 1234
+  }
+}
