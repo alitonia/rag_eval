@@ -33,6 +33,12 @@ git archive --format=tar.gz --prefix="$NAME/" -o "$OUT/$NAME-$COMMIT.tar.gz" HEA
 # poorly): same content, plain files.
 git archive --format=tar --prefix="$NAME/" HEAD | tar xf - -C "$OUT"
 
+# The raw ingested sources are gitignored (repo policy: manifest carries
+# URL+sha1 provenance), but the paper's Data and Code Availability paragraph
+# promises "legal texts redistributed as downloaded" — so the deposit includes
+# them from the working tree, pinned by DOC_MANIFEST.json sha1s.
+cp -r data/raw_legal "$OUT/$NAME/data/raw_legal"
+
 ( cd "$OUT/$NAME" && find . -type f -exec sha256sum {} \; ) > "$OUT/SHA256SUMS.txt"
 
 SIZE=$(du -sh "$OUT" | cut -f1)
