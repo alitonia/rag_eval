@@ -26,10 +26,12 @@ import os
 import re
 import sys
 from dataclasses import asdict
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from regrag.corpus.parser import LegalDocumentParser
+from regrag.models import LegalChunk
 from regrag.provenance import CORPUS_TIER1, CORPUS_TIER2, ProvenanceError
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -213,6 +215,33 @@ def extract_text(path: str, fmt: str) -> tuple:
     return _EXTRACTORS[fmt](path)
 
 
+def disambiguate_chunk_ids(chunks: Sequence[LegalChunk]) -> List[LegalChunk]:
+    """Ensure every chunk has a unique and deterministic chunk_id.
+
+    When chunk_ids collide (due to multiple clauses sharing an ID, amending
+    provisions, repeated annexes, or multi-part documents under the same doc_id),
+    appends a stable collision suffix (-2, -3, ...) in existing chunk order.
+    Chunk text and all other attributes remain byte-identical.
+    """
+    seen: set = set()
+    counts: Dict[str, int] = {}
+    for c in chunks:
+        base_id = c.chunk_id
+        if base_id not in seen:
+            seen.add(base_id)
+            counts[base_id] = 1
+        else:
+            k = counts[base_id] + 1
+            cand = f"{base_id}-{k}"
+            while cand in seen:
+                k += 1
+                cand = f"{base_id}-{k}"
+            counts[base_id] = k
+            seen.add(cand)
+            c.chunk_id = cand
+    return list(chunks)
+
+
 # --- main --------------------------------------------------------------------
 
 def load_plan(path: str = PLAN_PATH):
@@ -268,7 +297,7 @@ def build(plan_path: str, allow_missing: bool, dry_run: bool) -> int:
                 "probably a truncated, paywalled or mis-extracted document. Ingesting it would "
                 "produce false hallucination labels."
             )
-            if not allow_missing:
+            if not (allow_missing or entry.get("no_articles_ok")):
                 raise ProvenanceError(
                     f"Refusing to ingest {doc_id}: no articles found in {filename}. "
                     "Pass --allow-missing to ingest it anyway."
@@ -301,6 +330,12 @@ def build(plan_path: str, allow_missing: bool, dry_run: bool) -> int:
               f"extraction={extraction}")
         ingested.append({"doc_id": doc_id, "chunks": len(chunks), "questions": entry.get("questions")})
         all_chunks.extend(chunks)
+
+    # Disambiguate duplicate chunk IDs (stable collision suffix -2, -3, ... in chunk order)
+    n_collided = len(all_chunks) - len({c.chunk_id for c in all_chunks})
+    all_chunks = disambiguate_chunk_ids(all_chunks)
+    if n_collided:
+        print(f"\ndisambiguated {n_collided} collided chunk IDs with stable suffixes")
 
     print("\n=== ingestion summary ===")
     print(f"documents ingested : {len(ingested)}")
@@ -345,7 +380,13 @@ def build(plan_path: str, allow_missing: bool, dry_run: bool) -> int:
                       f, ensure_ascii=False, indent=2)
         print(f"wrote parse/ingest report -> {os.path.relpath(report_path, REPO_ROOT)}")
 
-    return 0 if not (missing or garbage) else 1
+    real_garbage = [g for g in garbage if not any(
+        d.get("doc_id") == g["doc_id"] and d.get("no_articles_ok")
+        for d in documents
+    )]
+    if allow_missing:
+        return 0 if not missing else 1
+    return 0 if not (missing or real_garbage) else 1
 
 
 def main() -> int:
