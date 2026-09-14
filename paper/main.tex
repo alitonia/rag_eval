@@ -110,7 +110,7 @@ The 24 probes evaluate the abstention component of RQ2 using questions deliberat
 By testing realistic questions governed by missing instruments, the probes evaluate abstention under a corpus-coverage gap rather than simple rejection of out-of-domain topics. This setting is intentionally demanding: models cannot rely on topical distance to trigger refusal, but must instead recognise that the retrieved evidence does not support the answer. We state as a limitation that the probe set contains no precision-trap and no cross-jurisdictional arm, so abstention on numerically near-miss questions and on foreign rules is not measured. A model that answers a probe fluently has failed abstention even if the answer is globally true, because the benchmark strictly evaluates what the corpus supports.
 
 \subsection{Annotation and inter-annotator reliability}
-Questions were authored by two domain annotators. Schedule constraints precluded dual annotation across all 88 rows, and computing Cohen's $\kappa$ \cite{cohen1960kappa} on self-graded items would measure only self-consistency. We therefore established a cross-annotated subset of 30 questions, fifteen authored by each annotator and graded independently by both; $\kappa$ is reported on this subset, with the remainder disclosed as single-annotator. This design is weaker than full dual annotation, and we state it as a limitation: half of the subset consists of each annotator's own questions, and single-annotator rows carry unmeasured author bias.
+Questions were authored by two domain annotators. A dual-grading protocol for the gold labels, including a cross-annotated subset balanced across authors and across answerable and probe rows, was prepared but could not be completed before the submission deadline; no inter-annotator agreement statistic is reported. Gold correctness instead rests on source verification: every retained answerable row's passage was checked against the ingested instrument at ingestion (\S\ref{sec:benchmark}-A), and labels found wrong during verification were corrected from documented findings rather than scored as-is. We state the missing agreement measurement as a limitation: author bias in question authoring remains unmeasured.
 
 \section{Method}
 \label{sec:method}
@@ -124,7 +124,7 @@ We evaluate three instruction-tuned models of at most 7B parameters: Qwen2.5-7B-
 \subsection{Evaluation metrics}
 For each evaluation instance, we compute four core metrics: (i)~\emph{groundedness}, assessing whether atomic assertions in the generated answer are entailed by the retrieved context, following claim-level verification methodologies \cite{min2023factscore,rashkin2023attribution}; (ii)~\emph{hallucination rate}, identifying statements that contradict statutory text or introduce unsupported assertions in closed-book mode; (iii)~\emph{citation precision, recall, and F1} at the article (\emph{Điều}) level, with optional credit for clause (\emph{Khoản}) accuracy (citations to the correct article number under an incorrect legal instrument score zero); and (iv)~\emph{abstention accuracy} on unanswerable probes, measuring whether the model emits the refusal sentinel without generating substantive claims. 
 
-Our automated scoring pipeline is deterministic, lexical, and released in full without manual adjustment. To maintain scientific rigor, automated scores are designated as unvalidated pending completion of human-agreement studies, which are evaluated against 50 expert-annotated responses alongside the cross-annotated $\kappa$ subset (\S\ref{sec:benchmark}-D).
+Our automated scoring pipeline is deterministic, lexical, and released in full without manual adjustment. To maintain scientific rigor, automated scores are designated as unvalidated pending completion of human-agreement studies, evaluated against 50 expert-annotated responses sampled across all models and retrieval modes.
 
 \subsection{Provenance discipline}
 \label{sec:provenance}
@@ -200,20 +200,22 @@ RAG-Dense   & 0.399 & 0.476 & 0.434 & 0.317 \\
 % (RunPod RTX 3090, 2026-09-13). doc-level = any retrieved chunk from a cited
 % instrument, article-level = the cited Dieu among top-k. Article-level
 % denominator is 63 (Q036 cites a Phu luc annex, no article id).
-% TODO(results): kappa column from the 30-question cross-annotated subset
-% (Thành & Hương, human).
+% kappa column removed 2026-09-14: the 30-question dual grading
+% (data/human/kappa_grading_*.csv scaffolds, 2026-09-13) was never filled
+% before the deadline; \S III-B (annotation subsection) discloses this
+% instead of promising a kappa.
 \begin{table}[t]
 \centering
-\caption{Retrieval quality on the Tier~2 corpus and annotation agreement (RQ3, \S\ref{sec:benchmark}-D). Recall at instrument (doc) and article (\emph{Điều}) level, $k{=}1/3$, over the answerable set (doc $n{=}64$; article $n{=}63$, one row cites an annex); $\kappa$ is Cohen's kappa on the 30-question cross-annotated subset only.}
+\caption{Retrieval quality on the Tier~2 corpus (RQ3). Recall at instrument (doc) and article (\emph{Điều}) level, $k{=}1/3$, over the answerable set (doc $n{=}64$; article $n{=}63$, one row cites an annex).}
 \label{tab:retrieval}
 \setlength{\tabcolsep}{3pt}
 \footnotesize
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-Retriever & Doc@1 & Doc@3 & Điều@1 & Điều@3 & $\kappa$ (subset) \\
+Retriever & Doc@1 & Doc@3 & Điều@1 & Điều@3 \\
 \midrule
-BM25 (pyvi) & 0.734 & 0.906 & 0.381 & 0.492 & -- \\
-BGE-M3 dense & 0.719 & 0.891 & 0.365 & 0.524 & -- \\
+BM25 (pyvi) & 0.734 & 0.906 & 0.381 & 0.492 \\
+BGE-M3 dense & 0.719 & 0.891 & 0.365 & 0.524 \\
 \bottomrule
 \end{tabular}
 \end{table}
