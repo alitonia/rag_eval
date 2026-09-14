@@ -1,0 +1,50 @@
+id,novelty,rigor,evidence,reproducibility,clarity,significance,overall,verdict,note
+R01,3,4,3,3,6,3,3,reject,Trivial application of existing RAG to a local LLM without novel algorithmic contributions.
+R02,4,4,3,2,5,4,3,reject,Vague claims of effectiveness without concrete quantitative metrics or baselines.
+R03,5,6,7,4,7,6,5,major-revision,Relies on generic fine-tuning of Phi-3 without addressing inherent multimodal hallucinations.
+R04,4,5,5,6,6,4,4,reject,Incremental application of Random Forest to EEG features with low statistical significance.
+R05,5,6,6,5,7,5,5,major-revision,"Marginal architectural tweaks on Transformer for weak supervision, limited clinical validation."
+R06,2,2,2,2,4,2,2,reject,Purely conceptual paper lacking empirical implementation or novel methodology.
+R07,5,6,5,4,6,5,5,major-revision,Lightweight refinement heuristic lacks theoretical guarantees and comprehensive scale testing.
+R08,6,7,7,5,7,6,6,accept,Solid combination of NES gradient estimation with physical patch mutation.
+R09,4,5,5,6,6,4,4,reject,"Uses LLMs to evaluate LLMs, raising severe circularity and validity concerns."
+R10,5,6,6,4,6,5,5,major-revision,Standard fusion of STFT and patch attention with generic evaluation.
+R11,4,4,4,3,5,3,3,reject,Over-engineered ensemble with questionable real-world trading viability and survivorship bias.
+R12,5,5,5,4,6,5,4,reject,Outdated MobileNet-SSD architecture with trivial integration of off-the-shelf components.
+R13,2,3,4,4,5,2,2,reject,Highly derivative application of YOLOv5 to smart parking with zero algorithmic novelty.
+R14,4,5,4,4,5,4,4,reject,Routine application of standard RANS CFD to a known vehicle model.
+R15,5,5,6,4,6,5,5,major-revision,State-of-the-art claims rely on generic nDCG metrics without discussing complex query handling.
+R16,2,4,5,5,6,3,3,reject,Obsolete methodology (TF-IDF + LR) presented as big data research.
+R17,6,5,5,4,6,5,5,major-revision,GraphRAG integration is interesting but evaluation relies solely on ROUGE which is weak for factuality.
+R18,5,6,6,5,6,5,5,major-revision,Standard model ensembling via Differential Evolution without novel insight into pathology.
+R19,6,6,5,4,6,5,5,major-revision,"KD from DINOv2 is reasonable, but 58.4% mAP on a small 836-image dataset is brittle."
+R20,6,7,6,4,7,6,6,accept,Mathematically sound formulation of distance correlation for multi-party bias mitigation.
+R21,6,6,6,4,6,6,5,major-revision,Lacks quantitative comparison of scale limits against existing emulators.
+R22,5,6,5,4,6,5,5,major-revision,Marginal spectral efficiency improvement relying on theoretical simulation without hardware validation.
+R23,5,5,4,4,5,4,4,reject,Application of AdaGrad to RIS phase shifts is incremental and lacks experimental prototype.
+R24,4,5,5,4,6,4,4,reject,Routine deployment of a lightweight detector without novel algorithmic contributions.
+R25,6,7,6,5,6,5,6,accept,Strong dataset contribution for low-resource language despite standard architecture.
+R26,6,6,6,5,7,6,6,accept,Practical framework for generating evasive commands and fine-tuning LLMs for defense.
+R27,5,6,6,5,6,5,5,major-revision,"Edge-focused KD is sensible, but diffusion models remain computationally heavy even when compressed."
+R28,4,5,5,5,6,5,4,reject,Standard corpus curation and fine-tuning of LLaMA with limited architectural novelty.
+R29,6,6,5,4,7,5,5,major-revision,Evaluation on synthetic (CTGAN) data severely limits the real-world reliability of the fairness claims.
+R30,5,5,6,4,6,5,5,major-revision,Overly complex modality mapping (time series to images) with inconsistent improvements.
+R31,4,4,4,3,5,4,4,reject,Vague architectural description and lack of robust baseline comparisons.
+R32,3,4,5,5,6,3,3,reject,Purely applied engineering deploying off-the-shelf YOLOv9 on an SBC.
+R33,7,8,7,6,8,7,7,accept,Excellent rigorous benchmark exposing specific citation-level failures in LLMs.
+R34,5,6,6,5,6,5,5,major-revision,Incremental extension of TF metrics to adversarial robustness search.
+R35,2,3,3,3,5,2,2,reject,Extremely obsolete methodology (GA + PID) presented as modern grid research.
+R36,4,5,5,4,6,4,4,reject,Trivial application of few-shot object detectors to a small private dataset.
+R37,2,3,4,3,5,2,2,reject,Arbitrary pairing of a novelty-search meta-heuristic with standard LSTMs.
+R38,6,6,6,6,7,5,6,accept,Valuable specialized dataset release with solid baseline metrics.
+R39,4,5,5,4,6,4,4,reject,Integration of off-the-shelf AI modules without core robotics algorithmic advances.
+R40,6,6,5,5,6,5,5,major-revision,"Dual-track approach is interesting, but sample size (2,680) is extremely small for urban analytics."
+R41,6,6,6,6,7,6,6,accept,"Strong novel dataset for a highly relevant, under-studied domain (TikTok KOLs)."
+R42,7,7,6,5,7,6,7,accept,Novel and significant conceptual shift from prediction-space to explanation-space evasion.
+R43,6,6,5,4,6,6,5,major-revision,"RL fine-tuning is strong, but missing critical comparisons to standard DPO-based alignment methods."
+R44,4,5,4,3,5,4,4,reject,Marginal improvement in SNR with insufficient comparative baseline evaluation.
+R45,5,5,5,5,6,4,4,reject,System integration paper with limited NLP algorithmic novelty.
+R46,5,6,5,4,6,5,5,major-revision,Relies heavily on simulation fidelity without real-world RF validation.
+R47,4,5,4,3,5,4,4,reject,"Standard unit cell design with basic simulation, lacking experimental prototype."
+R48,5,5,4,3,6,4,4,reject,Highly incremental configuration tweaks for 3GPP specifications without deep theoretical insight.
+R49,3,4,5,4,6,3,3,reject,Routine application of standard CNNs to agricultural image classification.
