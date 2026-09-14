@@ -1,0 +1,386 @@
+[
+ {
+  "id": "R01",
+  "doi": "10.1109/rivf68649.2025.11365126",
+  "title": "A Customized AI Chatbot for Educational Environments: Integrating Retrieval-Augmented Generation with Curriculum-Aligned Responses",
+  "abstract": "We present a customized Artificial Intelligence (AI) chatbot tailored for educational environments. Unlike conventional models that rely solely on pretrained knowledge, our system integrates rule-based keyword matching and retrieval-augmented generation (RAG) with internal educational resources to produce accurate, contextually relevant responses aligned with specific lesson plans. The chatbot adapts answers based on user attributes such as age group, predefined lesson schemas, and institution-defined content. To improve precision, it actively engages users by requesting clarification when needed. We deploy a compact large language model, Qwen-14B, optimized to run efficiently on a local setup with 16GB VRAM. This requires a sophisticated workflow to sustain performance and responsiveness. For general queries beyond the internal database, the chatbot seamlessly switches to a general-purpose mode, balancing flexibility with educational alignment.",
+  "is_oa": false,
+  "n_chars": 1090
+ },
+ {
+  "id": "R02",
+  "doi": "10.1109/rivf68649.2025.11365058",
+  "title": "Energy-Based Pattern-Inspired Sampling for Motion Analysis",
+  "abstract": "Motion analysis plays a crucial role in various computer vision applications such as surveillance, autonomous navigation, and human-computer interaction. Traditional motion detection methods often rely on full-frame processing or data-intensive learning models, which can be computationally expensive and less suitable for lightweight deployment. In this paper, a method called Energy-Based Pattern-Inspired Sampling for Motion Analysis (EB-PIS-MA) is proposed to improve the efficiency of motion detection by focusing computation on the most informative regions of video frames. The approach employs a unified energy model to guide adaptive sampling based on spatial and temporal variations, enabling the system to capture motion-relevant information without relying on specialized hardware. Overall, the results demonstrate that EB-PIS-MA provides a lightweight, interpretable, and effective solution for motion analysis in resource-constrained environments.",
+  "is_oa": false,
+  "n_chars": 1019
+ },
+ {
+  "id": "R03",
+  "doi": "10.1109/rivf68649.2025.11365036",
+  "title": "Classifying Pulmonary Diseases Using Small Multimodal Model on X-Ray Images and Reports",
+  "abstract": "The timely and accurate diagnosis of pulmonary diseases, such as tuberculosis and pneumonia, remains a global health challenge, particularly in resource-constrained settings. While existing AI models have shown promise in analyzing chest X-ray (CXR) images, most rely on single-modality data or large language models, often missing valuable clinical context or requiring excessive computational resources. This paper presents a novel approach by fine-tuning Phi-3 Vision, a small multimodal model, on a paired dataset of CXR images and radiology reports. Unlike large multimodal models, Phi-3 Vision offers efficiency while maintaining strong reasoning ability across modalities. We benchmark its performance against traditional single-modality models, including two CNN-based architectures (DenseNet-161 and ResNet-50) and a BERT-based model (BioClinicalBERT)). Our results demonstrate a substantial performance improvement, with the fine-tuned Phi-3 Vision model achieving an overall accuracy of 0.97 and F1 scores of 0.96-0.98, significantly improving over single-modality baselines that reached only$0.71-0.90$accuracy. Furthermore, the model shows the capability in generating descriptive text aligned with clinical findings, enhancing interpretability and robustness. These results highlight the potential of small multimodal models to deliver both accurate and clinically relevant AI support, making them particularly suitable for real-world medical applications.",
+  "is_oa": false,
+  "n_chars": 1558
+ },
+ {
+  "id": "R04",
+  "doi": "10.1109/rivf68649.2025.11365260",
+  "title": "EEG-Based Brain-Computer Interface for Directional Control Using Machine Learning on Overt Spatial Attention",
+  "abstract": "Brain-Computer Interfaces (BCIs) enable control by decoding neural activity, offering autonomy to individuals with paralysis. This study presents an Electroencephalogram (EEG)-based framework for classifying four directional attention commands (Up, Down, Left, Right) using the Overt Spatial Attention paradigm. Motor Imagery and Overt Spatial Attention (MIOSA) recordings were preprocessed with bandpass and spatial filtering, then segmented for feature extraction across time, frequency, and nonlinear domains. From six parietal-occipital electrodes, 21 features selected via Random Forest Importance trained a Random Forest classifier, achieving 84% accuracy with balanced precision, recall, and F1-scores. This approach outperforms prior multi-class OSA studies, highlighting the value of combining targeted preprocessing, diverse features, and feature selection for robust EEG-based attention decoding.",
+  "is_oa": false,
+  "n_chars": 1016
+ },
+ {
+  "id": "R05",
+  "doi": "10.1109/rivf68649.2025.11365120",
+  "title": "WeakSegFormer: A Transformer-Based Weakly Supervised Framework for Brain Tumor MRI Segmentation",
+  "abstract": "Magnetic resonance imaging (MRI) is essential for brain tumor diagnosis, where precise segmentation supports clinical assessment and treatment planning. This study introduces WeakSegFormer, a refined Transformerbased weakly supervised framework for brain tumor segmentation. The model integrates Adaptive Attention Fusion (AAF) and Multi-Scale Attention (MSA) modules to enhance feature representation, while an advanced segmentation head with pyramid pooling and hybrid attention captures both local boundaries and global context. A multi-objective loss function, dynamically weighted across training stages, directly optimizes the mean Intersection over Union (mIoU) while mitigating class imbalance. Evaluated on the BraTS 2023 dataset, WeakSegFormer achieves$\\mathbf{7 4. 2 1 \\%}$mIoU, significantly surpassing the original WeakTR$(\\sim 34 \\%)$, UNet++$(20.14 \\%)$, and MultiResUNet$(53.85 \\%)$. These results demonstrate the effectiveness of weakly supervised Transformer-based models in reducing annotation costs while maintaining state-of-the-art segmentation performance, with potential applications in large-scale clinical deployment.",
+  "is_oa": false,
+  "n_chars": 1239
+ },
+ {
+  "id": "R06",
+  "doi": "10.1109/rivf68649.2025.11365188",
+  "title": "A Segment-Based CRM System With High Personalization Using AI Agents and RPA to Enhance Customer Lifetime Value in E-Commerce",
+  "abstract": "This paper investigates the strategic implementation of Robotic Process Automation (RPA) and Artificial Intelligence (AI) Agents, utilizing the UiPath platform, to enhance customer retention within the e-commerce channel for enterprises. Faced with increasing customer churn rates and the growing demand for personalized, efficient interactions, businesses are seeking innovative solutions to foster loyalty and maximize customer lifetime value. This research proposes that by automating routine customer service tasks, personalizing real-time communication, enterprises can significantly improve their customer retention rates with the methodology involving a comprehensive analysis of papers relevant to applying RPA and AI Agents in the CRM process. This study provides a practical framework for leveraging advanced automation and AI capabilities to cultivate stronger customer relationships, helping increase customer lifetime value in the competitive e-commerce landscape.",
+  "is_oa": false,
+  "n_chars": 1103
+ },
+ {
+  "id": "R07",
+  "doi": "10.1109/rivf68649.2025.11365046",
+  "title": "Improving the DF-Louvain Algorithm Through Random Walk-Based Refinement",
+  "abstract": "Community detection has been extensively studied, with random walk-based methods making an important contribution. However, dynamic community detection under vertex and edge updates is a natural and important problem, but relatively few results are available. DF-Louvain is an efficient approach thanks to its frontierbased incremental updates, yet it fails to handle community fragmentation. We propose RWGP-DF-Louvain, an extension of DFLouvain with a lightweight refinement step based on random walks. After the standard update, each community is examined, and a bisection is applied if it improves modularity. This enables the algorithm to detect community splits while maintaining efficiency. Experiments on both synthetic and real-world networks show that RWGP-DF-Louvain consistently achieves higher modularity and clustering quality than DF-Louvain in cases with community fragmentation.",
+  "is_oa": false,
+  "n_chars": 967
+ },
+ {
+  "id": "R08",
+  "doi": "10.1109/rivf68649.2025.11365242",
+  "title": "Natural Evolution Strategy for Camouflaged Adversarial Patches",
+  "abstract": "Adversarial patch attacks pose a serious threat to deep learning systems, particularly in security-critical applications where patches can be physically deployed. Recent work such as CamoPatch has shown that camouflaged, visually inconspicuous patches can fool classifiers while remaining stealthy to human observers. However, CamoPatch relies on a fixed mutation stepsize in its evolutionary strategy, which limits efficiency and adaptability under black-box constraints. In this paper, we present NES-CamoPatch, an extension of CamoPatch that integrates antithetic gradient estimation from Natural Evolution Strategies (NES) with gradient-guided mutation in the patch parameter space. By periodically invoking NES, our method leverages queryefficient gradient information while retaining the robustness of mutation-based search. This hybrid design balances exploration and exploitation, reducing query costs without sacrificing visual stealthiness. Extensive experiments on ImageNet and CIFAR-10 demonstrate that NES-CamoPatch achieves equal or superior attack success rates compared to state-of-the-art baselines, while maintaining stealthiness. These results highlight the effectiveness of combining evolutionary search with NES guidance for blackbox adversarial patch optimization and point toward promising extensions to real-world physical attacks.",
+  "is_oa": false,
+  "n_chars": 1418
+ },
+ {
+  "id": "R09",
+  "doi": "10.1109/rivf68649.2025.11365100",
+  "title": "Can LLMs Construct Valid Syllabi? Vietnamese High School Math Case Study",
+  "abstract": "Large language models (LLMs) are increasingly applied to educational contexts, particularly for generating lesson plans and syllabi aligned with national curricula. Despite their potential to reduce preparation time and support curriculum development, evaluating the quality and relevance of LLM-generated content remains a critical challenge due to the reliance on subjective expert judgments and limited scalability. To address this gap, we investigate the ability of four widely used LLMs-ChatGPT-4o, Gemini 2.5 Flash, Grok 3, and Copilot-to generate Grade$\\mathbf{1 0}$Mathematics syllabi aligned with the Vietnamese Ministry of Education and Training (MOET) standards. Our methodology assesses outputs through Criterion-Embedded LLM Ensemble for Syllabus Testing (CELEST). Specifically, the four LLMs score a generated syllabus based on the official criteria. This cross-validation provides a replicable and reliable method for syllabus assessment. In addition, our findings provide insights into the extent to which LLMs can recommend and construct complete syllabi, as well as highlight differences in performance among models. This study contributes to ongoing discussions on the role of AI in education by demonstrating both the opportunities and limitations of LLMs for curriculum-aligned content generation in the Vietnamese context.",
+  "is_oa": false,
+  "n_chars": 1417
+ },
+ {
+  "id": "R10",
+  "doi": "10.1109/rivf68649.2025.11365147",
+  "title": "Advancing Time Series Anomaly Detection Using Transformer-Based Models",
+  "abstract": "Time series anomaly detection is critical in domains such as finance, healthcare, cybersecurity, and telecommunications, yet remains challenging due to noise, non-stationarity, and complex temporal dependencies. In this paper, we propose a transformerbased framework that combines Short-Time Fourier Transform (STFT)-based denoising with a hybrid attention mechanism integrating localized patch attention and global full attention. This design preserves tempo-ral-frequency structures while effectively capturing both fine-grained and long-range dependencies. Evaluations on three benchmark datasets-NASA MSL, NASA SMAP, and PSM-demonstrate that our method consistently achieves superior or competitive performance compared with state-of-the-art baselines, particularly in terms of F1 score, reflecting a more favorable precision-recall trade-off. Ablation studies further validate the contribution of each component, confirming the robustness and generalizability of the proposed approach. Our results highlight the potential of domain-tailored transformer architectures for advancing anomaly detection in complex, high-dimensional time series.",
+  "is_oa": false,
+  "n_chars": 1216
+ },
+ {
+  "id": "R11",
+  "doi": "10.1109/rivf68649.2025.11365170",
+  "title": "Multimodal Deep Learning for Cryptocurrency Trend Prediction via Candlestick Charts and Technical Indicators",
+  "abstract": "The growth of Bitcoin cryptocurrency with large fluctuations has aroused the interest of large investors, leading to the need for institutional investors to be at the forefront of short-term cryptocurrency trend prediction technology. To address the complexities caused by nonlinearity, this paper proposes a fusion model combining the MobileNetV2 model to capture candlestick chart morphology, OHLCV series with technical indicators modeled by GRU for short-term dependencies, and nonautoregressive encoder (NAR) to extract long-term context. Then, the features of each model are merged into the XGBoost model for classification (Bull/Bear/Neutral), which is mapped into trading signals while integrating the Uncertainty gating decision mechanism to increase reliability. Using the 15minute BTC/USDT dataset from Binance, divided into 70%/15%/15% ensembles, the merged model achieved an accuracy of 74.3 %, macro-F1 of 0.7429, and MCC of 0.4867, outperforming the single-method and baseline methods. The trust-aware gating results further improved the reliability, raising the accuracy and F1 to over 81% with a coverage of 67.74%, with a high threshold exceeding 98% accuracy for selective predictions. The above results demonstrate that the combination of multi-methods with the Uncertainty gating decision mechanism provides a reliable and practical forecasting tool for the volatile cryptocurrency market.",
+  "is_oa": false,
+  "n_chars": 1519
+ },
+ {
+  "id": "R12",
+  "doi": "10.1109/rivf68649.2025.11365235",
+  "title": "Remote Sensing-Based Human Detection Using a Custom-Built Coaxial UAV System",
+  "abstract": "As drones become increasingly integrated into search and rescue operations, understanding the barriers that impact effectiveness and optimizing humandrone interaction is critical. This research presents the design and implementation of a remote sensing-based human detection system utilizing a custom-built coaxial unmanned aerial vehicle (UAV) to support search and rescue (SAR) operations in post-disaster environments. Integrating autonomous flight control, RF signal-based localization, and deep learning-based visual recognition, the system enhances victim detection in complex and constrained terrains. This design offers superior aerodynamic efficiency, enhanced mechanical resilience, and stable flight performance in various environments. A lightweight MobileNet-SSD model is deployed and optimized for edge inference using a Jetson Nano device, enabling low-latency, real-time human detection (40 FPS) from aerial imagery. Specifically, the system is designed to operate from a UAV at an altitude of approximately$\\mathbf{1 0}$meters, where human subjects typically occupy less than 3 % of the image area, presenting a significant challenge for standard object detectors due to the tiny object size. Experimental validation demonstrates that combining coaxial aerial mobility with intelligent onboard sensing significantly improves situational awareness and victim localization efficiency. The proposed system represents a scalable, reliable, and high-performance aerial solution tailored for modern disaster response operations under extreme environmental and infrastructural constraints.",
+  "is_oa": false,
+  "n_chars": 1676
+ },
+ {
+  "id": "R13",
+  "doi": "10.1109/rivf68649.2025.11365041",
+  "title": "YOLOv5-Powered Smart Parking System with IoT-Based Real-Time Slot Monitoring",
+  "abstract": "Finding a parking space has become a daily struggle in an era of rapid urbanization and increasing car ownership, contributing to traffic congestion, lost time, and environmental stress. To transform urban parking management, this study presents a novel Smart Parking System (SPS) that seamlessly integrates deep learning and Internet of Things (IoT) technologies. Our SPS delivers a streamlined workflow, featuring real-time slot occupancy detection via a fine-tuned YOLOv5 model analyzing camera feeds, automated entry/exit handling triggered by IoT sensors, and a specialized License Plate Recognition (LPR) model. Additionally, it includes secure cloud-based data logging for effortless tracking and billing. The web dashboard provides real-time, color-coded visualizations of slot availability, supporting efficient parking management. Experimental evaluation demonstrates an accuracy of 90% in license plate recognition and over 99.5% in slot occupancy detection, highlighting the system's reliability and practical applicability for smart city deployment.",
+  "is_oa": false,
+  "n_chars": 1139
+ },
+ {
+  "id": "R14",
+  "doi": "10.1109/rivf68649.2025.11365203",
+  "title": "CFD-Based Analysis of Car Aerodynamic Performances under Restricted Operating Conditions",
+  "abstract": "Road vehicles often operate in environments where airflow is constrained, such as tunnels, narrow lanes, or close proximity to surrounding structures. Under such restricted operating conditions, aerodynamic performance becomes a critical factor influencing both efficiency and stability. In this study, Computational Fluid Dynamics (CFD) simulations are employed to investigate the aerodynamic performances of a car under restricted operating conditions. The Reynolds-Averaged Navier-Stokes (RANS) approach is implemented in ANSYS FLUENT v19.2, with the DrivAer scale model selected as the reference model. Initially, aerodynamic forces acting on the reference model are computed and validated against wind tunnel experimental data, confirming the reliability of the numerical approach. Subsequently, the car's aerodynamic performance under restricted operating conditions is investigated. The results reveal that restricted conditions significantly modify pressure distribution, intensify wake interactions, and increase drag and lift coefficients compared to free-stream cases. These findings highlight the pronounced impact of restricted environments on vehicle aerodynamics and provide a robust basis for future design optimizations aimed at enhancing energy efficiency and driving stability.",
+  "is_oa": false,
+  "n_chars": 1385
+ },
+ {
+  "id": "R15",
+  "doi": "10.1109/rivf68649.2025.11365175",
+  "title": "From Keywords to Context: An AI Agent for Natural Language Document Lookup in the Enterprise",
+  "abstract": "Traditional keyword search fails to unlock knowledge from unstructured enterprise data. This paper introduces an AI agent that improves document lookup using a hybrid Retrieval-Augmented Generation (RAG) pipeline, which combines sparse, dense, and reranking techniques for high accuracy. The agent is made extensible with the Model Context Protocol (MCP) for external tool use, such as web searches. Our approach achieves a state-of-the-art nDCG@5 of 0.91, significantly outperforming keyword search (0.62) and standard RAG (0.76), while also enabling conversational queries, multidocument synthesis, and external knowledge integration.",
+  "is_oa": false,
+  "n_chars": 729
+ },
+ {
+  "id": "R16",
+  "doi": "10.1109/rivf68649.2025.11365110",
+  "title": "Machine Learning-Based News Classification in Big Data Environments",
+  "abstract": "This paper investigates the application of machine learning algorithms for news topic classification in distributed computing environments. To address the challenges posed by the scale and complexity of online news data, we propose a Spark-based framework that combines TF-IDF vectorization with four popular classifiers: Logistic Regression, Decision Tree, Random Forest, and Linear SVM. We conduct experiments on a real-life Vietnamese news dataset, comprising diverse topical categories and linguistic variations. The evaluation considers both execution performance and predictive accuracy, providing insights into the trade-offs between scalability and classification effectiveness. Experimental results show that Logistic Regression consistently outperforms other algorithms, achieving the highest F1-score of 0.9563 and offering the best balance between accuracy and computational efficiency. In contrast, Random Forest exhibited the highest computation cost and limited scalability. These findings demonstrate the feasibility and effectiveness of deploying classical machine learning models for news classification in big data environments, and provide practical guidance on model selection and cluster configuration for Spark-based learning pipelines.",
+  "is_oa": false,
+  "n_chars": 1327
+ },
+ {
+  "id": "R17",
+  "doi": "10.1109/rivf68649.2025.11365128",
+  "title": "DoraReviewer: Vietnamese Virtual Reviewer with GraphRAG and LLM",
+  "abstract": "Online product reviews significantly influence consumer decisions, yet existing large language model (LLM) systems often generate ungrounded or inaccurate content, especially for low-resource languages like Vietnamese. This study introduces DoraReviewer, a Vietnamese-focused virtual reviewer system that integrates structured smartphone specifications and speech-to-text transcriptions from trusted video reviews into a multimodal knowledge graph. Using the Graph-based Retrieval-Augmented Generation (GraphRAG) method, DoraReviewer generates factually grounded product reviews and is evaluated across three LLM architectures: GPT-4 Turbo, Gemini 1.5 Flash, and DeepSeek Reasoner, using ROUGE metrics. DoraReviewer advances trustworthy, culturally relevant, and low-resource-friendly automated review generation, demonstrating how structured knowledge integration can overcome the hallucination challenges in multilingual LLMs while contributing to more reliable e-commerce ecosystems in Vietnam and similar emerging market.",
+  "is_oa": false,
+  "n_chars": 1089
+ },
+ {
+  "id": "R18",
+  "doi": "10.1109/rivf68649.2025.11365223",
+  "title": "Enhancing Chest Radiograph Classification via a Dual-Model Ensemble",
+  "abstract": "Multi-label classification of chest X-ray images is a challenging task due to label imbalance, overlapping pathological features, and limited annotated data. In this study, we propose an effective ensemble framework that integrates two complementary architectures: a self-supervised vision transformer, Masked Autoencoder (MAE), and a hybrid CNN-attention model, CoAtNet. To improve robustness against class imbalance, our training pipeline adopts SaliencyMix, a saliencyaware data augmentation strategy, and Asymmetric Loss, which treats positive and negative labels differently. The outputs of both models are aggregated via a weighted ensemble, where the optimal weights are learned using Differential Evolution. Experimental results on the ChestX-ray14 dataset demonstrate that our method achieves superior performance with an AUROC (an area under the receiver operating characteristic curve) score of 0.8669, outperforming the original SynthEnsemble while requiring significantly fewer parameters. These results highlight the benefits of combining complementary model backbones with taskaware training strategies to achieve both high accuracy and computational efficiency in medical image classification.",
+  "is_oa": false,
+  "n_chars": 1277
+ },
+ {
+  "id": "R19",
+  "doi": "10.1109/rivf68649.2025.11365135",
+  "title": "Detecting “Nine-Dash Line” Images in Digital Content via Faster R-CNN and DINOv2-Based Knowledge Distillation",
+  "abstract": "The “nine-dash line” image represents an illegal maritime claim that frequently appears in digital content, posing significant risks of distorting Vietnam's territorial sovereignty. Manual moderation cannot keep pace with the rapidly growing volume of data, especially as such infringing images are often small, thin, and subtly embedded. In this study, we employ an enhanced Faster R-CNN model, incorporating knowledge distillation (KD) from the vision-language model DINOv2 to detect “nine-dash line” imagery. A KD loss function is utilized to align embeddings between predicted and ground-truth regions, thereby improving the detection of small and occluded objects. The model is trained on a specialized dataset of 836 images and achieves a mean Average Precision (mAP) of$\\mathbf{5 8. 4 \\%}$, representing an improvement of 6.2 % over the baseline Faster R-CNN with a ResNet-50 backbone. In addition, the employed approach achieves an Average Recall (AR) of 66.2 %, compared to 58.8 % for the baseline model. This system demonstrates strong potential for integration into automated digital content moderation workflows, supporting the protection of national sovereignty in cyberspace.",
+  "is_oa": false,
+  "n_chars": 1299
+ },
+ {
+  "id": "R20",
+  "doi": "10.1109/rivf68649.2025.11365194",
+  "title": "Multi-Stakeholder Fairness in Recommendation Systems Using Distance Correlation",
+  "abstract": "Traditional fairness-aware recommender systems address single-stakeholder fairness, neglecting complex multi-party interactions. This paper proposes a multi-stakeholder fairness framework using distance correlation to measure statistical dependence between stakeholder representations and exposure distributions. The approach incorporates partial distance correlation to control for confounding factors such as popularity bias. We formulate multi-stakeholder fairness as a composite score integrating user-, item-, and provider-side metrics, optimized through a multi-objective loss function balancing accuracy and fairness. Experimental results on MovieLens-1M demonstrate significant fairness improvements across all stakeholders while maintaining competitive recommendation accuracy.",
+  "is_oa": false,
+  "n_chars": 866
+ },
+ {
+  "id": "R21",
+  "doi": "10.1109/rivf68649.2025.11365119",
+  "title": "A Parallel UE/gNB Emulator for Large-Scale Validation of 5G Core Networks",
+  "abstract": "The evolution of$\\mathbf{5 G}$and the transition to$\\mathbf{6 G}$demand advanced tools for testing complex network architectures, particularly UE and gNB interactions with the$\\mathbf{5 G}$Core. This paper introduces an ue-gnb emulator modelling massive populations of UEs and gNBs as parallel state machines. By generating large-scale, programmable signaling storms, our emulator enables tremendous stress testing of core networks while remaining lightweight and configurable. Our emulator also supports conformance, performance, and robustness evaluation of open-source$\\mathbf{5 G}$Core implementations like Free5GC and Open5GS. It can validate the compliance with 3GPP specifications, measure platforms' key performance indicators under heavy load, and assess the robustness when controlled abnormal messages, information occur. The critical meaning of the emulator are shown in the uncovers of several hidden vulnerabilities in Free5GC and Open5GS.",
+  "is_oa": false,
+  "n_chars": 1027
+ },
+ {
+  "id": "R22",
+  "doi": "10.1109/rivf68649.2025.11365179",
+  "title": "Introducing Multi-Level Modulation for Improving Spectral Efficiency in Modified Walsh-Hadamard Code Division Multiplexing",
+  "abstract": "In helicopter satellite communications, the periodic blockage (PB) due to rotor blades severely degrades the bit error rate (BER) performance. While modified Walsh-Hadamard code division multiplexing (MWHCDM) is effective against the PB, its primary modulation is binary phase-shift keying, limiting spectral efficiency. This paper addresses introducing multi-level modulation for improving spectral efficiency in MWHCDM. The analysis shows that pulse amplitude modulation (PAM) is suitable for the multi-level primary modulation. Although multi-level phase-shift keying also improves spectral efficiency, it impairs the anti-PB capability of MWHCDM. Computer simulation demonstrates that, in the PB channel, MWHCDM with 4-level PAM outperforms that with quaternary phase-shift keying.",
+  "is_oa": false,
+  "n_chars": 908
+ },
+ {
+  "id": "R23",
+  "doi": "10.1109/rivf68649.2025.11365066",
+  "title": "Array Pattern Synthesis Using Adaptive Gradient Method for RIS-Aided Wireless Networks",
+  "abstract": "Reconfigurable Intelligent Surfaces (RIS) have gained significant attention as a promising solution to enhance wireless communication performance through controllable electromagnetic reflections. This paper presents an efficient beam synthesis approach based on an adaptive gradient optimization technique to shape the reflection patterns of RIS-assisted systems. In practice, a custom target function is constructed to balance mainlobe enhancement and sidelobe suppression, while an AdaGrad-inspired adaptive learning rate mechanism is integrated to accelerate convergence and enhance global search capability. By iteratively updating the phase configuration of RIS elements, the proposed method enables the formation of multiple beams with adjustable widths and effective null steering. Numerical evaluations confirm that the method achieves precise control over single and multiple beams under quantized phase constraints, demonstrating its robustness and suitability for practical RIS implementations.",
+  "is_oa": false,
+  "n_chars": 1092
+ },
+ {
+  "id": "R24",
+  "doi": "10.1109/rivf68649.2025.11365219",
+  "title": "Real-Time Multi-Behavior Driver Monitoring with a Single-Stage Detector",
+  "abstract": "Drowsy and distracted driving is a major cause of traffic accidents, requiring effective and non-intrusive monitoring solutions. We present a real-time vision system for multi-behavior driver monitoring that detects drowsiness and distraction using a single-stage lightweight detector. Trained on an in-house dataset with five behavior categories, our approach simplifies the pipeline by avoiding ROI-based preprocessing while improving both accuracy and latency over MobileNetV2 and a CNN baseline. On our test split, the proposed model achieves 94.87 % accuracy while running in real time on a standard CPU. We detail the software architecture for deployment (threading, UI, alerting) and report a structured error analysis highlighting challenges under low light and partial occlusions. The resulting design demonstrates that a single-stage detector can deliver practical, low-latency behavior monitoring suitable for in-cabin assistance, while remaining simple to implement and extend.",
+  "is_oa": false,
+  "n_chars": 1061
+ },
+ {
+  "id": "R25",
+  "doi": "10.1109/rivf68649.2025.11365050",
+  "title": "ViMER-Tri: A Trimodal Vietnamese Emotion Recognition System with Adaptive Missing-Modality Fusion",
+  "abstract": "Multimodal Emotion Recognition (MER) infers human emotional states by integrating cues from text, speech, and facial expressions. Despite strong progress in English, Vietnamese resources remain scarce and, to our knowledge, no synchronized Vietnamese trimodal dataset exists. We present ViMER-Tri, a trimodal Vietnamese emotion recognition system (text-voice-face). We curate an utterancelevel, speaker/session-disjoint synchronized trimodal subset for benchmarking and report its label distribution and Fleiss's$\\kappa$(overall and per-label). The core training uses large-scale Vietnamese bimodal (text-voice) data, while a face-only external visual corpus is used for pretraining only. On the trimodal test split, ViMER-Tri achieves 0.934 Macro-F1 and shows strong robustness under single-modality ablations. Ablation studies confirm complementary contributions from Token-Selective Self-Attention (TSSA) and a Missing-Modality Gate. ViMER-Tri establishes a transparent benchmark and a practical path toward robust multimodal emotion recognition for low-resource languages.",
+  "is_oa": false,
+  "n_chars": 1174
+ },
+ {
+  "id": "R26",
+  "doi": "10.1109/rivf68649.2025.11365129",
+  "title": "EvoSIEM: Detecting and Generating SIEM Rule Evasion Behaviors in Network Systems",
+  "abstract": "In recent years, Security Information and Event Management (SIEM) systems have been widely deployed to detect malicious activities in enterprise networks. Platforms such as Splunk, enhanced with Sigma rules, enable the identification of suspicious behaviors through log pattern analysis. Nonetheless, as detection capabilities advance, adversaries increasingly adopt sophisticated evasion techniques, including command encoding, syntax manipulation, and noise injection, which often succeed in bypassing detection without raising alerts. These evasions highlight that current defenses are not only vulnerable but also difficult to evaluate systematically, as few automated systems exist to both test rule robustness and generate datasets for improving future detection models. In this paper, we propose EvoSIEM, an automated framework that generates, evaluates, and logs evasive command samples against SIEM rules, enabling the creation of high-quality datasets for downstream Large Language Model (LLM) fine-tuning in detection-related tasks. EvoSIEM operates in two phases: the first transforms Sigma rules into executable queries, derives attack commands, and generates evasive variants that are tested in a SIEM environment; the second leverages the resulting detection outcomes to fine-tune LLMs that produce enhanced detection rules and novel adversarial commands. Our experiments demonstrate that EvoSIEM generates 85% syntactically valid Sigma rules and 82% functional evasive commands, effectively exposing rule weaknesses and producing diverse, execution-ready datasets for research and defense applications. Our approach lays the groundwork for more resilient, self-improving SIEM systems capable of adapting to evolving adversarial tactics.",
+  "is_oa": false,
+  "n_chars": 1833
+ },
+ {
+  "id": "R27",
+  "doi": "10.1109/rivf68649.2025.11365106",
+  "title": "A Knowledge Distillation Approach for Diffusion-Based Generative Skin Lesion Segmentation",
+  "abstract": "Accurate skin lesion segmentation is crucial for early melanoma detection and reliable medical diagnosis. Recently, such generative diffusion-based segmentation models have achieved state-of-the-art performance in this task. However, their large number of parameters hinders the deployment in real-world clinical and mobile settings. A key challenge is how to compress these models while preserving their reliability in diagnosis. To this end, we propose an edge-focused knowledge distillation (EFKD) strategy for the generative diffusion-based skin lesion segmentation, prioritizing contour information transfer from teacher to student. Accordingly, we introduce LiteDermoSegDiff, a lightweight diffusion-based lesion segmentation model that integrates knowledge distillation with boundary-aware supervision. This design ensures that the student network maintains sharp lesion boundaries while significantly reducing model parameters. Extensive experiments on the common ISIC2018 and HAM10000 dermoscopic benchmarks demonstrate that our method achieves up to 88.9% parameter reduction while maintaining competitive segmentation accuracy. These results show that diffusion-based segmentation models can be substantially compressed without compromising boundary awareness, paving the way for efficient and clinically deployable solutions in resource-constrained environments. Code can be found at https://github.com/hoangdv05/EFKD.",
+  "is_oa": false,
+  "n_chars": 1520
+ },
+ {
+  "id": "R28",
+  "doi": "10.1109/rivf68649.2025.11365054",
+  "title": "GPTViet: An Open-Source Vietnamese Foundation Model from Pretraining to Domain Specialization",
+  "abstract": "As open-source Large Language Models (LLMs) increasingly rival proprietary counterparts, the need for foundational models tailored to specific linguistic and cultural contexts becomes critical. This paper presents GPTViet, a series of foundational LLMs for the Vietnamese language. Built upon the LLaMA architecture, GPTViet was developed by curating a high-quality Vietnamese corpus and performing extensive finetuning on a range of model sizes (8 B to 70 B parameters). Evaluations demonstrate that GPTViet models significantly outperform their respective base models on Vietnamese-specific tasks, as measured by standard benchmarks and our custombuilt VietExam benchmark. The practical utility of this work is showcased through domain-specific application, VietHealth 70B for medical consultation. Adhering to the principles of open source Llama, GPTViet and all its derivatives are publicly released under an open-source license. This initiative provides the Vietnamese research and development community with a powerful, adaptable foundation to accelerate the creation of diverse intelligent applications. For more information, please visit https://github.com/VietnamAIHub/GPTViet and demo at http://gptviet.ioit.ac.vn/.",
+  "is_oa": false,
+  "n_chars": 1319
+ },
+ {
+  "id": "R29",
+  "doi": "10.1109/rivf68649.2025.11365220",
+  "title": "Debate-to-Decide: A Deliberative Multi-Agent Framework for Fair and Explainable Student Credit Scoring",
+  "abstract": "Traditional credit scoring models systematically exclude students due to insufficient credit history, while modern AI approaches often lack transparency and introduce algorithmic bias. We propose Debate-to-Decide, a multi-agent framework that transforms credit assessment from a black-box prediction into a transparent, structured deliberation. Inspired by formal argumentation theory, the framework employs specialized Large Language Model (LLM) agents to debate conflicting points of view on an applicant's profile, resulting in a robust and well-reasoned decision. For a rigorous and privacypreserving evaluation, a synthetic student loan dataset was generated using a Conditional Tabular GAN (CTGAN). Benchmarking against a strong XGBoost baseline in predictive accuracy, algorithmic fairness, and explainability demonstrated the superior performance of Debate-toDecide in terms of accuracy and F1-score, with significantly lower geographic bias. The intrinsic explainability of the framework, provided through auditable debate transcripts, fundamentally exceeds the post hoc methods applied to black-box models. This work introduces a “glass-box” paradigm for financial AI, enabling more accurate, fair, and transparent credit decisions, providing a practical blueprint for reliable financial technologies.",
+  "is_oa": false,
+  "n_chars": 1414
+ },
+ {
+  "id": "R30",
+  "doi": "10.1109/rivf68649.2025.11365182",
+  "title": "Beyond Time-Series: Aligning Modalities and Architectures for Student Dropout Prediction",
+  "abstract": "Reducing student dropout is a pressing concern for higher education institutions and requires timely, effective interventions. Accurately predicting potential dropout students early is essential but remains a complex task. Existing models using data from virtual learning environments (VLEs) often rely on coarse temporal aggregation and limited feature diversity, which can reduce predictive accuracy. This paper proposes a multimodal framework for student dropout prediction that combines daily temporal engagement data (T), represented both as raw time series and as images generated through a delay embedding transformation (I), with static demographic and related information (S). We evaluate the impact of adding$S$and$I$to a$T$-only baseline using a range of models, including traditional recurrent networks (LSTM) and modern architectures such as TimesNet (CNN-based) and iTransformer (transformer-based). Results show that adding$S$to$T$consistently improves performance, while adding I to T alone can sometimes reduce it. However, combining all three modalities ($\\mathrm{T}+\\mathrm{S}+\\mathrm{I}$) with an appropriate model yields the greatest improvements, with effectiveness varying by sequence length input and architecture.",
+  "is_oa": false,
+  "n_chars": 1327
+ },
+ {
+  "id": "R31",
+  "doi": "10.1109/rivf68649.2025.11365178",
+  "title": "Improving the Performance of the Lightweight Detector Through Effective Collaboration with Visibility Enhancement Technique",
+  "abstract": "Detecting underwater fish presents numerous challenges due to factors such as complex backgrounds, image blur, and especially low illumination conditions. In this study, we propose a robust approach for elevating the fish detection accuracy of lightweight detectors, abbreviated as VcO-Net. Our network achieves the desired performance by closely incorporating the visibility enhancement technique and object detection model. The VcO-Net involves two components: a feature upgrade subnetwork and a small detection subnetwork. The feature upgrade subnetwork is developed based on the GAN architecture for effective learning of fish features. Extensive results on published datasets demonstrate that our VcO-Net surpasses current small object detection models.",
+  "is_oa": false,
+  "n_chars": 882
+ },
+ {
+  "id": "R32",
+  "doi": "10.1109/rivf68649.2025.11365079",
+  "title": "Development of YOLO-Based Fall Detection with Real-Time Monitoring System on Raspberry Pi 5",
+  "abstract": "Falls are a leading cause of serious injuries, particularly among the elderly, children, and workers in hazardous environments. To enhance safety and real-time monitoring, this study develops a YOLO-based fall detection system, deployed on the Raspberry Pi 5 platform. At its core, the system utilizes a YOLOv9 model retrained on an extensive dataset of over$\\mathbf{1 7, 0 0 0}$images from various public sources. To address class imbalance and reduce false alarms, an additional 6,000 images of normal activities (Not_Fallen) were incorporated. After fine-tuning hyperparameters, the model achieved a high accuracy of 99.1 %, surpassing the reference study's mAP@0.5 score of 98.1 %. Experimental results demonstrate that the system operates efficiently, detecting falls with exceptional precision across diverse scenarios while maintaining realtime processing capability. This research establishes a strong foundation for future advancements, enabling the development of more sophisticated monitoring systems and expanding applications in safety and healthcare domains.",
+  "is_oa": false,
+  "n_chars": 1164
+ },
+ {
+  "id": "R34",
+  "doi": "10.1109/rivf68649.2025.11365115",
+  "title": "Empirical Evaluation of Evolutionary NAS with Training-Free Metrics for Discovering Robust Networks Under Adversarial Training",
+  "abstract": "Using training-free (TF) metrics as proxies for network performance is an effective and efficient approach in neural architecture search (NAS). Recent studies have shown that TF metrics can outperform training-based metrics in identifying robust networks when integrated as search objectives in both single-objective and multi-objective evolutionary NAS (ENAS) methods. However, prior work has typically evaluated robustness without applying adversarial training. While adversarial training can improve the robustness of deep neural networks, it has the drawback of reducing performance on clean data. In this paper, we investigate the effectiveness of ENAS with two types of performance metrics (i.e., training-based and training-free) in discovering networks that simultaneously achieve high accuracy on both clean and adversarial data. Extensive experiments on NAS problems built upon the newly proposed adversarial NAS benchmark (i.e., NAS-RobBench-201) demonstrate that multiobjective ENAS with TF metrics as search objectives can efficiently identify networks with high performance on clean data and strong robustness against various adversarial attacks.",
+  "is_oa": false,
+  "n_chars": 1287
+ },
+ {
+  "id": "R35",
+  "doi": "10.1109/rivf68649.2025.11365180",
+  "title": "Genetic Algorithm Optimized Controllers for Wind Power Fluctuation Mitigation in Power Grids",
+  "abstract": "In contemporary power systems (PS), load frequency control (LFC) is essential for maintaining system stability and operational effectiveness, especially during underload fluctuations. System voltage and frequency regulation is severely hampered by the unpredictability and intermittency of wind and solar energy, as well as by random load disturbances, as their integration grows. To improve frequency regulation in interconnected thermal power systems, this paper suggests a hybrid approach that combines Genetic Algorithm (GA) optimization with a Proportional-IntegralDerivative (PID) controller. In order to improve frequency stabilization and sustain dependable power exchange across tielines, the GA is used to optimally tune the PID parameters. According to simulation results, the suggested GA-optimized PID strategy performs better than traditional approaches in terms of robustness, dynamic response, and adaptability to changing operating conditions. As a promising solution for frequency stability in interconnected thermal power systems, the results validate that the designed LFC guarantees faster response and stronger resilience against both load variations and wind energy fluctuations.",
+  "is_oa": false,
+  "n_chars": 1295
+ },
+ {
+  "id": "R36",
+  "doi": "10.1109/rivf68649.2025.11365216",
+  "title": "Visual Inspection of CNC Milling Tool Defects: A Study with Few-Shot Learning",
+  "abstract": "This study investigates the application of few-shot learning to detect defects and fractures in mechanical parts-a critical task for inspection of machining tools, machine part evaluation, and manufacturing quality control. Specifically, the fractures and defects on the Computer Numerical Control (CNC) milling tool were examined. For this purpose, experimental datasets were collected using an in-house imaging system integrated into a CNC machine, enabling efficient capture and processing of cutting tool images. First, the few-shot classification was evaluated for tool damage identification using standard algorithms, with Grad-CAM providing deeper insights into the results. The object detection methods were then applied for precise defect localization. The results show that defect detection achieves a accuracy of more than 96 % under a 5 shot configuration. For specific defect types, the mean Average Precision at$\\mathbf{5 0 \\%}$IoU (mAP@50) reaches$\\mathbf{6 7 \\%}$with both Fewshot Faster R-CNN and YOLOv11 on side-view images, while bottom-view detection yields$\\mathbf{7 4 \\%}$and$\\mathbf{9 0 \\%}$mAP@50 for FSFRCNN and YOLOv11, respectively, and can improve further with relaxed IoU constraints. The promising results indicate significant potential for industrial implementation.",
+  "is_oa": false,
+  "n_chars": 1375
+ },
+ {
+  "id": "R37",
+  "doi": "10.1109/rivf68649.2025.11365197",
+  "title": "An Experimental Study of Walrus Optimization-Based Deep Learning Models for Software Effort Estimation",
+  "abstract": "Software Effort Estimation plays a pivotal role in project planning, resource allocation, and cost management within the software development life cycle. This study investigates the integration of deep learning models Convolutional Neural Network, Recurrent Neural Network, Long Short-Term Memory, Bidirectional Long Short-Term Memory and Multilayer Perceptron with the Walrus Optimization Algorithm for hyperparameter tuning. By using five standard SEE datasets including China, Kemerer, Kitchenham, Maxwell, Miyazaki94, we assess the model's performance using multiple evaluation metrics: Mean Squared Error, Mean Absolute Error, Coefficient of Determination ($R^{2}$), Mean Magnitude of Relative Error, and Prediction Accuracy at$\\text{2 5 \\%}$(Pred(25)). Experimental results reveal that LSTM and its variant consistently outperform other models in terms of MSE, MAE, and$R^{2}$in most datasets, demonstrating the advantage of sequence-based learning for SEE. The proposed framework offers a replicable methodology for applying evolutionary optimization to deep learning in SEE.",
+  "is_oa": false,
+  "n_chars": 1185
+ },
+ {
+  "id": "R38",
+  "doi": "10.1109/rivf68649.2025.11365158",
+  "title": "SilkLDP: A Pixel-Level Annotated Dataset and Deep Learning Approach for Silkworm Disease Detection",
+  "abstract": "Sericulture is a long-standing agricultural industry that contributes significantly to the global economy and culture. However, silkworm diseases during the cocooning stage remain a major threat, leading to substantial losses in cocoon yield if not detected promptly. Current disease identification still relies on manual inspection, which is labor-intensive, time-consuming, and error-prone. To address this challenge, we present SilkLDP, the first publicly available dataset of silkworms for disease detection with pixel-level annotations. The dataset contains$\\mathbf{4, 0 2 9}$high-resolution images of healthy and diseased silkworms captured under diverse real farming conditions in Asia, making it a pioneering and valuable resource for both the sericulture and computer vision communities. Building upon this dataset, we propose an enhanced segmentation approach by fine-tuning the U-Net architecture with a ResNet34 encoder and a combined BCE-Dice loss to address class imbalance. Experimental results demonstrate that our model significantly outperforms baseline methods, achieving 95.59% accuracy, 0.8730 Dice score and 0.7746 IoU. Both the dataset and the full implementation are openly release at https://github.com/hokhoi02new/silkworm-disease-detection, providing a solid foundation for future research and practical deployment of automated disease monitoring systems in sericulture worldwide.",
+  "is_oa": false,
+  "n_chars": 1506
+ },
+ {
+  "id": "R39",
+  "doi": "10.1109/rivf68649.2025.11364526",
+  "title": "Development of a Humanoid Robot Prototype for Multimodal Human-Robot Interaction",
+  "abstract": "Human-robot interaction (HRI) enables intuitive and intelligent collaboration between humans and robots in realworld environments. This paper introduces a humanoid robot prototype designed as a flexible testbed for developing and integrating artificial intelligence (AI) modules in HRI tasks. The system features a 12 degree-of-freedom (DOFs) dual-arm mechanism and a 2 DOFs head with an expressive LCD screen to express facial emotions. All hardware components are controlled by a custom-designed controller board with real-time AI processing supported by an onboard Jetson module. The system incorporates three AI modules: (1) gesture recognition using MediaPipe Pose and an LSTM classifier, (2) object detection with YOLO and 3D localization, and (3) voice-command processing through speech recognition and large language model(LLM)-based semantic parsing. The platform is validated through experiments on positioning accuracy, with results showing average manipulation errors of approximately$1.83 \\mathbf{c m}$. To demonstrate its versatility, experimental results show over 90 % task accuracy, with gesture recognition reaching 96 %, speech recognition reaching 92 %. The results confirm the effectiveness of the proposed system as a reproducible and accessible humanoid platform for research and prototyping in HRI.",
+  "is_oa": true,
+  "n_chars": 1403
+ },
+ {
+  "id": "R40",
+  "doi": "10.1109/rivf68649.2025.11365082",
+  "title": "Urban Perception Analysis via Transformer-Based Image Segmentation: A Deep Dive Into City Understanding",
+  "abstract": "Urban analytics recently relies on visual data to understand the complex relationships between physical environments and socioeconomic conditions. The key challenge is how to leverage such abundant visual data to investigate the urban perception effectively. We propose a novel dual-track framework, dubbed UPFormer, that employs the diffusion-based image segmentation architectures alongside urban perception classification models to analyze 2,680 Street View Images (SVIs) from Nha Trang, Vietnam. By exploring SVIs from diverse regions, UPFormer exploits the urban perception classification via the semantic relationship among the components captured in the images automatically. The integration of these two streams enables a robust statistical analysis linking visual urban elements to perceived socioeconomic traits, providing interpretable insights into how physical features influence urban perception. To this end, evaluated on the Place Pulse v2 benchmark and a custom Nha Trang dataset, our approach achieves statistically significant correlations$(p<0.05$) between visual elements and socioeconomic perceptions, offering a scalable, data-driven tool for humancentric urban governance in the Global South. Code can be found at https://github.com/danhntd/UPFormer.",
+  "is_oa": false,
+  "n_chars": 1378
+ },
+ {
+  "id": "R41",
+  "doi": "10.1109/rivf68649.2025.11365035",
+  "title": "A Two-Tiered Vietnamese Benchmark Dataset for TikTok Engagement Prediction in the Cosmetics Sector",
+  "abstract": "With the rapid rise of TikTok as a marketing channel, especially in the cosmetics sector, evaluating the effectiveness of Key Opinion Leaders (KOLs) has become both important and challenging. This paper introduces a pioneering, two-tiered Vietnamese benchmark dataset for TikTok engagement prediction, the first of its kind in Vietnam. The dataset consists of 22,751 posts from 82 KOLs collected between January 2024 and May 2025, and is uniquely structured at two levels. The post-level dataset enables fine-grained prediction of engagement for individual posts, while the KOL-level dataset aggregates histories into sliding time windows, supporting the analysis of engagement dynamics and the forecasting of future advertising performance. Baseline experiments with standard machine learning models demonstrate the challenging and realistic nature of these tasks, underscoring the value of the dataset as a reproducible benchmark. By providing a structured, multi-level resource with clear benchmark tasks, this work establishes a strong foundation for future research on KOL analytics, engagement prediction, and data-driven marketing strategies in emerging social media markets. The dataset and source code are publicly available at https://byvn.net/W9ZR",
+  "is_oa": false,
+  "n_chars": 1357
+ },
+ {
+  "id": "R42",
+  "doi": "10.1109/rivf68649.2025.11365060",
+  "title": "ASA-IDS: Attribution-Stealth Adversarial Attacks for Network Intrusion Detection Systems",
+  "abstract": "Machine-learning-based Network Intrusion Detection Systems (NIDS) have achieved strong predictive performance but remain vulnerable to adversarial examples. While prior research has largely focused on prediction-space metrics such as accuracy and attack success rate (ASR), the stealthiness of adversarial traffic in the explanation space has received little attention, despite the increasing adoption of explainable AI (XAI) tools in SOC workflows. We propose ASA-IDS, to our knowledge the first attributionstealth adversarial attacks on NIDS. ASA-IDS extends Projected Gradient Descent (PGD) with an attribution-aware objective and introduces two new metrics-Attribution Shift Distance (ASD) and Valid-Benign Attribution Rate (VBAR)-to quantify explanationlevel stealth. Experiments on UNSW-NB15 and CIC-IDS2017 with demonstrate that ASA-PGD preserves the evasion strength of PGD while influencing attribution behavior, producing adversarial samples that move closer to benign attribution centroids. However, results also reveal that stealth improvements are context-dependent, with varying effectiveness across victim models, highlighting the inherent complexity of attribution robustness. Our findings establish attribution stealth as an overlooked dimension of IDS evaluation. ASA-IDS thus provides a principled methodology for assessing robustness in both prediction and explanation spaces, and motivates future defenses that ensure not only correct predictions but also trustworthy explanations under adversarial threats for deployment in security-critical environments.",
+  "is_oa": false,
+  "n_chars": 1666
+ },
+ {
+  "id": "R43",
+  "doi": "10.1109/rivf68649.2025.11364527",
+  "title": "O2O: Fine-Tuning Diffusion Models with Reinforcement Learning Using A Hybrid of Generated and Real Images",
+  "abstract": "Generative text-to-image latent diffusion models (LDMs) have recently achieved significant advances, producing state-of-the-art image generation quality. Fine-tuning LDMs to align image outputs with human preferences is a major concern for downstream applications. Traditionally, this fine-tuning relies on supervised learning with large datasets, which is impractical for scenarios with limited data. As an alternative, some onpolicy policy gradient reinforcement learning (RL) algorithms have shown promise, but their applicability is restricted due to the need for explicit reward functions to guide image scoring during fine-tuning. To overcome the limitations of existing fine-tuning methods for LDMs, we propose Off-policy On-policy Optimization (O2O), a novel policy gradient RL algorithm. Unlike conventional RL methods that depend on explicit reward functions, O2O introduces a hybrid training strategy that combines generated images in on-policy learning and real images from datasets in off-policy learning. This approach enables effective alignment of LDMs to human preferences under limited supervision. To our knowledge, O2O is the first method to fine-tune LDMs using RL with a text-to-image dataset. Experimental results show that O2O consistently outperforms both supervised and RL-based fine-tuning in low-data scenarios, achieving superior image quality. Our code is available at https://github.com/nguyenhoa-uit/o2o",
+  "is_oa": false,
+  "n_chars": 1541
+ },
+ {
+  "id": "R44",
+  "doi": "10.1109/rivf68649.2025.11365085",
+  "title": "An Increased Superdirective Beamformer's Performance Based on Likelihood Estimation",
+  "abstract": "When a target speech component is recorded by distant microphone array (MA), the captured signal contains not only the original speech component but also the unwanted interference, background noise and other types of environmental noise. For dealing the above problem, speech enhancement has been studied, evaluated and performed in realistic recording environment to estimate an approximate desired speech from the observed recording. A promising speech enhancement technique as a front - end of almost acoustic equipment is superdirective beamformer (SDB), which concerns the steerable beampattern on the speech source while eliminating all the background noise. The key of SDB is using the characteristic of surrounding noise to obtain the high directivity index, the high diversity on the sound location. Unfortunately, in recording scenario, the error of direction of arrival (DoA) of interest useful signal, the displacement of MA, the different microphone sensitivities, the error of sampling rate significantly reduce the overall SDB beamformer's evaluation. Consequently, the existence of speech distortion of background noise degrade the perceptual metric listener, the speech quality in the term of signal-to-noise (SNR) ratio. In this paper, the author uses likelihood estimation approach to enhance the SDB beamformer's performance in realistic recording situation for improving the speech quality. The demonstrated experiment has confirmed that the speech distortion was reduced to 11.0$\\mathbf{d B}$and the obtained SNR was increased from 4.5 to$7.6 \\mathbf{~ d B}$. The author's suggested method can be integrated into reallife multi-channel system for resolving reverberation, noise reduction, automatic speech recognition.",
+  "is_oa": false,
+  "n_chars": 1824
+ },
+ {
+  "id": "R45",
+  "doi": "10.1109/rivf68649.2025.11365256",
+  "title": "ViTrend: A Real-Time System for Topic-Based Social Media Trend Analysis on Vietnamese Facebook",
+  "abstract": "Social media platforms, especially Facebook, contain rich, real-time signals about public interest and sentiment. This study addresses a novel challenge in the analysis of social media trends on Vietnamese Facebook: collecting public posts and comments, clustering them by individual news items rather than broad categories, and monitoring the temporal evolution to detect emerging trends. We introduce a pioneering system tailored to Vietnam's digital landscape, with Vietnamese-specific preprocessing focused on removing special characters to clean noisy content, and integrated real-time processing capabilities to handle streaming data ingestion and analysis. The core methodology includes a supervised classification pipeline enhanced by a custom clustering algorithm that starts each item as a distinct cluster and merges duplicates based on semantic similarity, ensuring precise grouping without overgeneralizing events. We present a curated dataset of 2,794 labeled Facebook texts across categories (Movies, Music, Social News, Slang & Memes, Travel, Entertainment Shows, Sports). We utilize ViSoBERT [1] to generate embeddings from pre-processed Vietnamese text and implement a classification model on top of these embeddings, achieving 93. 56% precision (0.3367 F1), outperforming traditional methods in accuracy and granularity. The end-to-end pipeline combines real-time data processing, classification, temporal aggregation, clustering, and interactive dashboards for near-real-time trend detection and visualization. Our main contributions are: •An annotated Vietnamese Facebook dataset for trend analysis. •A Classification-based ViSoBERT pipeline robust to noisy social text. •A real-time system for clustering and tracking emerging news. This work advances Vietnamese NLP by enabling granular social signals, precise viral tracking, and actionable insights into sentiment shifts where culturally tuned detection was absent. The dataset are available at: https://github.com/Hiep264/social_data.",
+  "is_oa": false,
+  "n_chars": 2105
+ },
+ {
+  "id": "R46",
+  "doi": "10.1109/rivf68649.2025.11365095",
+  "title": "High-Fidelity Beam Selection in the Upper Mid-Band Using Digital Twin Ray-Tracing and Deep Learning",
+  "abstract": "This paper presents a ray tracing-based simulation framework for evaluating AI/ML-assisted beam management techniques in realistic urban environments. Using Sionna RT, we construct a high-fidelity 3D digital twin (DT) of a dense metropolitan area, enabling accurate channel characterization with spatial consistency. We systematically assess the impact of key system parameters, including carrier frequency, antenna array configuration, downtilt angle, and codebook granularity, on sum-rate performance. In addition, we propose a deep neural network that infers the optimal beam from low-resolution reference signal received power (RSRP) measurements using the simulator, thereby reducing beam training overhead. Simulation results confirm that the proposed AI/ML-based approach achieves meaningful performance improvements compared to existing methods, especially under low codebook resolution settings. This study demonstrates the practicality and effectiveness of combining ray tracing with learning-based beam selection in next-generation wireless networks.",
+  "is_oa": false,
+  "n_chars": 1161
+ },
+ {
+  "id": "R47",
+  "doi": "10.1109/rivf68649.2025.11365257",
+  "title": "A 1-Bit Reconfigurable Intelligent Surface: Design, Theory and Beam Steering in S and C Band",
+  "abstract": "In this work, we propose a square loop-based unit cell to realize a 1-bit reconfigurable intelligent surface. The proposed unit cell operates at two sub 6 GHz frequencies, namely, 3.5 GHz and 4.2 GHz. By integrating a PIN diode into the unit cell, two distinct reflection phase states are achieved, which are encoded as digital states '0' and '1'. The beam forming of the proposed design, which works as a reflective RIS, is analyzed by tailoring a distinct unit cell array configuration. In this paper, uniform, striped and checkerboard array configurations are explored under plane wave incidence to achieve multiple beams forming. Through the full wave simulations, a single, twin and four beam are achieved for uniform, striped and checkerboard array configurations, respectively. Additionally, the beam forming of the given array configuration is validated by employing theoretical modelling. Further, the single beam forming of the proposed RIS is theoretically investigated for a spherical wave source at elevation angles of$\\mathbf{0}^{\\circ}, \\mathbf{1 0}^{\\circ}, \\mathbf{2 0}^{\\circ}$, and$\\mathbf{3 0}^{\\circ}$. The various phase profiles of an array are generated, which result in single beamforming for the specified angles. This study confirms the accuracy and effectiveness of the proposed RIS design for beamforming applications.",
+  "is_oa": false,
+  "n_chars": 1439
+ },
+ {
+  "id": "R48",
+  "doi": "10.1109/rivf68649.2025.11365209",
+  "title": "Codebook Design and Hybrid Reference Signaling for AI/ML-Based Beam Management",
+  "abstract": "Beam management is essential due to the need for highly directional beamforming and the associated measurement overhead, which becomes increasingly significant in emerging frequency ranges such as the upper mid-band. To reduce this overhead, 3GPP has proposed AI/ML-based beam selection schemes that require careful design of a measurement subset known as Set$\\mathbf{B}$. This study investigates three strategies for configuring Set B and proposes a multi-rank reference signaling method for scenarios employing localized codebooks. Furthermore, we introduce a hybrid approach that integrates localized and uniform codebooks and demonstrate its effectiveness through performance evaluations.",
+  "is_oa": false,
+  "n_chars": 771
+ },
+ {
+  "id": "R49",
+  "doi": "10.1109/rivf68649.2025.11365143",
+  "title": "Computer Vision in Agriculture: Cacao Bean Sorting Using Deep Learning",
+  "abstract": "This study presents the development of a cacao bean classification system that employs deep learning algorithms and computer vision. The objective of the study is to accurately and efficiently categorize the cacao beans into seven distinct classes, including good beans, bean clusters, fractured beans, flat beans, germinated beans, insect-damaged beans, and moldy beans. To ensure the gathering of consistent and high-quality image datasets, the authors developed an image acquisition setup that included a C920 Logitech camera and LED light strips. To identify the most effective algorithm, the proponents used different pre-trained convolutional neural network (CNN) models, including DenseNet201, ResNet50, VGG16, Googlenet, and others. The results indicate that DenseNet201 achieved the highest performance with 91.83% when the default parameters were employed during model development. The learning rate, mini-batch size, and solver were the optimized hyperparameters to further improve the performance of the model. The optimized trained model attained a training accuracy of 99.38 %, a validation accuracy of 99.6 %, and a testing accuracy of 100 %. The robustness of the model was evidenced by evaluation metrics such as precision of 99.59 %, recall of 99.54 %, and F1-score of 99.57 %. This research shows a promising application of computer vision and artificial intelligence in the agricultural sector.",
+  "is_oa": false,
+  "n_chars": 1485
+ }
+]
