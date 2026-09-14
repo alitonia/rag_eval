@@ -1,0 +1,187 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.7.11)  15 SEP 2026 02:16
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**test4.tex
+(./test4.tex
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-22>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2023/05/17 v1.4n Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count187
+\c@section=\count188
+\c@subsection=\count189
+\c@subsubsection=\count190
+\c@paragraph=\count191
+\c@subparagraph=\count192
+\c@figure=\count193
+\c@table=\count194
+\abovecaptionskip=\skip48
+\belowcaptionskip=\skip49
+\bibindent=\dimen140
+)
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2021/02/14 v1.3d Input encoding file
+\inpenc@prehook=\toks17
+\inpenc@posthook=\toks18
+)
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+) (./vnchars.sty
+Package: vnchars 2026/09/15 v0.2 Vietnamese precomposed chars as T1 composites
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks19
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 107.
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen141
+\Gin@req@width=\dimen142
+)
+   defining Unicode char U+1EA1 (decimal 7841)
+   defining Unicode char U+1EA3 (decimal 7843)
+   defining Unicode char U+1EA5 (decimal 7845)
+   defining Unicode char U+1EA7 (decimal 7847)
+   defining Unicode char U+1EA9 (decimal 7849)
+   defining Unicode char U+1EAB (decimal 7851)
+   defining Unicode char U+1EAD (decimal 7853)
+   defining Unicode char U+1EAF (decimal 7855)
+   defining Unicode char U+1EB1 (decimal 7857)
+   defining Unicode char U+1EB3 (decimal 7859)
+   defining Unicode char U+1EB5 (decimal 7861)
+   defining Unicode char U+1EB7 (decimal 7863)
+   defining Unicode char U+1EB9 (decimal 7865)
+   defining Unicode char U+1EBB (decimal 7867)
+   defining Unicode char U+1EBD (decimal 7869)
+   defining Unicode char U+1EBF (decimal 7871)
+   defining Unicode char U+1EC1 (decimal 7873)
+   defining Unicode char U+1EC3 (decimal 7875)
+   defining Unicode char U+1EC5 (decimal 7877)
+   defining Unicode char U+1EC7 (decimal 7879)
+   defining Unicode char U+1EC9 (decimal 7881)
+   defining Unicode char U+1ECB (decimal 7883)
+   defining Unicode char U+1ECD (decimal 7885)
+   defining Unicode char U+1ECF (decimal 7887)
+   defining Unicode char U+1ED1 (decimal 7889)
+   defining Unicode char U+1ED3 (decimal 7891)
+   defining Unicode char U+1ED5 (decimal 7893)
+   defining Unicode char U+1ED7 (decimal 7895)
+   defining Unicode char U+1ED9 (decimal 7897)
+   defining Unicode char U+1EDB (decimal 7899)
+   defining Unicode char U+1EDD (decimal 7901)
+   defining Unicode char U+1EDF (decimal 7903)
+   defining Unicode char U+1EE1 (decimal 7905)
+   defining Unicode char U+1EE3 (decimal 7907)
+   defining Unicode char U+1EE5 (decimal 7909)
+   defining Unicode char U+1EE7 (decimal 7911)
+   defining Unicode char U+1EE9 (decimal 7913)
+   defining Unicode char U+1EEB (decimal 7915)
+   defining Unicode char U+1EED (decimal 7917)
+   defining Unicode char U+1EEF (decimal 7919)
+   defining Unicode char U+1EF1 (decimal 7921)
+   defining Unicode char U+1EF5 (decimal 7925)
+   defining Unicode char U+1EF7 (decimal 7927)
+   defining Unicode char U+1EF9 (decimal 7929)
+   defining Unicode char U+01A0 (decimal 416)
+   defining Unicode char U+01A1 (decimal 417)
+   defining Unicode char U+01AF (decimal 431)
+   defining Unicode char U+01B0 (decimal 432)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count195
+\l__pdf_internal_box=\box51
+)
+No file test4.aux.
+\openout1 = `test4.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count196
+\scratchdimen=\dimen143
+\scratchbox=\box52
+\nofMPsegments=\count197
+\nofMParguments=\count198
+\everyMPshowfont=\toks20
+\MPscratchCnt=\count199
+\MPscratchDim=\dimen144
+\MPnumerator=\count266
+\makeMPintoPDFobject=\count267
+\everyMPtoPDFconversion=\toks21
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+
+LaTeX Font Warning: Font shape `T1/cmr/m/n' in size <4.4> not available
+(Font)              size <5> substituted on input line 6.
+
+[1
+
+{/home/alitonia/.texlive2023/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/hom
+e/alitonia/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}] (./test4.aux)
+ ***********
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-22>
+ ***********
+
+
+LaTeX Font Warning: Size substitutions with differences
+(Font)              up to 0.6pt have occurred.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 1590 strings out of 476182
+ 23884 string characters out of 5795595
+ 1923975 words of memory out of 5000000
+ 23629 multiletter control sequences out of 15000+600000
+ 559598 words of font info for 38 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 72i,7n,79p,199b,124s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</home/alitonia/texmf/fonts/type1/public/cm-super/sfrm0500.pfb></home/alitoni
+a/texmf/fonts/type1/public/cm-super/sfrm1000.pfb>
+Output written on test4.pdf (1 page, 32607 bytes).
+PDF statistics:
+ 19 PDF objects out of 1000 (max. 8388607)
+ 11 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

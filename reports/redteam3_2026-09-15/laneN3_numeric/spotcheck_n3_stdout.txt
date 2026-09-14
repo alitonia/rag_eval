@@ -1,0 +1,37 @@
+=== A. meta / context budget ===
+RAG rows: 528
+rows w/ truncated ranks: 447 | total truncated passages: 753
+rows w/ dropped ranks: 240 | TOTAL DROPPED PASSAGES: 240
+   drop example: Q002 qwen-7b dropped= [3] trunc= [1, 2] chars= 7083
+   drop example: Q008 qwen-7b dropped= [3] trunc= [1, 2] chars= 7083
+   drop example: Q009 qwen-7b dropped= [3] trunc= [1, 2] chars= 7083
+   drop example: Q011 qwen-7b dropped= [3] trunc= [1, 2] chars= 7083
+   drop example: Q012 qwen-7b dropped= [3] trunc= [1, 2] chars= 7083
+   drop example: Q013 qwen-7b dropped= [3] trunc= [1, 2] chars= 7083
+context chars: max 7085 mean 6629.26 n 528
+finish reasons: {'stop': 709, 'length': 83}
+stamped budgets: set()
+=== B. tier1 fixture size ===
+tier1 chunks: 64
+=== C. conditioning counts (independent) ===
+rag_bm25 {'INTACT': 57, 'ABSENT': 93, 'GOLD_DROPPED': 9, 'TRUNCATED': 33} total 192
+rag_dense {'INTACT': 84, 'TRUNCATED': 51, 'ABSENT': 51, 'GOLD_DROPPED': 6} total 192
+rag_bm25 questions with gold in top3: 30
+rag_dense questions with gold in top3: 45
+=== D. hedge-then-answer (closed-book) ===
+hedged answerable: 80 | hedged probes: 35 | hedged answerable w/ EXACT sentinel: 65
+=== E. identical RAG-arm answers ===
+identical: 45 of 264
+=== F. Q006 vistral-7b rag_bm25 ===
+gold passage[:80]: điều 52. sửa lỗi kỹ thuật trong văn bản công chứng 1. lỗi kỹ thuật là lỗi do sai
+gold passage in prompt: True
+answer_text[:200]: theo điều 52 của nghị định 23/2015/nđ-cp, sửa đổi bởi nghị định 111/2020/nđ-cp và nghị định 08/2023/nđ-cp, sửa đổi bởi nghị định 15/2024/nđ-cp, sửa lỗi kỹ thuật trong văn bản công chứng được thực hiện
+extracted: [{'doc_id': '23/2015/NĐ-CP', 'article_id': '52', 'clause_id': None}, {'doc_id': '46/2024/QH15', 'article_id': '32', 'clause_id': None}]
+correctness: 1.0 abstained: False types: ['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+retrieved: ['tier1_61231b7d636b88c7', 'tier1_191b399a8033b807', 'tier1_311c0c492c9bacfc'] trunc: [2, 3] dropped: [] gold_chunk: tier1_61231b7d636b88c7 -> cond: INTACT
+=== G. closed-book probes abstaining ===
+closed-book probe abstentions: 28 of 72
+=== H. closed-book unfaithful types + RAG gate ===
+closed_book {'NCP': 102, 'WI': 76, 'UNF': 116}
+rag_bm25 {'NCP': 71, 'WI': 34, 'UNF': 94}
+rag_dense {'NCP': 64, 'WI': 21, 'UNF': 83}

@@ -53,6 +53,28 @@ for c in t1:
         qid2chunk[q] = c["chunk_id"]
 
 # ---- conditioning flag per RAG row ----------------------------------------
+# Prompt-level semantics (fixed 2026-09-15 after the numeric-audit lane caught
+# 15 rows whose gold chunk sat at rank 3 in rag_context_dropped_ranks and was
+# never packed into the prompt, yet the chunk-id rule below had bucketed them
+# INTACT; 6 of the 15 have no gold text in the prompt at all). Classification
+# now honours what the model actually saw:
+#   ABSENT    - gold chunk not retrieved in top-3, or its text head (first 40
+#               normalised chars) does not appear in the final prompt
+#   TRUNCATED - gold text head visible, but the gold chunk's own rank was
+#               clipped by the budget, or the rank was dropped and the visible
+#               copy is a duplicate passage at a clipped rank
+#   INTACT    - gold text head visible at an unclipped rank
+def norm_txt(s: str) -> str:
+    s = unicodedata.normalize("NFC", s)
+    return re.sub(r"\s+", " ", s).strip().lower()
+
+qid2head = {}
+for c in t1:
+    md = c.get("metadata") or {}
+    q = md.get("question_id") or (md.get("question_ids") or [None])[0]
+    if q:
+        qid2head[q] = norm_txt(c.get("text", ""))[:40]
+
 cond = {}
 for g in gens:
     if g["retrieval_mode"] == "closed_book":
@@ -63,9 +85,11 @@ for g in gens:
     gold = qid2chunk.get(g["question_id"])
     ret = r.get("retrieved_chunk_ids") or []
     tr = r.get("rag_context_truncated_ranks") or []
-    if gold not in ret:
+    dr = r.get("rag_context_dropped_ranks") or []
+    head_in_prompt = qid2head.get(g["question_id"], "") in norm_txt(g["prompt"] or "")
+    if gold not in ret or not head_in_prompt:
         c = "ABSENT"
-    elif (ret.index(gold) + 1) in tr:
+    elif (ret.index(gold) + 1) in tr or (ret.index(gold) + 1) in dr:
         c = "TRUNCATED"
     else:
         c = "INTACT"
@@ -105,13 +129,22 @@ for mode in ("rag_bm25", "rag_dense"):
     for c, (u, n, ab) in parts.items():
         print(f"    {c:9s}: {u:3d}/{n:3d} unfaithful ({u/n*100:.1f}%)  refused={ab}")
 
-# per-question top-3 presence
+# per-question presence, two semantics: retrieval top-3 (chunk-id, matches
+# the paper's Section III-B wording) and prompt-level (gold head visible)
 for mode in ("rag_bm25", "rag_dense"):
-    present_q = set()
+    present_q, prompt_q = set(), set()
     for (m, md_, q), c in cond.items():
-        if md_ == mode and c in ("TRUNCATED", "INTACT"):
+        if md_ != mode:
+            continue
+        if c in ("TRUNCATED", "INTACT"):
+            prompt_q.add(q)
+        g = next(x for x in gens if x["question_id"] == q
+                 and x["retrieval_mode"] == mode and (m, md_, q) in cond)
+        ret = meta[g["cache_key"]].get("retrieved_chunk_ids") or []
+        if qid2chunk.get(q) in ret:
             present_q.add(q)
-    print(f"{mode}: gold chunk in top-3 for {len(present_q)}/64 answerable questions")
+    print(f"{mode}: gold chunk in top-3 for {len(present_q)}/64 answerable questions "
+          f"(gold text visible in prompt for {len(prompt_q)}/64)")
 
 # ---- RQ1 answered-row hallucination rates ---------------------------------
 print("=== hallucination: all-answerable vs answered-only (per model-mode) ===")
