@@ -1,0 +1,50 @@
+id,novelty,rigor,evidence,reproducibility,clarity,significance,overall,verdict,note
+R01,3,4,2,3,6,4,4,major-revision,No evaluation metrics reported; well-trodden RAG+rule chatbot combo.
+R02,5,4,3,4,5,5,5,major-revision,No quantitative results in abstract; method claims only.
+R03,5,6,7,5,6,7,6,accept,Strong reported accuracy (0.97) but single-dataset; leakage/overfit details unverifiable from abstract.
+R04,5,6,6,5,6,5,6,accept,"84% on 4-class overt spatial attention; solid but single-paradigm, single-dataset."
+R05,6,5,6,4,5,6,6,accept,"Large claimed mIoU gains vs weak baselines; UNet++ figure unusually low, comparison set needs verification."
+R06,3,2,2,2,5,4,3,reject,Literature-based proposal for CRM/RPA; no experiments or results.
+R07,5,6,6,6,6,5,6,accept,Modest but sound DF-Louvain extension; synthetic and real-network experiments.
+R08,5,6,6,6,6,6,6,accept,Incremental over CamoPatch but principled NES+gradient hybrid; two benchmarks.
+R09,6,4,5,5,6,5,5,major-revision,LLM-scores-LLM syllabus evaluation risks circularity; limited external validation.
+R10,5,6,6,5,6,6,6,accept,STFT denoising + hybrid attention on MSL/SMAP/PSM; ablations claimed.
+R11,5,6,7,5,6,6,6,accept,Detailed numbers incl. selective gating; temporal-leakage risk must be checked.
+R12,5,5,4,5,6,6,5,major-revision,Impressive coaxial UAV system engineering; detection accuracy on tiny targets not quantified in abstract.
+R13,4,5,6,5,6,5,6,accept,Complete deployed pipeline (YOLOv5+IoT+LPR) with 90%/99.5%; components standard.
+R14,4,7,6,6,6,5,6,accept,Methodical CFD study validated against wind-tunnel data on DrivAer model.
+R15,4,5,5,4,6,5,5,major-revision,nDCG@5 gains reported but evaluation corpus and SOTA baseline unspecified.
+R16,4,6,7,6,6,5,6,accept,Clean comparative Spark/TF-IDF study on real Vietnamese news; strong F1 0.956.
+R17,6,5,5,5,6,5,5,major-revision,GraphRAG reviewer for low-resource language; ROUGE-only evaluation is weak evidence for review quality.
+R18,5,6,6,5,6,6,6,accept,Complementary MAE/CoAtNet backbones + loss/augmentation; beats SynthEnsemble with fewer parameters.
+R19,6,5,5,5,6,6,5,major-revision,Novel sovereignty-moderation application but only 836 images; modest mAP 58.4%.
+R20,6,5,5,5,6,6,6,accept,Interesting distance-correlation fairness formulation; single benchmark (MovieLens-1M).
+R21,6,7,7,6,6,7,7,accept,Practical parallel UE/gNB emulator that uncovered real vulnerabilities in Free5GC/Open5GS.
+R22,5,6,5,6,5,4,5,accept,Niche helicopter-satellite modulation study; simulation-only evidence.
+R23,5,5,5,5,5,5,5,accept,Pragmatic AdaGrad-style RIS beam synthesis; no SOTA comparison reported.
+R24,4,5,6,4,6,6,5,accept,Deployable single-stage driver monitor at 94.87%; in-house dataset limits comparability.
+R25,7,6,6,6,7,7,7,accept,First synchronized Vietnamese trimodal emotion benchmark with Fleiss kappa and robust ablations.
+R26,6,6,6,5,6,6,6,accept,SIEM rule-evasion generation/evaluation loop; validity rates self-reported.
+R27,6,6,7,7,6,7,7,accept,88.9% parameter reduction with competitive accuracy on ISIC2018/HAM10000; code released.
+R28,7,6,5,7,6,8,7,accept,8B-70B open Vietnamese foundation models plus benchmark; abstract lacks quantitative results.
+R29,7,4,4,5,6,6,5,major-revision,"Novel glass-box LLM deliberation paradigm, but evaluated only on synthetic CTGAN data."
+R30,5,6,5,6,6,6,5,major-revision,Useful modality-ablation study on dropout prediction; no headline numbers in abstract.
+R31,5,3,3,4,5,5,4,major-revision,Claims to surpass small-object detectors without reporting any numbers.
+R32,4,5,6,5,6,6,5,accept,Large 23k-image retraining effort; accuracy-vs-mAP comparison is mismatched metrics.
+R33,7,8,7,7,7,7,7,accept,Rigorously provenance-guarded RAG benchmark with honest analysis of residual unfaithfulness (43-49%).
+R34,6,6,6,6,6,6,7,accept,Systematic ENAS study on newly proposed NAS-RobBench-201 across clean and robust accuracy.
+R35,3,4,3,4,5,4,4,major-revision,"Well-trodden GA-tuned PID for LFC; qualitative claims, no evaluative numbers."
+R36,5,6,6,5,6,6,6,accept,Concrete few-shot tool-defect detection incl. per-view mAP@50; in-house imaging rig.
+R37,4,5,6,6,5,4,5,accept,Broad 5-dataset SEE comparison; optimizer swap adds little methodological insight.
+R38,7,6,6,7,6,7,7,accept,"First public pixel-level silkworm disease dataset (4,029 images) + strong U-Net baseline, all released."
+R39,5,6,6,6,6,6,6,accept,Reproducible 14-DOF humanoid HRI platform with measured placement/task accuracy and 3 AI modules.
+R40,6,6,6,6,6,6,6,accept,Dual-track segmentation+perception framework with p<0.05 statistical validation; code released.
+R41,6,6,6,7,6,6,6,accept,"First two-tiered Vietnamese KOL engagement benchmark (22,751 posts); data and code public."
+R42,7,7,6,6,7,7,7,accept,Introduces attribution-stealth attacks and two new metrics for NIDS; honest about context dependence.
+R43,7,6,6,6,6,7,7,accept,Hybrid off/on-policy RL (O2O) for LDM fine-tuning under limited supervision; code released.
+R44,4,5,5,5,4,5,5,accept,Incremental likelihood-based superdirective beamformer enhancement; abstract clarity issues.
+R45,6,5,5,6,5,6,5,major-revision,Precision 93.56% vs F1 0.3367 implies ~20% recall; the mismatch needs explanation.
+R46,6,6,6,6,6,6,6,accept,Digital-twin ray-tracing + DNN beam selection with parameter sensitivity study; simulation-only.
+R47,6,6,6,6,6,6,6,accept,Full design-theory-simulation chain for 1-bit RIS unit cell and single/twin/four-beam steering.
+R48,5,4,3,4,5,5,4,major-revision,Abstract too brief; no quantitative results or comparison to assess.
+R49,4,5,5,5,6,5,5,major-revision,100% test accuracy raises leakage/overfitting concerns; routine transfer-learning study.
