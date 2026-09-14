@@ -1,0 +1,54 @@
+=== citation unfaithfulness by gold-condition (answerable rows) ===
+rag_bm25: overall_unfaithful=94/192 (gate: expect 94/83)
+    ABSENT   :  57/ 93 unfaithful (61.3%)  refused=20
+    TRUNCATED:  14/ 33 unfaithful (42.4%)  refused=2
+    INTACT   :  23/ 66 unfaithful (34.8%)  refused=6
+rag_dense: overall_unfaithful=83/192 (gate: expect 94/83)
+    ABSENT   :  35/ 51 unfaithful (68.6%)  refused=6
+    TRUNCATED:  17/ 51 unfaithful (33.3%)  refused=6
+    INTACT   :  31/ 90 unfaithful (34.4%)  refused=7
+rag_bm25: gold chunk in top-3 for 33/64 answerable questions
+rag_dense: gold chunk in top-3 for 47/64 answerable questions
+=== hallucination: all-answerable vs answered-only (per model-mode) ===
+qwen-3b    closed_book: all=48/64 (75.0%)  answered-only=48/63 (76.2%)  refused=1
+qwen-3b    rag_bm25   : all=30/64 (46.9%)  answered-only=30/54 (55.6%)  refused=10
+qwen-3b    rag_dense  : all=27/64 (42.2%)  answered-only=27/60 (45.0%)  refused=4
+qwen-7b    closed_book: all=28/64 (43.8%)  answered-only=28/64 (43.8%)  refused=0
+qwen-7b    rag_bm25   : all=22/64 (34.4%)  answered-only=22/48 (45.8%)  refused=16
+qwen-7b    rag_dense  : all=20/64 (31.2%)  answered-only=20/49 (40.8%)  refused=15
+vistral-7b closed_book: all=40/64 (62.5%)  answered-only=40/64 (62.5%)  refused=0
+vistral-7b rag_bm25   : all=43/64 (67.2%)  answered-only=43/62 (69.4%)  refused=2
+vistral-7b rag_dense  : all=38/64 (59.4%)  answered-only=38/64 (59.4%)  refused=0
+=== Q059 replacement candidates (gold INTACT, WRONG_INSTRUMENT, correct>=1.0) ===
+Q055 qwen-7b rag_bm25 types=['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '11', 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '1'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '2'}, {'doc_id': '12/2024/TT-NHNN', 'article_id': '2', 'clause_id': None}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '3'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '4'}]
+   answer[:220]=cho vay bằng phương tiện điện tử được quy định như sau: 1. tổ chức tín dụng thực hiện cho vay bằng phương tiện điện tử phải tuân thủ các điều kiện và đặc điểm của khoản vay, đảm bảo an ninh, an toàn, bảo vệ thông điệp dữ
+Q054 qwen-7b rag_dense types=['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '39/2016/TT-NHNN', 'article_id': '24', 'clause_id': '7', 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '39/2016/TT-NHNN', 'article_id': '24', 'clause_id': '2'}, {'doc_id': '32/2024/QH15', 'article_id': '102', 'clause_id': '1'}]
+   answer[:220]=tctd có trách nhiệm kiểm soát mục đích sử dụng vốn vay theo quy định tại điều 24, khoản 2 của thông tư [39/2016/tt-nhnn]. cụ thể: "2. tổ chức tín dụng có quyền, nghĩa vụ kiểm tra, giám sát việc sử dụng vốn vay và trả nợ 
+Q046 qwen-3b rag_bm25 types=['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '06/2019/TT-NHNN', 'article_id': '11', 'clause_id': None, 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '11'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '3'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '4'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '5'}]
+   answer[:220]=ngân hàng được phép có trách nhiệm sau khi quản lý tài khoản thanh toán điện tử (tkđttt): 1. **tuân thủ các quy định về an ninh, an toàn, bảo vệ thông điệp dữ liệu và bảo mật thông tin**: theo [39/2016/tt-nhnn] điều 32a,
+Q055 qwen-3b rag_bm25 types=['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '39/2016/TT-NHNN', 'article_id': '32a', 'clause_id': '11', 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '12/2024/TT-NHNN', 'article_id': '2', 'clause_id': None}]
+   answer[:220]=theo quy định trong tài liệu tham khảo [1], cho vay bằng phương tiện điện tử quy định như sau: 1. tổ chức tín dụng thực hiện cho vay bằng phương tiện điện tử phù hợp dengan điều kiện hoạt động kinh doanh của tổ chức tín 
+Q060 qwen-3b rag_bm25 types=['CONTRADICTS_CONTEXT', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '32/2024/QH15', 'article_id': '3', 'clause_id': '9', 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '61/2025/TT-NHNN', 'article_id': '3', 'clause_id': '9'}, {'doc_id': 'UNKNOWN', 'article_id': '3', 'clause_id': '3'}]
+   answer[:220]=thông tin không có trong tài liệu trường hợp này không thể hoàn toàn dựa vào thông tin trong tài liệu cung cấp để đưa ra quyết định. tuy nhiên, dựa trên thông tin có sẵn, chúng ta có thể đưa ra một số nhận xét: 1. theo k
+Q051 qwen-3b rag_dense types=['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '39/2016/TT-NHNN', 'article_id': '8', 'clause_id': '3', 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '39/2016/TT-NHNN', 'article_id': '8', 'clause_id': '3'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '8', 'clause_id': '3'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '8', 'clause_id': '3'}, {'doc_id': '39/2016/TT-NHNN', 'article_id': '8', 'clause_id': '3'}, {'doc_id': '32/2024/QH15', 'article_id': '135', 'clause_id': '1'}, {'doc_id': '32/2024/QH15', 'article_id': '135', 'clause_id': None}, {'doc_id': '32/2024/QH15', 'article_id': '135', 'clause_id': '1'}, {'doc_id': '32/2024/QH15', 'article_id': '135', 'clause_id': None}]
+   answer[:220]=những nhu cầu vốn sau đây tctd không được cho vay: 1. theo điều 8, khoản 3 của tài liệu tham khảo [39/2016/tt-nhnn], tctd không được cho vay để thực hiện các hoạt động đầu tư kinh doanh thuộc ngành, nghề cấm đầu tư kinh 
+Q064 qwen-3b rag_dense types=['CONTRADICTS_CONTEXT', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '48/2018/TT-NHNN', 'article_id': '3', 'clause_id': None, 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '06/2013/UBTVQH13', 'article_id': '3', 'clause_id': None}, {'doc_id': '06/2013/UBTVQH13', 'article_id': '3', 'clause_id': '3'}, {'doc_id': '48/2018/TT-NHNN', 'article_id': '3', 'clause_id': None}, {'doc_id': '48/2018/TT-NHNN', 'article_id': '3', 'clause_id': '3'}, {'doc_id': '06/2013/UBTVQH13', 'article_id': '3', 'clause_id': '3'}, {'doc_id': '48/2018/TT-NHNN', 'article_id': '3', 'clause_id': '3'}]
+   answer[:220]=để đáp ứng nhu cầu của kh, chúng ta cần xem xét các quy định về người gửi tiền trong các tài liệu tham khảo. theo [06/2013/ubtvqh13] điều 3. người gửi tiền, điều 3. người gửi tiền, khoản 3, quy định rằng "công dân việt n
+Q006 vistral-7b rag_bm25 types=['NON_COVERING_PROVISION', 'WRONG_INSTRUMENT']
+   gold={'doc_id': '46/2024/QH15', 'article_id': '52', 'clause_id': '4', 'confidence': 'passage-header'}
+   extracted=[{'doc_id': '23/2015/NĐ-CP', 'article_id': '52', 'clause_id': None}, {'doc_id': '46/2024/QH15', 'article_id': '32', 'clause_id': None}]
+   answer[:220]=theo điều 52 của nghị định 23/2015/nđ-cp, sửa đổi bởi nghị định 111/2020/nđ-cp và nghị định 08/2023/nđ-cp, sửa đổi bởi nghị định 15/2024/nđ-cp, sửa lỗi kỹ thuật trong văn bản công chứng được thực hiện tại tổ chức hành ng

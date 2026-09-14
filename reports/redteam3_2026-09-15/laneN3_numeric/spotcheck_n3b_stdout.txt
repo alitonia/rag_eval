@@ -1,0 +1,37 @@
+=== chunk-cond x text-level cross-tab (rows) ===
+INTACT       {'FULL': 141}
+TRUNCATED    {'PREFIX': 84}
+GOLD_DROPPED {'NOTEXT': 6, 'PREFIX': 9}
+ABSENT       {'NOTEXT': 138, 'PREFIX': 6}
+
+GOLD_DROPPED rows without full text:
+   ('Q008', 'qwen-7b', 'rag_bm25', ['tier1_5f18d8610047ee81', 'tier1_5f18d8610047ee81_2', 'tier1_f61673d2e4d233f1'], [3], [1, 2], 'NOTEXT', 6257)
+   ('Q034', 'qwen-7b', 'rag_bm25', ['tier1_00f7c06d4716fac1', 'tier1_00f7c06d4716fac1_2', 'tier1_00f7c06d4716fac1_3'], [3], [1, 2], 'PREFIX', 11806)
+   ('Q060', 'qwen-7b', 'rag_bm25', ['tier1_200c31c7320b7be8_3', 'tier1_200c31c7320b7be8', 'tier1_200c31c7320b7be8_2'], [3], [1, 2], 'PREFIX', 3972)
+   ('Q034', 'qwen-7b', 'rag_dense', ['tier1_00f7c06d4716fac1', 'tier1_00f7c06d4716fac1_2', 'tier1_00f7c06d4716fac1_3'], [3], [1, 2], 'PREFIX', 11806)
+   ('Q039', 'qwen-7b', 'rag_dense', ['tier1_4e14cdd521eb2cd2', 'tier1_a4575e710bf127ca', 'tier1_7ace77d9a24b05ff'], [3], [1], 'NOTEXT', 745)
+   ('Q008', 'qwen-3b', 'rag_bm25', ['tier1_5f18d8610047ee81', 'tier1_5f18d8610047ee81_2', 'tier1_f61673d2e4d233f1'], [3], [1, 2], 'NOTEXT', 6257)
+   ('Q034', 'qwen-3b', 'rag_bm25', ['tier1_00f7c06d4716fac1', 'tier1_00f7c06d4716fac1_2', 'tier1_00f7c06d4716fac1_3'], [3], [1, 2], 'PREFIX', 11806)
+   ('Q060', 'qwen-3b', 'rag_bm25', ['tier1_200c31c7320b7be8_3', 'tier1_200c31c7320b7be8', 'tier1_200c31c7320b7be8_2'], [3], [1, 2], 'PREFIX', 3972)
+   ('Q034', 'qwen-3b', 'rag_dense', ['tier1_00f7c06d4716fac1', 'tier1_00f7c06d4716fac1_2', 'tier1_00f7c06d4716fac1_3'], [3], [1, 2], 'PREFIX', 11806)
+   ('Q039', 'qwen-3b', 'rag_dense', ['tier1_4e14cdd521eb2cd2', 'tier1_a4575e710bf127ca', 'tier1_7ace77d9a24b05ff'], [3], [1], 'NOTEXT', 745)
+   ('Q008', 'vistral-7b', 'rag_bm25', ['tier1_5f18d8610047ee81', 'tier1_5f18d8610047ee81_2', 'tier1_f61673d2e4d233f1'], [3], [1, 2], 'NOTEXT', 6257)
+   ('Q034', 'vistral-7b', 'rag_bm25', ['tier1_00f7c06d4716fac1', 'tier1_00f7c06d4716fac1_2', 'tier1_00f7c06d4716fac1_3'], [3], [1, 2], 'PREFIX', 11806)
+   ('Q060', 'vistral-7b', 'rag_bm25', ['tier1_200c31c7320b7be8_3', 'tier1_200c31c7320b7be8', 'tier1_200c31c7320b7be8_2'], [3], [1, 2], 'PREFIX', 3972)
+   ('Q034', 'vistral-7b', 'rag_dense', ['tier1_00f7c06d4716fac1', 'tier1_00f7c06d4716fac1_2', 'tier1_00f7c06d4716fac1_3'], [3], [1, 2], 'PREFIX', 11806)
+   ('Q039', 'vistral-7b', 'rag_dense', ['tier1_4e14cdd521eb2cd2', 'tier1_a4575e710bf127ca', 'tier1_7ace77d9a24b05ff'], [3], [1], 'NOTEXT', 745)
+
+=== GOLD_DROPPED rows detail ===
+('Q008', 'rag_bm25') dropped_rank=[3] siblings=[(1, 'tier1_5f18d8610047ee81', 'TRUNC', 'điều 4. giải thích từ ngữ trong luật này'), (2, 'tier1_5f18d8610047ee81_2', 'TRUNC', 'điều 4. giải thích từ ngữ trong luật này'), (3, 'tier1_f61673d2e4d233f1', 'ok', 'điều 3. giải thích từ ngữ trong luật này')] goldfull_in_prompt=False
+('Q034', 'rag_bm25') dropped_rank=[3] siblings=[(1, 'tier1_00f7c06d4716fac1', 'TRUNC', 'điều 9. hệ số rủi ro tín dụng (crw) 1. n'), (2, 'tier1_00f7c06d4716fac1_2', 'TRUNC', 'điều 9. hệ số rủi ro tín dụng (crw) 1. n'), (3, 'tier1_00f7c06d4716fac1_3', 'ok', 'điều 9. hệ số rủi ro tín dụng (crw) 1. n')] goldfull_in_prompt=False
+('Q060', 'rag_bm25') dropped_rank=[3] siblings=[(1, 'tier1_200c31c7320b7be8_3', 'TRUNC', 'điều 3. giải thích từ ngữ trong thông tư'), (2, 'tier1_200c31c7320b7be8', 'TRUNC', 'điều 3. giải thích từ ngữ trong thông tư'), (3, 'tier1_200c31c7320b7be8_2', 'ok', 'điều 3. giải thích từ ngữ trong thông tư')] goldfull_in_prompt=False
+('Q034', 'rag_dense') dropped_rank=[3] siblings=[(1, 'tier1_00f7c06d4716fac1', 'TRUNC', 'điều 9. hệ số rủi ro tín dụng (crw) 1. n'), (2, 'tier1_00f7c06d4716fac1_2', 'TRUNC', 'điều 9. hệ số rủi ro tín dụng (crw) 1. n'), (3, 'tier1_00f7c06d4716fac1_3', 'ok', 'điều 9. hệ số rủi ro tín dụng (crw) 1. n')] goldfull_in_prompt=False
+('Q039', 'rag_dense') dropped_rank=[3] siblings=[(1, 'tier1_4e14cdd521eb2cd2', 'TRUNC', 'điều 1. sửa đối, bố sung một số điều của'), (2, 'tier1_a4575e710bf127ca', 'ok', 'điều 8. những nhu cầu vốn không được cho'), (3, 'tier1_7ace77d9a24b05ff', 'ok', 'điều 1. phạm vi điều chỉnh 1. thông tư n')] goldfull_in_prompt=False
+
+=== recompute unfaithful rates under TEXT-level buckets ===
+rag_bm25  TEXT-FULL              unfaithful  19/ 57 (33.3%)
+rag_bm25  TEXT-PREFIX(non-full)  unfaithful  18/ 42 (42.9%)
+rag_bm25  TEXT-NOTEXT            unfaithful  57/ 93 (61.3%)
+rag_dense TEXT-FULL              unfaithful  29/ 84 (34.5%)
+rag_dense TEXT-PREFIX(non-full)  unfaithful  19/ 57 (33.3%)
+rag_dense TEXT-NOTEXT            unfaithful  35/ 51 (68.6%)

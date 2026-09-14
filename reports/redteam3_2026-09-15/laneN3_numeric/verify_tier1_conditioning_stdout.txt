@@ -1,0 +1,39 @@
+generations.json rows: 792 keys: ['abstained', 'answer_text', 'cache_key', 'corpus_source', 'extracted_citations', 'model_name', 'prompt', 'question_id', 'raw_response', 'retrieval_mode', 'retriever_backend']
+questions mapped to tier1 chunks: 64
+rows with retrieved ids outside tier1 file: 0
+rag_bm25: absent=93 present_truncated=33 intact=66 total=192
+rag_dense: absent=51 present_truncated=51 intact=90 total=192
+text-level gold-passage-absent: {'rag_bm25': 93, 'rag_dense': 51} of checked {'rag_bm25': 192, 'rag_dense': 192}
+
+Q059 canonical: gold_doc_ids= ['32/2024/QH15', '61/2025/TT-NHNN'] confidence= ambiguous-multi-url gold_citations= [{'doc_id': '32/2024/QH15', 'article_id': '3', 'clause_id': '9', 'confidence': 'passage-header'}]
+Q059 gold_passage head: điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ dưới đây được hiểu như sau: 1. mạng lưới hoạt động của ngân h
+
+Q059 qwen-7b retrieved: ['tier1_200c31c7320b7be8_3', 'tier1_200c31c7320b7be8', 'tier1_200c31c7320b7be8_2'] truncated_ranks: [1, 2]
+    tier1_200c31c7320b7be8 -> 32/2024/QH15 Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    tier1_200c31c7320b7be8_2 -> 32/2024/QH15 Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    tier1_200c31c7320b7be8_3 -> 61/2025/TT-NHNN Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    extracted_citations: [{'doc_id': '61/2025/TT-NHNN', 'article_id': '3', 'clause_id': '5'}]
+    prompt contains 'Mạng lưới hoạt động': True
+    prompt contains 'tập quán thương mại': False
+
+Q059 qwen-3b retrieved: ['tier1_200c31c7320b7be8_3', 'tier1_200c31c7320b7be8', 'tier1_200c31c7320b7be8_2'] truncated_ranks: [1, 2]
+    tier1_200c31c7320b7be8 -> 32/2024/QH15 Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    tier1_200c31c7320b7be8_2 -> 32/2024/QH15 Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    tier1_200c31c7320b7be8_3 -> 61/2025/TT-NHNN Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    extracted_citations: []
+    prompt contains 'Mạng lưới hoạt động': True
+    prompt contains 'tập quán thương mại': False
+
+Q059 vistral-7b retrieved: ['tier1_200c31c7320b7be8_3', 'tier1_200c31c7320b7be8', 'tier1_200c31c7320b7be8_2'] truncated_ranks: [1, 2]
+    tier1_200c31c7320b7be8 -> 32/2024/QH15 Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    tier1_200c31c7320b7be8_2 -> 32/2024/QH15 Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    tier1_200c31c7320b7be8_3 -> 61/2025/TT-NHNN Điều 3 | điều 3. giải thích từ ngữ trong thông tư này, những từ ngữ d
+    extracted_citations: [{'doc_id': '32/2024/TT-NHNN', 'article_id': '3', 'clause_id': '5'}]
+    prompt contains 'Mạng lưới hoạt động': True
+    prompt contains 'tập quán thương mại': False
+
+Q036 gold_doc_ids: ['41/2016/TT-NHNN'] confidence: manifest
+Q036 gold_passage head: phụ lục 1, phần a, mục i: giá trị vốn cấp 2 tối đa bằng vốn cấp 1 (vốn cấp 2 (b) = b1 - b2 - 20).
+Q036 in tier1 map: True
+WARN5: no per-row hallucination label field found; enumerate one full row:
+{"question_id": "Q001", "model_name": "qwen-7b", "retrieval_mode": "closed_book", "prompt": "<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|...", "raw_response": "THÔNG TIN KHÔNG CÓ TRONG TÀI LIỆU.\n\nTheo quy định hiện hành của Ngân hàng Nhà nước Việt Nam, việc ch...", "answer_text": "THÔNG TIN KHÔNG CÓ TRONG TÀI LIỆU.\n\nTheo quy định hiện hành của Ngân hàng Nhà nước Việt Nam, việc ch...", "extracted_citations": [], "abstained": true, "corpus_source": "tier1_passages", "retriever_backend": "none-closed-book", "cache_key": "2177e02d8632f8a63a5c0e0b"}

@@ -1,0 +1,746 @@
+Citation-Level Unfaithfulness of Small Language
+Models on Vietnamese Banking Regulation: A
+Provenance-Guarded RAG Benchmark
+Nguyen Huy Hoang1 , Dinh Thi Lan Huong2 , Nguyen Thang Phuc3 , Vu Duc Thanh4 , Nguyen Khac Duy Ngoc5
+Hanoi University of Science and Technology, Hanoi, Vietnam
+Hoang.NH251325M@sis.hust.edu.vn 2 Huong.DTL20261261M@sis.hust.edu.vn
+3
+Phuc.NT20252263M@sis.hust.edu.vn 4 Thanh.VD20261082M@sis.hust.edu.vn
+5
+Ngoc.NKD20261206M@sis.hust.edu.vn
+
+1
+
+Retrieval-augmented generation is well established as a remedy for hallucination in English knowledge-intensive tasks [1],
+[2], and simply replicating that aggregate gain in Vietnamese
+provides limited practical insight. The failure mode that aggregate accuracy conceals is citation-level unfaithfulness: a model
+produces a fluent, plausible answer that carries the wrong
+Ðiều or Khoan, or cites an instrument that does not govern
+the question at all, instead of abstaining. For a compliance
+tool, a wrong answer with a confident, wrong citation is
+more dangerous than an obviously wrong answer, because the
+citation is what a human reviewer checks first. Measuring that
+behaviour requires a benchmark in which the correct citation is
+known per question and in which the corpus provably contains
+the evidence.
+RegRAG-VN is designed around this requirement. Its corpus is QA-driven: the legal instruments ingested are exactly
+those cited by the benchmark questions, and a coverage invariant requires every retained question’s verbatim gold passage to
+match the ingested text exactly at chunk level. Ground truth is
+therefore verifiably present in the retrieval corpus rather than
+assumed. On top of this corpus we measure three research
+questions:
+¿
+
+Abstract—Retrieval-augmented generation (RAG) is the standard remedy for hallucination in small language models, but
+its benefit is usually reported as an aggregate accuracy delta
+that hides where an answer came from. We present RegRAGVN, a benchmark and evaluation framework for Vietnamese
+banking and payment regulation whose retrieval corpus is aligned
+with the questions by an exact-match coverage invariant. The
+benchmark holds 64 answerable questions drawn from State
+Bank of Vietnam circulars, decrees, and laws, alongside 24
+unanswerable probes paired with an explicit abstention sentinel.
+We evaluate models of at most 7B parameters under closedbook, BM25, and dense retrieval, scoring article-level (Ðiều)
+and clause-level (Khoan) citation accuracy alongside abstention.
+Across a 3×3×88 generation campaign on a single GPU, retrieval
+augmentation on a fixture whose passage pool contains every gold
+passage raises article-level citation F1 from 0.005 (closed-book)
+to 0.32–0.43. However, 43–49% of RAG answers on answerable
+questions still fail citation-level checking—about 35% even when
+the governing passage reaches the prompt intact—and models
+frequently emit refusal language before answering anyway; a
+provenance discipline tags corpus tiers and retriever backends
+throughout the pipeline so that degraded or unverified data
+cannot silently enter the results.
+Index Terms—retrieval-augmented generation, hallucination,
+citation faithfulness, abstention, Vietnamese legal NLP, benchmark
+
+RQ1 (hallucination reduction). How much does RAG
+reduce hallucination versus closed-book answering for
+small models (≤7B) on Vietnamese regulatory questions?
+• RQ2 (citation and abstention). How accurately do models cite the supporting article (Ðiều) and clause (Khoan),
+and do they abstain when the corpus does not contain the
+answer?
+• RQ3 (sparse versus dense). How does BM25 with
+Vietnamese compound-word segmentation compare with
+multilingual dense embeddings (BGE-M3) on legal retrieval?
+
+¿
+
+•
+
+Regulatory compliance in Vietnam is a language problem
+with legal consequences. A bank officer who answers a customer’s question about payment-card limits, or a compliance
+analyst who checks whether a new product violates a circular
+of the State Bank of Vietnam (SBV), must locate the governing
+provision among hundreds of circulars (Thông tu’), decrees
+(Nghı. d̄ı.nh) and laws (Luâ.t), each organised into numbered
+articles (Ðiều) and clauses (Khoan). Language models are an
+obvious aid, but the models that regional banks and fintechs
+can actually deploy are small: a 3–7B parameter model served
+on a single commodity GPU, not a frontier API whose data
+leaves the country. Whether such models answer Vietnamese
+regulatory questions faithfully and cite the governing provisions accurately is therefore a practical deployment question
+as well as a research one.
+
+¿
+
+I. I NTRODUCTION
+
+A benchmark of this nature is only as reliable as the pipeline
+that produces its empirical findings. In multi-component
+RAG evaluation, silent software fallbacks—such as substituting mock similarity rankings when an optional neural
+library is missing, or reverting to unsegmented whitespace
+tokenization—can fabricate plausible numerical results with-
+
+¿
+
+¿
+
+¿
+
+RAG and its evaluation. Retrieval-augmented generation
+conditions a generator on passages retrieved from a corpus [1], with dense passage retrieval [3] and sparse BM25
+scoring [4] as the two dominant retriever families [2]. General RAG suites evaluate component capabilities such as
+noise robustness and negative rejection [5], and referencefree frameworks estimate faithfulness and answer relevance
+[6], but these suites are English-centric and none scores the
+correctness of a statutory citation, the unit a compliance
+reviewer trusts. Two legal-domain benchmarks move toward
+that requirement. LegalBench-RAG scores retrieval against
+gold supporting spans so that generation quality cannot mask
+evidence-selection errors [7], and Legal RAG Bench evaluates
+end-to-end legal RAG with a hierarchical error decomposition
+[8]. We report three failure classes accordingly: retrieval failure, where no gold provision reaches the prompt; generation
+failure, where the provision is present but the answer asserts
+unsupported claims; and citation mismatch, where the answer
+names a wrong or non-governing provision.
+Hallucination and faithfulness measurement. Hallucination in natural language generation is surveyed along the
+intrinsic/extrinsic axis [9]. In summarisation, faithfulness was
+operationalised by evaluating whether source text entails summary facts [10], while atomic-fact decomposition enabled
+precision scoring per claim [11]. Attribution research further
+formalises the requirement that generated statements be supported by cited sources, scoring citation quality separately
+from answer correctness [12]. These risks are documented in
+deployment: an audit of leading legal research platforms found
+answer, source, citation, and completeness failures on every
+tool tested [13]. Our citation metric follows this attribution
+line but is stricter in one respect: the cited unit is a statutory
+article or clause, so a citation to the right instrument but the
+wrong article scores zero, matching how a legal reviewer reads
+a reference.
+Legal-domain language models. Legal NLP benchmarks
+such as LexGLUE establish that legal text behaves differently
+
+¿
+
+II. R ELATED W ORK
+
+from general text [14]. Vietnamese legal text adds a structural
+property that most legal-RAG work ignores: provisions are
+numbered hierarchically (Ðiều within Chu’o’ng, Khoan within
+Ðiều), so the chunking granularity is itself an experimental
+variable. Prior work demonstrates that mixing chunk granularities outperforms any single fixed granularity for RAG [15];
+our Ðiều/Khoan segmentation adapts this principle directly
+to the statutory hierarchy. Long-context dynamics matter as
+well, since retrieved passages compete for attention within the
+prompt [16].
+Vietnamese legal NLP. VLQA links legal questions to
+answers and evidence documents [17], VLegal-Bench evaluates multi-task legal reasoning [18], and ViLegalLM adapts
+language models to Vietnamese legal text [19]. Nguyễn Bá et
+al. compare lexical, dense, and hybrid retrieval for Vietnamese
+legal QA [20]. Within these resources we did not find one that
+couples article-level citation scoring and unanswerable probes
+with a corpus whose coverage of the governing provisions is
+verified; that conjunction is the one RegRAG-VN occupies.
+The sparse arm depends on Vietnamese word segmentation
+[21]: because the orthography places spaces between syllables
+rather than words, a whitespace tokenizer splits compound
+legal terms such as ngân hàng or the tín du.ng into fragmented
+units, so we segment queries and chunks before BM25 scoring
+(RQ3).
+¿
+
+out warning. To ensure strict scientific reproducibility, we treat
+provenance tracking as a fundamental methodological requirement: every chunk, retrieved candidate, generation output, and
+evaluation record carries immutable metadata specifying its
+corpus source and active backend. Our evaluation harness
+explicitly rejects any row carrying degraded or unverified
+execution tags; Section IV details this discipline.
+The contributions of this paper are: (i) RegRAG-VN, a QAdriven Vietnamese banking regulation benchmark featuring
+64 answerable statutory questions and 24 unanswerable operational probes, governed by a coverage invariant ensuring
+supporting evidence is verifiably present; (ii) an evaluation
+methodology that scores legal attribution at article (Ðiều) and
+clause (Khoan) granularity while assessing model abstention
+under coverage gaps; and (iii) a provenance architecture for
+RAG benchmarks that tags and gates execution integrity across
+complex multi-stage pipelines.
+
+III. T HE B ENCHMARK
+A. Domain and QA-driven corpus construction
+The domain is Vietnamese banking and payment regulation:
+SBV circulars on payment services, cards, non-cash payment
+and credit-institution organisation, together with the governing
+decrees and laws. Rather than querying a broad collection of
+legal instruments, the retrieval corpus is derived directly from
+the benchmark questions. Each gold question was authored
+together with a verbatim passage from the instrument that
+answers it and the source URL of that instrument. Instrument
+identifiers are resolved from the URL through a humanverified manifest; where a URL is opaque, the row is kept
+with an explicit UNRESOLVED: identifier and reported, never
+dropped, so the benchmark cannot silently shrink. When
+a passage cites multiple candidate instruments, the named
+instrument is primary; spreadsheet URL ordering provides no
+priority.
+The current benchmark holds 88 rows: 64 answerable
+questions, each with a gold passage recording the supporting
+provision and at least one source URL, and 24 unanswerable
+probes. Because gold passages reflect annotator records and
+may not represent verbatim extracts, the pipeline verifies each
+passage against the corpus at ingestion. When a recorded
+passage is a summary rather than an exact extract, the verbatim
+article text is substituted from the source instrument and
+logged. In the delivered revision, 63 of the 64 passages consist
+of verbatim article text substituted under a guarded repair
+procedure, which rewrites a row only if the cited instrument is
+present in the corpus, the cited article exists, and the annotator
+summary clears a lexical overlap threshold against that article;
+
+¿
+
+B. Two-tier corpus and the coverage invariant
+The corpus has two tiers with identical interfaces. Tier 1
+is a development fixture of the verbatim gold passages, one
+chunk per passage, built so that indexing, retrieval, prompting,
+generation and scoring could be integrated before the real
+instruments arrived. Although each question’s gold passage
+is in Tier 1 by construction, top-3 retrieval over the 64chunk fixture is not guaranteed to surface it—the gold chunk
+reaches the top 3 for only 33 of 64 answerable questions under
+BM25 and 47 of 64 under dense retrieval—so Tier 1 measures
+generation under a mixture of evidence conditions. Tier 1 is
+therefore never treated as corpus evidence, and the generation
+campaign that used it runs under the disclosure of §V-A. Tier 2
+is the segmented full text of the ingested instruments and is the
+corpus on which retrieval quality is measured (Table III). Segmentation follows the statutory hierarchy: articles (Ðiều) are
+chunked at clause (Khoan) boundaries—one chunk per clause,
+short articles single chunks—and preambles are retained rather
+than discarded.
+The coverage invariant enforces alignment between the tiers:
+every retained answerable question’s verbatim gold passage
+must match a Tier 2 chunk exactly under strict normalisation,
+in either direction over at least 30 characters—for clausechunked articles the match is the governing clause inside the
+passage—with the single annex-citing row of §III-A excepted
+(Unicode NFC plus whitespace collapse, diacritics preserved).
+A passage matching only after diacritic folding is classified as
+extraction damage, since lost diacritics would corrupt retrieval
+and citation scoring. A passage matching only after whitespace
+removal is logged as a second diagnostic category, an artifact
+of gazette PDFs that insert spurious intra-word spaces. Neither
+type of degradation is accepted as an exact match. Any
+question whose governing instrument could not be obtained
+is excluded from the answerable set; retaining it would falsely
+penalise models for hallucinating evidence that was never
+retrievable.
+
+C. Unanswerable probes
+The 24 probes evaluate the abstention component of RQ2
+using questions deliberately unanswerable from the corpus;
+their gold target is the sentinel string Không có trong kho
+văn ban (“not in the document corpus”). These scenarios
+represent plausible, in-domain banking situations whose governing provisions lie outside the repository. Examples include
+opening payment accounts for condominium management
+boards, kindergartens, and foreign trade-representative offices;
+collateral held by a spouse or an owner under 18; and the
+reporting frequency of the capital-adequacy ratio. The capitaladequacy question was originally annotated as answerable, but
+source verification revealed it is governed by an uningested
+statistical-reporting circular, prompting its reassignment to the
+probe arm.
+By testing realistic questions governed by missing instruments, the probes evaluate abstention under a corpus-coverage
+gap rather than simple rejection of out-of-domain topics.
+This setting is intentionally demanding: abstention cannot be
+triggered by topical distance but requires recognising that the
+retrieved evidence does not support an answer. We state as
+a limitation that the probe set contains no precision-trap and
+no cross-jurisdictional arm, so abstention on numerically nearmiss questions and on foreign rules is not measured. A model
+that answers a probe fluently has failed abstention even if
+the answer is globally true, because the benchmark strictly
+evaluates what the corpus supports.
+¿
+
+rows whose cited instrument is absent from the corpus are
+excluded from the answerable set. Of the remaining rows,
+one cites a Phu. lu.c annex rather than a numbered article and
+is retained as an annotator summary; a further row, whose
+governing instrument is absent, was moved to the probe arm
+and lies outside the 64. Since substituted passages originate
+directly from the ingested corpus, verbatim string coverage on
+repaired rows is partly self-satisfying; we therefore report it as
+an internal data-quality metric and anchor formal evaluation
+on article-level citation accuracy. Article-level gold citations
+(Ðiều) are derivable for 63 of the 64 answerable rows; clauselevel gold (Khoan) is present for 40. We therefore score
+citation accuracy at article level and treat clause level as
+optional: a clause reference is credited when present and
+correct but is never required for a match, because requiring it
+would penalise correct answers for questions whose governing
+provision has no clause structure.
+
+D. Annotation and inter-annotator reliability
+Questions were authored by two domain annotators and
+verified against their source instruments at ingestion (§III-A);
+wrong labels were corrected from documented findings rather
+than scored as-is. Inter-annotator agreement on the gold labels
+was not measured, and we state the resulting author-bias risk
+as a limitation.
+IV. M ETHOD
+
+¿
+
+A. Retrieval
+We compare three retrieval modes at top-k = 3. Under
+closed-book, the prompt contains only the question without
+context. For RAG-BM25, queries and corpus chunks are segmented with PyVi [22] to preserve compound legal terms,
+followed by BM25 scoring [4], [23]. For RAG-Dense, queries
+and chunks are embedded using multilingual BGE-M3 [24]
+and ranked by cosine similarity. In both RAG configurations,
+the top-3 retrieved passages are concatenated into the prompt
+with identical formatting under a shared 7,000-character context budget (447 of 528 RAG prompts are clipped and 240
+ranked passages dropped), so retrieval representation is the
+only factor varied by design, though the budget’s clipping
+depends on each retriever’s ranking.
+B. Generation
+We evaluate three instruction-tuned models of at most 7B
+parameters: Qwen2.5-7B-Instruct and Qwen2.5-3B-Instruct
+[25], alongside the Vietnamese-focused Vistral-7B-Chat [26]
+
+as an architecturally distinct third model. All models are served
+in 4-bit quantisation (NF4 weights, float16 compute) on a
+single 24 GB GPU. Each model passes an automated memory
+preflight, and chat-template application is verified on sample
+outputs. Every prompt includes explicit instructions specifying
+a refusal keyphrase, ensuring abstention is measured as a
+deliberate behavior rather than an omission.
+C. Evaluation metrics
+
+fabricated provisions act as corrupt distractors. The rejection
+path did fire at ingest level: a Tier-2 re-ingest was rejected on
+duplicate chunk identifiers, which is why generation ran on the
+Tier-1 fixture (§V-A) while Table III used the validated Tier2 build. By enforcing immutable provenance metadata across
+every stage, RegRAG-VN keeps experimental conclusions anchored to authentic documents and disclosed execution paths.
+V. E XPERIMENTAL D ESIGN AND R ESULTS
+
+For each evaluation instance, we compute four core metrics. Groundedness assesses whether atomic assertions in
+the generated answer are entailed by the retrieved context,
+following claim-level verification methodologies [11], [12],
+and the hallucination rate identifies statements that contradict
+statutory text or introduce unsupported assertions. Citation
+precision, recall, and F1 are scored at the article (Ðiều) level,
+with optional credit for clause (Khoan) accuracy (citations to
+the correct article number under an incorrect legal instrument
+score zero). Abstention accuracy on unanswerable probes measures whether the model emits the instructed refusal keyphrase
+without generating substantive claims.
+Our automated scoring pipeline is deterministic, lexical, and
+released in full without manual adjustment. We validated it
+against 50 expert-annotated responses stratified across models
+and modes. Every correctness and abstention call the scorer
+makes is confirmed by the expert (3/3 and 10/10), but it misses
+15 expert-correct answers and 8 expert-judged abstentions, so
+those positive calls are exact and those rates conservative.
+Scorer–expert agreement is κ = 0.20 for correctness, 0.39 for
+hallucination, and 0.62 for abstention [27]; on hallucination the
+scorer misses ten and over-flags five, netting the undercount
+of five that makes the rates in Table I mild underestimates.
+The validation post-dates the campaign: Tables I and II were
+aggregated with the scorer still unvalidated (strict=False
+in the log), and the κ values above are the completed check.
+¿
+
+D. Provenance discipline
+Every chunk, retrieved result, generation, and evaluation
+record carries two provenance tags: corpus_source
+(tier1_passages
+or
+tier2_full)
+and
+retriever_backend (e.g., bm25-rank_bm25+pyvi or
+BAAI/bge-m3, or DEGRADED:<reason>). Aggregation
+functions are built to refuse rows whose backend is unverified,
+degraded, or mismatched; no row carried a degraded tag in
+the campaign, but the tables of §V were aggregated with this
+gate relaxed pending the scorer validation (§IV-C).
+This architecture was developed in response to concrete
+vulnerabilities in modular RAG pipelines. First, unhandled
+import exceptions can let mock dense-retrieval classes return
+corpus-ordered chunks with synthetic scores, fabricating a
+whole experimental condition without failure. Second, sparse
+retrievers can silently fall back from compound-word segmentation to naive whitespace splitting, undermining lexical
+evaluation while still self-reporting as BM25. Finally, corpus
+validation quarantined an early synthetic seed file with noncontiguous articles and missing administrative headers, as
+
+We evaluate three models across three retrieval modes
+(closed-book, RAG-BM25, and RAG-Dense) at top-k = 3
+over all 88 benchmark rows, producing 792 generated answers
+through the pipeline of Fig. 1. The campaign ran in one
+ten-hour window on a single RTX 3090 (24 GB), serving
+each model in 4-bit NF4 quantisation with greedy decoding
+(temperature 0, seed 1234, at most 512 new tokens) and one
+model resident at a time. All 792 prompts round-trip byteidentical through the harness; 709 answers finish naturally and
+83 hit the token cap and are analysed as generated. With 64
+answerable rows and 24 probes per cell, binomial noise is
+on the order of six and ten percentage points respectively, so
+we report point estimates without significance tests and read
+small differences between cells cautiously. Retrieval quality is
+reported separately (Table III), because a RAG arm whose
+retriever never finds the gold passage measures prompting
+rather than retrieval.
+A. Evidence Conditioning and Scope
+The generation experiments run on the curated Tier-1 fixture, in which every answerable question’s supporting statutory
+passage is present by design. The guarantee holds at the pool
+level, not the prompt level (§III-B): the results below mix
+generation-side citation errors with fixture-retrieval misses,
+and RQ2 splits the unfaithfulness rates by evidence condition.
+Three implications follow:
+• Upper-Bound Conditioning: Tables I and II measure
+generation on a fixture whose pool contains every gold
+passage; the gains over closed-book baselines are therefore an empirical upper bound on retrieval-augmented
+performance.
+• Arm Differences: differences between RAG-BM25 and
+RAG-Dense reflect both retrieval behaviour on the fixture
+and prompt composition; the two configurations yield
+identical answers in only 45 of 264 shared instances.
+• Independent Retrieval Evaluation: Retrieval performance is evaluated independently on the 3,703-chunk
+Tier-2 corpus (Table III) across 22 instruments.
+B. RQ1: hallucination reductions partly reflect a shift to
+refusal
+Closed-book hallucination rates span 0.44–0.75 (Table I).
+On all answerable rows, conditioning on retrieved evidence
+lowers the rate for both Qwen models (Qwen2.5-7B 0.438 →
+0.344/0.313, Qwen2.5-3B 0.750 → 0.469/0.422 under
+BM25/dense). Restricting the comparison to rows each model
+
+Model
+
+Mode
+
+Qwen2.5-7B
+Qwen2.5-7B
+Qwen2.5-7B
+Qwen2.5-3B
+Qwen2.5-3B
+Qwen2.5-3B
+Vistral-7B
+Vistral-7B
+Vistral-7B
+
+closed-book
+RAG-BM25
+RAG-Dense
+closed-book
+RAG-BM25
+RAG-Dense
+closed-book
+RAG-BM25
+RAG-Dense
+
+Halluc. ↓
+
+Ground. ↑
+
+Abst. ↑
+
+0.438
+0.344
+0.313
+0.750
+0.469
+0.422
+0.625
+0.672
+0.594
+
+–
+0.985
+0.951
+–
+0.950
+0.916
+–
+0.912
+0.939
+
+0.042
+0.500
+0.375
+0.000
+0.000
+0.125
+0.000
+0.000
+0.000
+
+TABLE III
+R ETRIEVAL QUALITY ON THE T IER 2 CORPUS (RQ3). R ECALL AT
+INSTRUMENT ( DOC ) AND ARTICLE (Ðiều) LEVEL , k=1/3, OVER THE
+ANSWERABLE SET ( DOC n=64; ARTICLE n=63, ONE ROW CITES AN
+ANNEX ).
+Retriever
+
+Doc@1 Doc@3 Ðiều@1 Ðiều@3
+
+BM25 (pyvi)
+BGE-M3 dense
+
+0.734
+0.719
+
+0.906
+0.891
+
+0.381
+0.365
+
+0.492
+0.524
+
+gold QA CSV + source manifest (only trusted artifacts)
+QA-driven ingestion → Tier-2 corpus (Ðiều/Khoan chunks), Tier-1 fixture
+¿
+
+TABLE I
+H ALLUCINATION , GROUNDEDNESS AND ABSTENTION BY MODEL AND
+RETRIEVAL MODE (RQ1, RQ2- ABSTENTION ). H ALLUC . =
+HALLUCINATION RATE OVER THE 64 ANSWERABLE QUESTIONS ; G ROUND .
+= MEAN SENTENCE - LEVEL GROUNDEDNESS OVER ROWS WITH
+ASSESSABLE RETRIEVED CONTEXT ( CLOSED - BOOK HAS NONE , HENCE –);
+A BST. = SHARE OF THE 24 PROBES CORRECTLY REFUSED .
+
+coverage gate: verbatim gold passage ∧ instrument present
+BM25 (pyvi) / BGE-M3 indexing → top-3 context packing
+3 models × 3 modes × 88 questions, 4-bit, greedy → 792 answers
+lexical scoring + provenance-guarded aggregation
+(corpus_source, retriever_backend)
+
+TABLE II
+C ITATION ACCURACY AT ARTICLE (Ðiều) LEVEL AND OPTIONAL CLAUSE
+(Khoan) LEVEL , POOLED OVER THE THREE MODELS (RQ2). P AND R ARE
+AVERAGED PER ROW OVER THE 189 SCORABLE ANSWERABLE ROWS (63
+QUESTIONS × 3 MODELS ; ONE ANNEX - CITING QUESTION HAS NO
+ARTICLE GOLD ); A CORRECT ARTICLE IN THE WRONG INSTRUMENT
+SCORES ZERO . Khoan ACCURACY IS OVER THE 120 ROWS WHOSE GOLD
+CITATION NAMES A CLAUSE .
+
+Fig. 1. The RegRAG-VN pipeline. Every record crossing a component
+boundary carries the corpus_source and retriever_backend tags;
+the coverage gate excludes a question rather than mislabel it as hallucinated.
+
+¿
+
+¿
+
+actually answered removes most of the 7B effect: answeredrow rates are 0.438 → 0.458/0.408 for Qwen2.5-7B, indistinguishable from closed-book at this sample size, whereas
+Qwen2.5-3B keeps a reduction (0.762 → 0.556/0.450), unambiguous only in the dense arm. In contrast, Vistral-7B exhibits
+no reduction; its BM25 rate is marginally higher than its
+closed-book baseline (0.672 vs. 0.625) because it paraphrases
+retrieved text into unsupported assertions rather than extracting
+it. Groundedness is high whenever context is present (0.91–
+0.98). The aggregate delta therefore entangles with refusal
+(a refused row cannot be scored hallucinated) and masks
+an opposing calibration shift: Qwen2.5-7B falsely refuses
+25.0% and 23.4% of answerable questions under RAG against
+0% closed-book, and Qwen2.5-3B falsely refuses 15.6% and
+6.3%; 20 of the BM25 arm’s 28 answerable refusals occur
+where the gold chunk was not retrieved.
+C. RQ2: citation-level unfaithfulness is the dominant failure
+Closed-book citation performance is near zero: article-level
+F1 = 0.005, with 102 of 192 closed-book answerable rows
+(64 × 3 models) asserting a provision that does not govern the
+question and 76 citing an instrument other than the governing
+one (categories overlap). RAG lifts citation F1 to 0.321
+(BM25) and 0.434 (dense), but citation-level unfaithfulness
+remains the modal failure: 49% (BM25) and 43% (dense)
+of answerable rows are citation-unfaithful—wrong instrument,
+non-covering provision, numeric-threshold mismatch, or an
+
+¿
+
+0.008
+0.300
+0.317
+
+¿
+
+0.005
+0.321
+0.434
+
+¿
+
+0.005
+0.354
+0.476
+
+¿
+
+0.005
+0.293
+0.399
+
+Khoan acc.
+
+¿
+
+closed-book
+RAG-BM25
+RAG-Dense
+
+Ðiều P / R / F1
+
+¿
+
+Mode
+
+uncited assertion; wrong or non-covering citations alone account for 41% and 34%. Splitting on whether the gold chunk
+actually reached the prompt, the unfaithfulness rate stays near
+35% in both arms when it arrives intact (23/66 BM25, 31/90
+dense), moves to 33–42% when the context budget clips it,
+and rises to 61–69% when it is absent: unfaithfulness persists
+under full evidence conditioning and roughly doubles without
+it (χ2 =10.8/15.3, intact vs. absent; the split is selected by the
+retriever’s own ranking). Pooled clause-level (Khoan) accuracy
+never exceeds 0.317 (Table II). Under closed-book evaluation,
+71 of 72 probe rows receive substantive answers despite the
+keyphrase instruction. Another 80 of the 192 closed-book answerable rows open with refusal language yet answer anyway
+(65 reproduce the keyphrase verbatim, 15 only paraphrase it);
+a keyphrase scorer would credit the verbatim kind as correct
+refusals, motivating our scorer’s assertion requirement (§IVC); across all configurations, Vistral-7B refuses no probe in
+any mode.
+Qualitative inspection of model answers reveals the underlying failure patterns. In question Q006 (closed-book),
+where the governing provision is Article 52(4) of the 2024
+Notarization Law, Qwen2.5-7B instead cites “Ðiều 405 Bô. luâ.t
+Dân su. ’ 2015” and appends a statutory quotation that appears
+nowhere in the ingested corpus. In Q008 (closed-book), the
+model emits the instructed keyphrase but immediately follows
+with a substantive explanation citing “Nghı. d̄ı.nh 02/2021/NÐCP. . . Ðiều 14, Ðiều 15”, demonstrating the hedge-thenanswer pattern on an irrelevant decree. Returning to Q006
+under RAG-BM25 (Vistral-7B), with that gold text intact in the
+prompt, the answer is substantively correct yet opens by citing
+“Ðiều 52 cua Nghı. d̄ı.nh 23/2015/NÐ-CP, su’a d̄ôi bo’i Nghı.
+d̄ı.nh 111/2020/NÐ-CP. . . ”—the right article number under the
+wrong instrument, and later cites the governing instrument
+under a wrong article (Ðiều 32), with the governing evidence
+verbatim in the prompt. In regulatory compliance, such citation
+
+errors are particularly hazardous because human auditors use
+citations as their primary index for verification.
+D. RQ3: document-level retrieval is strong, article-level is not
+On the Tier-2 corpus (Table III), BM25 with Vietnamese
+segmentation retrieves a chunk of the cited instrument for
+90.6% of answerable questions at k=3 (73.4% at k=1) but
+places the cited Ðiều itself in the top 3 for only 49.2% (38.1%
+at k=1). The dense arm is close behind at document level
+(89.1% at k=3) and edges BM25 at article level (52.4%
+against 49.2%)—a two-question difference, 33 versus 31 of
+63, that this sample size cannot resolve. Document-level
+retrieval is strong but incomplete, with six (BM25) and seven
+(dense) of 64 questions retrieving no chunk of the governing
+instrument at k=3, and placing the specific governing article in
+context remains difficult: unless a model cites correctly from
+parametric memory, only about half of questions can carry the
+governing article into the prompt, capping end-to-end citation
+well below the conditioned rates of RQ2.
+VI. C ONCLUSION
+RegRAG-VN establishes an empirical evaluation framework
+for regulatory RAG by coupling benchmark queries directly to
+statutory provisions, scoring citations at article and clause resolution, and assessing abstention under corpus coverage gaps.
+Retrieval augmentation shifts small models from answering
+toward refusal, and the raw hallucination reduction survives
+that correction only for the smallest model; citation fidelity
+remains the critical vulnerability, with 43–49% of RAG answers on answerable questions failing citation-level checking,
+a rate near 35% even when the source provision reaches the
+prompt intact, pooled clause accuracy at or below 0.32, and
+brittle refusal calibration throughout. Retrieval experiments on
+the full 3,703-chunk statutory corpus show that documentlevel recall at k=3 reaches 90% while article-level recall drops
+below 53%. By formalizing a provenance-guarded evaluation
+architecture, we provide a verifiable foundation for future
+research on faithful legal language models.
+DATA AND C ODE AVAILABILITY
+The RegRAG-VN benchmark, pipelines, evaluation suites,
+and full experimental logs are available in our public repository, with a permanent Zenodo archive and DOI established
+at submission. Curated gold questions, document manifests,
+and coverage reports are the authoritative artifacts from which
+all derived assets can be reproduced; ingested legal texts are
+redistributed unmodified from official Vietnamese government
+publications.
+R EFERENCES
+[1] P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal,
+H. Küttler, M. Lewis, W. Yih, T. Rocktäschel, S. Riedel, and D. Kiela,
+“Retrieval-augmented generation for knowledge-intensive NLP tasks,”
+in Adv. Neural Inf. Process. Syst., 2020.
+[2] Y. Gao, Y. Xiong, X. Gao, K. Jia, J. Pan, Y. Bi, Y. Dai, J. Sun, and
+H. Wang, “Retrieval-augmented generation for large language models:
+A survey,” arXiv preprint arXiv:2312.10997, 2023.
+
+[3] V. Karpukhin, B. Oğuz, S. Min, P. Lewis, L. Wu, S. Edunov, D. Chen,
+and W. Yih, “Dense passage retrieval for open-domain question answering,” in Proc. EMNLP, 2020.
+[4] S. Robertson and H. Zaragoza, “The probabilistic relevance framework:
+BM25 and beyond,” Found. Trends Inf. Retr., vol. 3, no. 4, pp. 333–389,
+2009.
+[5] J. Liu, Q. Wang, Y. Wang, Y. Teng, X. Qiu, J. Song, M. Zhang, and
+Y. Xiao, “Benchmarking large language models in retrieval-augmented
+generation,” in Proc. AAAI, 2024.
+[6] S. Es, J. James, L. Espinosa-Anke, and S. Schockaert, “RAGAS: Automated evaluation of retrieval augmented generation,” in Proc. EACL,
+2024.
+[7] N. Pipitone and G. Houir Alami, “LegalBench-RAG: A benchmark
+for retrieval-augmented generation in the legal domain,” arXiv preprint
+arXiv:2408.10343, 2024.
+[8] A.-R. Butler and U. Butler, “Legal RAG bench: An end-to-end benchmark for legal RAG,” arXiv preprint arXiv:2603.01710, 2026.
+[9] Z. Ji, N. Lee, R. Frieske, T. Yu, D. Su, Y. Xu, E. Ishii, Y. J. Bang,
+A. Madotto, and P. Fung, “Survey of hallucination in natural language
+generation,” ACM Comput. Surv., vol. 55, no. 12, 2023.
+[10] J. Maynez, S. Narayan, B. Bohnet, and R. McDonald, “On faithfulness
+and factuality in abstractive summarization,” in Proc. ACL, 2020.
+[11] S. Min, K. Krishna, X. Lyu, M. Lewis, W. Yih, P. W. Koh, M. Iyyer,
+L. Zettlemoyer, and H. Hajishirzi, “FActScore: Fine-grained atomic
+evaluation of factual precision in long form text generation,” in Proc.
+EMNLP, 2023.
+[12] H. Rashkin, V. Nikolaev, M. Lamm, L. Aroyo, M. Collins, D. Das,
+S. Petrov, G. S. Tomar, I. Turc, and D. Reitter, “Measuring attribution in
+natural language generation models,” Computational Linguistics, vol. 49,
+no. 4, 2023.
+[13] V. Magesh, F. Surani, M. Dahl, M. Suzgun, C. D. Manning, and D. E.
+Ho, “Hallucination-free? Assessing the reliability of leading AI legal
+research tools,” Journal of Empirical Legal Studies, vol. 22, no. 2, pp.
+216–242, 2025.
+[14] I. Chalkidis, M. Fergadiotis, P. Malakasiotis, N. Aletras, and I. Androutsopoulos, “LexGLUE: A benchmark dataset for legal language
+understanding in English,” in Proc. ACL, 2022.
+[15] Z. Zhong, H. Liu, X. Cui, X. Zhang, and Z. Qin, “Mix-of-granularity:
+Optimize the chunking granularity for retrieval-augmented generation,”
+in Proc. COLING, 2025.
+[16] N. F. Liu, K. Lin, J. Hewitt, A. Paranjape, M. Bevilacqua, F. Petroni, and
+P. Liang, “Lost in the middle: How language models use long contexts,”
+Trans. Assoc. Comput. Linguist., vol. 12, 2024.
+[17] T.-M. Nguyen, H.-T. Nguyen, T.-K. Dao, X.-H. Phan, H.-T. Nguyen,
+and T.-H.-Y. Vuong, “VLQA: The first comprehensive, large, and highquality Vietnamese dataset for legal question answering,” arXiv preprint
+arXiv:2507.19995, 2025.
+[18] T.-D. Nguyen, M.-A. Nguyen, T.-D. Hoang et al., “VLegal-Bench: A
+cognitively grounded benchmark for Vietnamese legal reasoning of large
+language models,” arXiv preprint arXiv:2512.14554, 2025.
+[19] T.-P. Nguyen, Q.-N. Nguyen, and M.-T. Nguyen, “ViLegalLM: Language models for Vietnamese legal text,” in Findings of ACL 2026,
+2026, pp. 36 136–36 150.
+[20] T. Nguyen Ba, V. Doan The, T. Pham Quang, and T. Tran Van,
+“Vietnamese legal information retrieval in question-answering system,”
+arXiv preprint arXiv:2409.13699, 2024.
+[21] T. Vu, D. Q. Nguyen, D. Q. Nguyen, M. Dras, and M. Johnson,
+“VnCoreNLP: A Vietnamese natural language processing toolkit,” in
+Proc. NAACL-HLT Demonstrations, 2018.
+[22] T. T. Nguyen, “PyVi: Vietnamese natural language processing toolkit,”
+https://github.com/trungtin/pyvi, accessed 2026-09-11.
+[23] D. Brown, “rank_bm25: BM25 algorithms in Python,” https://github.
+com/dorianbrown/rank_bm25, accessed 2026-09-11.
+[24] J. Chen, S. Xiao, P. Zhang, K. Luo, D. Lian, and Z. Liu,
+“M3-Embedding: Multi-linguality, multi-functionality, multi-granularity
+text embeddings through self-knowledge distillation,” arXiv preprint
+arXiv:2402.03216, 2024.
+[25] A. Yang, B. Yang, B. Zhang et al., “Qwen2.5 technical report,” arXiv
+preprint arXiv:2412.15115, 2024.
+[26] C. V. Nguyen, T. Nguyen, Q. Nguyen et al., “Vistral-7B-Chat: Towards a state-of-the-art large language model for Vietnamese,” https:
+//huggingface.co/Viet-Mistral/Vistral-7B-Chat, 2023.
+[27] J. Cohen, “A coefficient of agreement for nominal scales,” Educ.
+Psychol. Meas., vol. 20, no. 1, pp. 37–46, 1960.
+
+
