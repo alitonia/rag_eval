@@ -1,0 +1,50 @@
+id,novelty,rigor,evidence,reproducibility,clarity,significance,overall,verdict,note
+R01,4,4,3,4,5,5,5,major-revision,RAG+rules edu chatbot on Qwen-14B; plausible design but abstract gives no quantitative evaluation or user study.
+R02,4,3,2,2,4,4,4,reject,"Energy-based sampling idea never substantiated: no datasets, baselines, or numbers; reads as an unvalidated proposal."
+R03,5,5,6,5,6,6,6,major-revision,"Phi-3 Vision CXR fine-tune with clear gains (0.97 acc vs 0.71-0.90 baselines); needs dataset size, class imbalance and external-validation detail."
+R04,5,6,6,5,6,6,6,major-revision,"Solid small-scale EEG 4-class OSA decoding (84%, balanced metrics) with sensible feature selection; limited generalization evidence."
+R05,5,4,5,4,5,5,5,major-revision,74.2 mIoU vs WeakTR ~34 gap is implausibly large; baseline configs likely mismatched - comparisons must be re-run under one protocol.
+R06,3,2,2,2,5,4,4,reject,"CRM/RPA position paper built on literature analysis; no system, experiment, or measurable retention outcome."
+R07,6,6,6,5,6,6,6,major-revision,"Clean, targeted fix (RW bisection) to DF-Louvain community fragmentation; synthetic+real evidence, but no runtime overhead quantified."
+R08,6,6,6,5,6,6,6,major-revision,NES-guided CamoPatch is a sensible query-efficient upgrade; report query budgets and head-to-head cost vs fixed-step baseline.
+R09,5,4,4,5,6,5,5,major-revision,LLM-as-judge ensemble (CELEST) inherits circularity; needs human-expert anchored scores to support validity claims.
+R10,4,5,5,5,6,5,5,major-revision,STFT+hybrid-attention transformer in a crowded space; ablations claimed but point-adjust F1 inflation caveat unaddressed.
+R11,5,5,6,4,5,5,5,major-revision,Stacked multimodal crypto classifier with useful selective-prediction analysis; must rule out lookahead/survivorship bias in windowing.
+R12,5,5,4,4,5,6,5,major-revision,"Well-integrated coaxial UAV SAR platform (Jetson, 40 FPS); abstract lacks detection accuracy at the stated 10 m / <3% object-size regime."
+R13,3,4,5,4,5,4,4,reject,"Standard YOLOv5+IoT integration; 90% LPR is modest, 99.5% slot detection likely on easy closed-set data."
+R14,4,6,6,5,6,4,5,major-revision,Careful validated RANS study of restricted-condition aerodynamics; methodologically routine and off the ML mainstream.
+R15,4,4,5,3,6,5,5,major-revision,Hybrid-RAG enterprise agent with strong claimed nDCG@5 but unnamed corpus/queries; irreproducible as described.
+R16,3,5,5,4,5,4,4,reject,TF-IDF + four classic classifiers on Spark is a lab exercise; LR-beats-the-rest outcome is unsurprising.
+R17,5,4,4,4,5,5,5,major-revision,GraphRAG for Vietnamese product reviews is a reasonable application; ROUGE alone cannot support the factuality/hallucination claims.
+R18,4,5,5,5,6,5,5,major-revision,"MAE+CoAtNet ensemble with SaliencyMix/ASL/DE weights; AUROC 0.8669 is below published ChestX-ray14 SOTA, module-stacking novelty."
+R19,4,5,5,4,5,5,5,major-revision,DINOv2-KD Faster R-CNN gives +6.2 mAP on an 836-image bespoke dataset; small private data limits external validity.
+R20,6,5,4,5,6,5,5,major-revision,Distance-correlation multi-stakeholder fairness is a nice formal angle; single MovieLens-1M evaluation undercuts generality.
+R21,6,6,6,5,5,7,6,major-revision,"Massively parallel UE/gNB emulator that actually surfaced Free5GC/Open5GS vulnerabilities; quantify scale, KPIs, and bug classes."
+R22,5,6,5,5,6,5,5,major-revision,"Focused, correct analysis (PAM preserves anti-blockage MWHCDM, PSK does not); simulation-only and narrow."
+R23,4,5,5,4,5,4,5,major-revision,AdaGrad-style RIS phase optimization with custom target; numerical-only results in a heavily studied problem space.
+R24,4,5,5,3,6,5,5,major-revision,Single-stage 5-class driver monitoring at 94.87% on CPU with honest error analysis; in-house dataset blocks comparison.
+R25,6,6,6,6,6,7,6,major-revision,First synchronized Vietnamese trimodal benchmark with kappa reporting and missing-modality ablations; 0.934 Macro-F1 warrants scrutiny.
+R26,6,5,6,6,6,6,6,major-revision,Automated Sigma-rule evasion generation with 85%/82% validity rates; missing the downstream detection-uplift experiment the loop implies.
+R27,5,6,6,7,6,6,6,major-revision,Boundary-focused KD cuts diffusion segmenter parameters 88.9% on ISIC2018/HAM10000 with code released; borderline accept.
+R28,5,5,5,6,6,7,6,major-revision,Open 8B-70B Vietnamese LLM series plus VietExam is a valuable resource; abstract lacks training-scale numbers and PhoGPT/SeaLLMs comparisons.
+R29,6,3,4,4,6,5,5,major-revision,"Debate-based glass-box credit scoring is an appealing idea, but all accuracy/fairness evidence comes from self-generated CTGAN data."
+R30,5,6,6,5,6,5,6,major-revision,Honest T/S/I modality study for dropout prediction (reports that images alone can hurt); headline numbers absent from abstract.
+R31,4,4,4,3,5,4,4,reject,"Enhancement-GAN fish detector asserted to beat SOTA with no numbers, datasets, or ablations given."
+R32,3,4,5,4,5,5,4,reject,YOLOv9 fall detection on Pi 5; 99.1% accuracy signals an easy/imbalanced benchmark rather than a hard-won result.
+R33,6,7,7,6,6,6,7,accept,Provenance-guarded Vietnamese regulation RAG benchmark with abstention sentinels; honest finding that 43-49% wrong citations persist with gold in context; small question set (64+24).
+R34,6,6,6,5,6,6,6,major-revision,Careful ENAS study of training-free metrics under adversarial training on NAS-RobBench-201; empirical delta is real but incremental.
+R35,3,5,5,4,5,4,4,reject,"GA-tuned PID for load frequency control is decades-old practice; simulation-only, no new theory."
+R36,5,5,6,4,5,5,5,major-revision,Few-shot CNC tool defect study with real in-house imaging and per-view mAP reporting; niche data limits reuse.
+R37,3,5,5,5,5,4,4,reject,Walrus-optimizer hyperparameter tuning of standard DL regressors adds methodological novelty; SEE datasets well worn.
+R38,6,5,6,7,6,6,6,major-revision,"First pixel-annotated silkworm disease dataset (4,029 images) openly released; U-Net/ResNet34 method is standard but resource value is real."
+R39,4,5,5,5,6,5,5,major-revision,"Competently integrated humanoid HRI testbed with concrete errors (1.83 cm, 90-96% module accuracies); assembly of off-the-shelf parts."
+R40,5,5,5,6,5,6,5,major-revision,Urban-perception dual-track framework on Nha Trang SVI with significance testing and code; 'diffusion-based segmentation' underspecified.
+R41,5,4,4,6,5,5,5,major-revision,"First Vietnamese TikTok KOL benchmark (22,751 posts) two-tiered and public; baselines are weak and task definitions need sharpening."
+R42,7,6,6,5,6,7,7,accept,First attribution-stealth NIDS attack with new ASD/VBAR metrics across two benchmarks; honest context-dependence findings open a real evaluation axis.
+R43,7,6,6,6,6,7,7,accept,"O2O off/on-policy RL for low-data LDM preference alignment without explicit reward; clean formulation, code released, human-eval detail needed."
+R44,4,5,5,4,3,4,5,major-revision,Likelihood-estimated superdirective beamforming gains (SNR 4.5->7.6 dB) are useful but writing is muddled and standard perceptual metrics absent.
+R45,4,3,4,5,4,5,4,reject,Reporting is internally contradictory (93.56% precision but 0.3367 F1); naive merge-by-similarity clustering; needs metric clarification.
+R46,4,5,5,4,6,5,5,major-revision,"Sionna-RT digital twin + RSRP beam-selection DNN is competent simulation work; no quantified gains in abstract, novelty modest."
+R47,4,6,6,4,6,4,5,major-revision,Solid EM design of a 1-bit PIN-diode RIS cell at 3.5/4.2 GHz with full-wave+theoretical validation; incremental over prior 1-bit cells.
+R48,5,5,4,4,5,5,5,major-revision,3GPP Set-B configuration and hybrid reference-signaling study is practically relevant; abstract omits all quantitative results.
+R49,3,3,4,3,4,4,3,reject,"100% test accuracy on a 7-class cacao task is a leakage/augmentation red flag; routine transfer-learning comparison, over-claimed."
