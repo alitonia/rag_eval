@@ -162,6 +162,13 @@ datasets, 26 GitHub repos**. Full listings in reports/ (rerun the script to rege
     (Khoản, Điều, Nghị định) locators governs it — our citation-prediction task in
     MCQ form; directly comparable to RQ2/RQ3 with the generative-vs-MCQ caveat.
 
+### 8. News/official-answer corpora (verified open, 2026-10-08) — user's "government answers in news" idea
+- jasong03/vov_phapluat — VOV legal-section news, single parquet, NO license stated
+- jasong03/nhandan_phapluat — Nhân Dân legal-section news, single parquet, NO license stated
+- myduy/vnexpress_plain_text_phap_luat — VnExpress legal news plain text, 9 jsonl parts, NO license stated
+- hdv2709/Vietnamese_Legal_Traffic_Judge_Prediction_QA — Apache-2.0, case-derived judge-prediction QA (traffic domain)
+- Not downloaded yet (news corpora are paraphrase-pool material; check provenance/ToS before use)
+
 ## Open probes not yet done
 - Court judgment portal + án lệ precedent collection (ansvn.toaan.gov.vn family): volumes, structure,
   privacy-scrubbing state — candidate source for version-pinned questions and a real-dispute slice
