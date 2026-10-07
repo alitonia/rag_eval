@@ -91,6 +91,55 @@ reports/external_data_audit_2026-10-08.md. Headlines:
 ### ALQAC 2025
 - Not yet probed in this round (successor shared task; check NTCIR-18/ALQAC 2025 site for task data).
 
+## Round-3 sweep results (2026-10-08 evening, scripts/discover_hf_github_legal.py)
+
+Systematic catalog sweep (10 HF keyword queries + 6 GitHub queries): **98 unique HF
+datasets, 26 GitHub repos**. Full listings in reports/ (rerun the script to regenerate).
+
+### Downloaded this round (data/external/, all gitignored)
+- **tmquan/thuvienphapluat-vn-vbpl** — CC-BY-4.0, 121 parquet shards: thuvienphapluat
+  legal-DOCUMENT corpus, refreshed 2026-09-16. The corpus-expansion backbone.
+- **tmquan/thuvienphapluat-vn-hdpl** — license:other — "Hỏi đáp pháp luật" consultation
+  Q&A dumps (the user's consultation-idea source, pre-scraped) + embeddings/analytics.
+- **tmquan/thuvienphapluat-vn-tnpl** — license:other — "Tình huống pháp luật" case/situation dump.
+- **phuocsang/hoidap-thuvienphapluat-200k** — MIT — ~200k thuvienphapluat consultation Q&A pairs.
+- **VietTung04/alqac_2025** — ungated mirror of ALQAC 2025 task data: trắc_nghiệm (MCQ),
+  tự_luận (essay), đúng_sai (true/false). License unstated on mirror; canonical source is
+  the GATED nguyenlab/ALQAC repo (access request required).
+- **FinnPham52/vietnamese-legal-claim-verification** — evidence_passages.jsonl +
+  verifier train/val jsonl: Vietnamese legal CLAIM VERIFICATION data (trains the
+  citation-verification loop of the sequel).
+- **hieunguyen1053/vlegal-bench** (GitHub clone, 10.7 MB) — THE VLegal-Bench data
+  (absent from HF org CMC-OPENAI): 22 tasks in 5 categories, each folder has task
+  .jsonl with ground truth + prompt files. Includes 1.4 Article Recall and 3.1
+  Article/Clause Prediction (article/clause-level tasks) and 3.3 Multi-hop Graph
+  Reasoning. LICENSE.txt is custom (inspect before any redistribution).
+
+### Verified non-hits / false friends
+- **yyyyifan/VLQA** (HF) is a VISUAL-QA dataset (diagram counting; arXiv 2410.00193) —
+  acronym collision with the legal VLQA. The legal VLQA (arXiv 2507.19995) remains unreleased.
+- **nguyenlab/ALQAC** (HF) is gated: "Access denied. This repository requires approval."
+- **ansvn/congbobanan/anle.toaan.gov.vn** — all DNS-fail from this machine; user browser
+  fetch required for the judgment/precedent corpus.
+- **vbpl.vn** IS reachable with a browser UA (HTTP 200 after 308 redirect, 80 KB portal page);
+  api.vbpl.vn does not resolve. Official-metadata channel for the sequel's instrument
+  expansion is open (gentle scraping, 20-40 s gaps, per scrape-slowly rule).
+
+### Other notable sweep finds (not downloaded yet, vet before use)
+- mlalab/VNLegalText (GitHub, 23 MB) — legal reference/relation extraction dataset
+  (cross-reference structure = multi-hop gold ingredient)
+- rusano-knn/VietLegalQA (GitHub, 19 MB) — unsupervised cloze-to-natural pipeline,
+  113k QA pairs over Vietnamese legal texts
+- dthn-anna/ViLegalNLI, thakpl/ViLegalNLI (GitHub) — Vietnamese legal NLI,
+  9,600+ premise-hypothesis pairs from 3,000+ documents (groundedness/verification adjacent)
+- saladnga/Vietnamese-Legal-Code-Crawler-Semantic-Search — "PhapDien" crawler + vector DB
+- noname002/GreenNode-Vietnamese-Law-hn-mined-v2-deduped-10gram — hard negatives mined
+  from the GreenNode/Zalo corpus (reranker training material for the sequel)
+- niits/vietnamese-legal-ocr — OCR corpus for legal documents
+- hdv2709/Vietnamese_Legal_Traffic_Judge_Prediction_QA — traffic judge-prediction QA
+- hirine/dataset-van-ban-phap-luat-381K-samples — 381k-sample legal document dump
+- th1nhng0/vietnamese-legal-documents — the most-downloaded VN legal corpus (1,320 dl)
+
 ## Open probes not yet done
 - Court judgment portal + án lệ precedent collection (ansvn.toaan.gov.vn family): volumes, structure,
   privacy-scrubbing state — candidate source for version-pinned questions and a real-dispute slice
