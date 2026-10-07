@@ -140,6 +140,14 @@ datasets, 26 GitHub repos**. Full listings in reports/ (rerun the script to rege
 - hirine/dataset-van-ban-phap-luat-381K-samples — 381k-sample legal document dump
 - th1nhng0/vietnamese-legal-documents — the most-downloaded VN legal corpus (1,320 dl)
 
+### Additional sweep entries worth noting (full-listing tail, 2026-10-08)
+- VietTung04/alqac2025-reasoning-trace — reasoning traces for ALQAC 2025 (verification-loop training data)
+- GreenNode/Vietnamese-Law-hn-mined-v2 — OFFICIAL hard-negative set mined from the Zalo/GreenNode
+  corpus (reranker training material; supersedes the noname002 mirror copy)
+- headintheclouds6453/vlsp2025-vietnamese_legal_documents_revision — VLSP 2025 shared-task corpus
+- jasong03/vov_phapluat, jasong03/nhandan_phapluat, myduy/vnexpress_plain_text_phap_luat —
+  Vietnamese legal-news corpora (real-world phrasing pool for probe arms)
+
 ## Open probes not yet done
 - Court judgment portal + án lệ precedent collection (ansvn.toaan.gov.vn family): volumes, structure,
   privacy-scrubbing state — candidate source for version-pinned questions and a real-dispute slice
