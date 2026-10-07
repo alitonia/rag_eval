@@ -69,6 +69,28 @@ reports/external_data_audit_2026-10-08.md. Headlines:
   Zalo corpus itself is thuvienphapluat-derived, so redistribution in a released
   benchmark needs the same "redistributed as downloaded" treatment as raw_legal.
 
+## Round-2 dig results (2026-10-08, later)
+
+### 6. VLSP Legal Team QA dump — thangvip/vietnamese-legal-qa (HF)
+- 9,715 documents x 3 generated QA pairs = 29,145 pairs; fields (doc_name, doc_type_name,
+  article_content, generated_qa_pairs{question, answer, question_type, difficulty}, generation_time)
+- question_type taxonomy: factual / interpretation / analytical / application; difficulty easy/medium/hard
+  — a published precedent for typed-question benchmarks (supports our multi-hop/numeric/trap taxonomy)
+- All questions LLM-GENERATED from articles (VLSP Legal Team, 2024) — not human gold, not consultations.
+  License vague: "appropriate license for Vietnamese legal documents".
+
+### 7. Court portals — UNREACHABLE from this machine (DNS/connection failure, HTTP 000)
+- ansvn.toaan.gov.vn, congbobanan.toaan.gov.vn (judgment publication), anle.toaan.gov.vn (precedents)
+- All fail instantly at connection level, same pattern as other blocked .vn hosts. USER ACTION AVAILABLE:
+  open these three URLs in a browser and save pages/exports; per established workflow the user fetches
+  what CLI cannot. The judgment corpus would feed version-pinned questions + the real-dispute slice.
+
+### 8. duyet/vietnamese-legal-documents-dataset (GitHub)
+- Exists but tiny (60 KB, 13 stars, NO license file) — a small scraper dump, not a corpus-scale source.
+
+### ALQAC 2025
+- Not yet probed in this round (successor shared task; check NTCIR-18/ALQAC 2025 site for task data).
+
 ## Open probes not yet done
 - Court judgment portal + án lệ precedent collection (ansvn.toaan.gov.vn family): volumes, structure,
   privacy-scrubbing state — candidate source for version-pinned questions and a real-dispute slice
