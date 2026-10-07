@@ -179,6 +179,114 @@ def audit_vibidlqa(report: list) -> None:
             report.append(f"- {name}: {len(rows)} rows, fields {sorted(rows[0].keys()) if rows else []}")
 
 
+def audit_tvpl_vbpl(report: list) -> None:
+    """Census the thuvienphapluat structured corpus (tmquan mirror, CC-BY-4.0).
+
+    Proves the 'dataset from official pages' thesis with counts: document types,
+    tiers, legal areas, banking-area volume, and the built-in cross-reference
+    (citations) + structure (num_articles/num_khoan) columns our multi-hop and
+    instrument-expansion plans need.
+    """
+    import glob
+
+    import pyarrow.parquet as pq
+
+    report.append("\n## thuvienphapluat structured corpus (tmquan vbpl mirror, CC-BY-4.0)\n")
+    shards = sorted(glob.glob(os.path.join(EXTERNAL, "tvpl_vbpl", "documents-*.parquet")))
+    if not shards:
+        report.append("- no shards landed yet")
+        return
+    cols = ["doc_type", "tier_name", "legal_area", "year", "num_articles", "num_khoan",
+            "vn_chars", "issuer_kind"]
+    types: Counter = Counter()
+    areas: Counter = Counter()
+    tiers: Counter = Counter()
+    total = 0
+    total_articles = 0
+    total_khoan = 0
+    text_docs = 0
+    for shard in shards:
+        table = pq.read_table(shard, columns=cols)
+        total += table.num_rows
+        for i in range(table.num_rows):
+            dt = table.column("doc_type")[i].as_py()
+            types[dt] += 1
+            tiers[table.column("tier_name")[i].as_py()] += 1
+            areas[table.column("legal_area")[i].as_py()] += 1
+            na = table.column("num_articles")[i].as_py()
+            nk = table.column("num_khoan")[i].as_py()
+            total_articles += int(na or 0)
+            total_khoan += int(nk or 0)
+            if int(table.column("vn_chars")[i].as_py() or 0) > 200:
+                text_docs += 1
+    report.append(f"- shards read: {len(shards)}, documents: {total:,}")
+    report.append(f"- docs with real Vietnamese text (>200 chars): {text_docs:,}")
+    report.append(f"- total parsed articles: {total_articles:,}, clauses (Khoản): {total_khoan:,}")
+    report.append(f"- document types (top 12): {[(k, v) for k, v in types.most_common(12)]}")
+    report.append(f"- tiers: {tiers.most_common(8)}")
+    report.append(f"- legal areas (top 12): {[(k, v) for k, v in areas.most_common(12)]}")
+    banking_keys = ("ngan hang", "tin dung", "thanh toan", "tai chinh")
+    banking = sum(v for k, v in areas.items() if k and any(b in str(k).lower() for b in banking_keys))
+    banking_detail = [(k, v) for k, v in areas.most_common(30) if k and any(b in str(k).lower() for b in banking_keys)]
+    report.append(f"- docs in banking/finance-adjacent legal areas: {banking:,} {banking_detail}")
+
+
+def audit_consultation_dump(name: str, report: list, sample_cap: int = 3000) -> None:
+    """Census + citation-harvest a consultation Q&A dump (parquet).
+
+    The harvest rate over real platform answers is the 'dataset from official
+    pages' gate: it decides whether the consultation track can feed candidate
+    (question -> instrument + article) gold pairs at benchmark scale.
+    """
+    report.append(f"\n## Consultation dump: {name}\n")
+    root = os.path.join(EXTERNAL, name)
+    files = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d != ".cache"]
+        files += [os.path.join(dirpath, f) for f in filenames if f.endswith(".parquet")]
+    if not files:
+        report.append("- not downloaded yet")
+        return
+    rows = []
+    for path in sorted(files):
+        table = pq.read_table(path)
+        rows.extend(table.to_pylist())
+        if len(rows) >= sample_cap:
+            break
+    fields = sorted(rows[0].keys()) if rows else []
+    report.append(f"- rows loaded (capped at {sample_cap}): {len(rows)}, fields: {fields}")
+
+    def pick(row, *names):
+        for n in names:
+            v = row.get(n)
+            if isinstance(v, str) and v.strip():
+                return v
+        return ""
+
+    stats = Counter()
+    examples = []
+    for r in rows:
+        q = pick(r, "question", "Question", "cau_hoi")
+        a = pick(r, "answer", "Answer", "cau_tra_loi", "content")
+        if not q or not a:
+            stats["skipped_empty"] += 1
+            continue
+        cits = extract_citations(a)
+        has_pair = any(c.get("doc_id") and c.get("article_id") for c in cits)
+        stats["total"] += 1
+        stats["with_pair"] += has_pair
+        if has_pair and len(examples) < 3:
+            best = next(c for c in cits if c.get("doc_id") and c.get("article_id"))
+            examples.append((q[:80], best.get("doc_id"), best.get("article_id")))
+    n = max(stats["total"], 1)
+    report.append(
+        f"- harvest: {stats['with_pair']}/{n} ({stats['with_pair'] * 100 // n}%) answers yield "
+        f"a (instrument, article) candidate pair"
+    )
+    for q, doc, art in examples:
+        report.append(f"  - e.g. Q={q!r} -> {doc} / Điều {art}")
+
+
 def overlap_check(report: list, alqac: dict) -> None:
     report.append("\n## Contamination check vs our 88 benchmark questions\n")
     with open(GOLD_CSV, encoding="utf-8", newline="") as f:
@@ -206,12 +314,35 @@ def overlap_check(report: list, alqac: dict) -> None:
     )
 
 
+def provenance_section(report: list) -> None:
+    """Emit the tracked provenance manifest so every report carries source,
+    license, and trust level per dump (track-back for trust/licensing questions)."""
+    manifest_path = os.path.join(REPO_ROOT, "data", "external_provenance.json")
+    report.append("## Provenance (data/external_provenance.json)\n")
+    if not os.path.exists(manifest_path):
+        report.append("- MANIFEST MISSING - every dump must have an entry before use")
+        return
+    with open(manifest_path, encoding="utf-8") as f:
+        man = json.load(f)
+    for name, e in man.get("entries", {}).items():
+        report.append(
+            f"- `{name}`: {e.get('source')} | license: {e.get('license_stated')} | "
+            f"trust: {e.get('trust')}"
+        )
+        if e.get("notes"):
+            report.append(f"  - {e['notes']}")
+    for name, note in man.get("not_downloaded", {}).items():
+        report.append(f"- (not downloaded) {name}: {note}")
+    report.append("")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--report", help="write the markdown report here")
     args = ap.parse_args()
 
     report = ["# External dataset audit — 2026-10-08\n"]
+    provenance_section(report)
     report.append("## Files on disk\n")
     for root_name in ("zalo2021", "alqac2024", "vibidlqa"):
         root = os.path.join(EXTERNAL, root_name)
@@ -221,6 +352,10 @@ def main() -> int:
     audit_zalo(report)
     alqac = audit_alqac(report)
     audit_vibidlqa(report)
+    audit_tvpl_vbpl(report)
+    audit_consultation_dump("tvpl_hdpl", report)
+    audit_consultation_dump("hoidap_200k", report)
+    audit_consultation_dump("tvpl_tnpl", report)
     overlap_check(report, alqac)
     text = "\n".join(report) + "\n"
     print(text)

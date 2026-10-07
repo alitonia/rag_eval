@@ -1,0 +1,82 @@
+{
+  "_comment": "Provenance manifest for data/external/ dumps. One entry per directory. TRUSTED = verified license permits our use; RESEARCH-ONLY = usable internally, not redistributable; UNTRUSTED = license missing/unverified, do not release derivatives or train on it without checking. Update this file BEFORE using any new dump. See docs/vn_legal_data_sources_2026-10-08.md for the full investigation.",
+  "downloaded_on": "2026-10-08",
+  "entries": {
+    "zalo2021": {
+      "source": "huggingface.co/datasets/GreenNode/zalo-ai-legal-text-retrieval-vn",
+      "upstream": "Zalo AI Challenge 2021 (challenge.zalo.ai); corpus scraped from thuvienphapluat.vn",
+      "license_stated": "MIT (mirror card)",
+      "trust": "TRUSTED",
+      "notes": "Mirror packaging is MIT; upstream platform terms may still restrict redistribution of thuvienphapluat-derived text. Full dump has 3,298 qrels (MTEB card understates)."
+    },
+    "alqac2024": {
+      "source": "huggingface.co/datasets/huyhuy123/ViLQA",
+      "upstream": "ALQAC 2024 shared task; Pham et al., Int. J. of Asian Language Processing 2024",
+      "license_stated": "research purposes only; commercial use requires author contact",
+      "trust": "RESEARCH-ONLY",
+      "notes": "Free-text answers; article gold absent from dump (harvest via citation extractor, then human-verify)."
+    },
+    "alqac2025": {
+      "source": "huggingface.co/datasets/VietTung04/alqac_2025 (ungated mirror)",
+      "upstream": "ALQAC 2025 (alqac.github.io); canonical repo huggingface.co/datasets/nguyenlab/ALQAC is GATED",
+      "license_stated": "NONE on mirror",
+      "trust": "UNTRUSTED",
+      "notes": "Do not train or release derivatives until the canonical license is verified or access to nguyenlab/ALQAC is granted."
+    },
+    "tvpl_vbpl": {
+      "source": "huggingface.co/datasets/tmquan/thuvienphapluat-vn-vbpl",
+      "upstream": "scraped from thuvienphapluat.vn (mirror refreshed 2026-09-16)",
+      "license_stated": "CC-BY-4.0 (mirror card)",
+      "trust": "TRUSTED",
+      "notes": "121-shard structured corpus (~738k docs): doc_type/tier/legal_area/citations pre-parsed. Spot-verify a sample against official vbpl.vn before releasing any derivative."
+    },
+    "tvpl_hdpl": {
+      "source": "huggingface.co/datasets/tmquan/thuvienphapluat-vn-hdpl",
+      "upstream": "scraped from thuvienphapluat.vn 'Hoi dap phap luat' consultation section",
+      "license_stated": "other (read card before any release)",
+      "trust": "RESEARCH-ONLY",
+      "notes": "Consultation Q&A; user questions are real-citizen text - paraphrase before publishing anything."
+    },
+    "tvpl_tnpl": {
+      "source": "huggingface.co/datasets/tmquan/thuvienphapluat-vn-tnpl",
+      "upstream": "scraped from thuvienphapluat.vn 'Tinh huong phap luat' case/situation section",
+      "license_stated": "other (read card before any release)",
+      "trust": "RESEARCH-ONLY",
+      "notes": ""
+    },
+    "hoidap_200k": {
+      "source": "huggingface.co/datasets/phuocsang/hoidap-thuvienphapluat-200k",
+      "upstream": "scraped from thuvienphapluat.vn; crawler github.com/PhuocSang07/crawl-tvpl (MIT)",
+      "license_stated": "MIT (dataset card)",
+      "trust": "TRUSTED",
+      "notes": "~200k consultation Q&A pairs; same upstream-platform caveat as zalo2021."
+    },
+    "legal_claim_verification": {
+      "source": "huggingface.co/datasets/FinnPham52/vietnamese-legal-claim-verification",
+      "upstream": "unstated on card",
+      "license_stated": "NONE",
+      "trust": "UNTRUSTED",
+      "notes": "evidence_passages + verifier train/val. Verify authorship/paper before any use beyond internal reading."
+    },
+    "vibidlqa": {
+      "source": "huggingface.co/datasets/ntphuc149/ViBidLQA_v1 (repo github.com/ntphuc149/ViLQA, MIT)",
+      "upstream": "KSE 2024 paper 'Vietnamese Legal QA: An Experimental Study'; LLM-drafted questions validated by legal experts; Vietnamese bidding law",
+      "license_stated": "Apache-2.0 (dataset card)",
+      "trust": "TRUSTED",
+      "notes": "MRC format (question/context/answer); 3,013 rows."
+    },
+    "vlegal_bench": {
+      "source": "github.com/hieunguyen1053/vlegal-bench (git clone, depth 1)",
+      "upstream": "VLegal-Bench / CMC-OpenAI (arXiv 2512.14554); HF org CMC-OPENAI publishes model only",
+      "license_stated": "CC BY-NC-ND 4.0 (DATASET LICENSE AGREEMENT)",
+      "trust": "RESEARCH-ONLY",
+      "notes": "ND clause: evaluate + cite only; NO derivatives, NO merging into our released bundle, NO redistribution under our name. 22 MCQ tasks, 23 jsonl, 77 MB."
+    }
+  },
+  "not_downloaded": {
+    "vlqa_canonical": "arXiv 2507.19995 dataset - UNRELEASED (paper says 'coming soon'); email authors for access",
+    "alqac_canonical_gated": "huggingface.co/datasets/nguyenlab/ALQAC - requires access approval",
+    "court_portals": "ansvn/congbobanan/anle.toaan.gov.vn - DNS-blocked from this machine; user browser fetch",
+    "news_corpora": "jasong03/vov_phapluat, jasong03/nhandan_phapluat, myduy/vnexpress_plain_text_phap_luat - open but NO license stated; UNTRUSTED until provenance checked"
+  }
+}
