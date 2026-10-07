@@ -64,3 +64,6 @@ paper/main.bbl
 paper/main.blg
 paper/main.log
 paper/main.out
+
+# external benchmark dumps (large, licensed research-only; see docs/vn_legal_data_sources_*.md)
+data/external/
