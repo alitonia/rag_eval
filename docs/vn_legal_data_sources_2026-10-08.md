@@ -148,6 +148,20 @@ datasets, 26 GitHub repos**. Full listings in reports/ (rerun the script to rege
 - jasong03/vov_phapluat, jasong03/nhandan_phapluat, myduy/vnexpress_plain_text_phap_luat —
   Vietnamese legal-news corpora (real-world phrasing pool for probe arms)
 
+### 7. VLegal-Bench data (hieunguyen1053/vlegal-bench GitHub clone) — verified contents
+- 23 jsonl files (22 tasks), 77 MB on disk. LICENSE: **CC BY-NC-ND 4.0** (CMC-OpenAI
+  Dataset License Agreement): research use + sharing unmodified OK; NO derivative
+  works, NO commercial use, NO redistribution under our name.
+  => Sequel consequence: we may EVALUATE models on VLegal-Bench and cite it, but its
+  rows must never be merged into our released bundle nor used to build published
+  derived training data.
+- Task format is MULTIPLE-CHOICE, not generative. Verified samples:
+  - 1.4 Article Recall: given a provision locator ("Điểm a Khoản 1 Điều 1 Nghị định
+    113/2007/NĐ-CP"), pick the content it defines (4 options).
+  - 3.1 Article/Clause Prediction: given a legal question, pick which of four
+    (Khoản, Điều, Nghị định) locators governs it — our citation-prediction task in
+    MCQ form; directly comparable to RQ2/RQ3 with the generative-vs-MCQ caveat.
+
 ## Open probes not yet done
 - Court judgment portal + án lệ precedent collection (ansvn.toaan.gov.vn family): volumes, structure,
   privacy-scrubbing state — candidate source for version-pinned questions and a real-dispute slice
