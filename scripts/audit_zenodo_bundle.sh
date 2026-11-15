@@ -53,7 +53,10 @@ echo "[G0 ok] calibration control fired on $c_hits/3 planted files"
 HARD='zesty_coffee_herring|clumsy_pink_chimpanzee|/home/alitonia|red.team|lane[HNW][0-9]|\bEDAS\b|KANBAN|PROJECT_PLAN|blind.rank|venue.rank|camera.ready'
 EVIDENCE='/mnt/data|/workspace/rag_eval|hunopapa|round-[0-9]'
 echo "[G1] internal-vocabulary sweep over $BUNDLE"
-h_hits=$(grep -rniE "$HARD" "$BUNDLE" || true)
+# paper/IEEEtran.cls and paper/IEEEtran.bst are the unmodified upstream CTAN
+# files (md5-pinned in the tex header); the class's own "camera ready" reminder
+# message is upstream text and stays.
+h_hits=$(grep -rniE "$HARD" "$BUNDLE" --exclude=IEEEtran.cls --exclude=IEEEtran.bst || true)
 if [ -n "$h_hits" ]; then
   echo "[G1 FAIL] hard-gate hits (adjudicate each):"
   sed -n '1,25p' <<<"$h_hits"
