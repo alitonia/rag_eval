@@ -1386,15 +1386,15 @@
     "question": "Đơn vị là một PGD của MBBank theo Giấy phép do Ngân hàng nhà nước cấp. Khách hàng hiện đang có dư nợ vay 800 triệu đồng tại Đơn vị. Hiện tại Khách hàng đang đề xuất cấp tín dụng bổ sung tại Đơn vị với số tiền là 1,8 tỷ đồng, các khoản vay này được bảo đảm bằng bất động sản. Theo quy định của pháp luật, Đơn vị hiểu là PGD không được cho vay đối với KH với giá trị khoản vay trên 02 tỷ đồng, Đơn vị muốn hỏi, giới hạn 02 tỷ đồng nêu trên được tính cho một khoản vay hay tổng giá trị tất cả các khoản vay của KH tại PGD? Trường hợp này Đơn vị có thể tiếp tục cấp tín dụng cho KH theo đề xuất không hay phải chuyển về CN?",
     "is_answerable": true,
     "gold_doc_ids": [
-      "32/2024/QH15",
-      "61/2025/TT-NHNN"
+      "61/2025/TT-NHNN",
+      "32/2024/QH15"
     ],
     "gold_citations": [
       {
-        "doc_id": "32/2024/QH15",
+        "doc_id": "61/2025/TT-NHNN",
         "article_id": "3",
-        "clause_id": "9",
-        "confidence": "passage-header"
+        "clause_id": "3",
+        "confidence": "reference-verified"
       }
     ],
     "reference_answer": "1. Căn cứ:\r\n- Luật các Tổ chức tín dụng 2024;\r\n- Thông tư 61/2025/TT-NHNN quy định về mạng lưới hoạt động của ngân hàng thương mại.\r\n2. Đánh giá về pháp lý:\r\n- Khoản 3 Điều 3 Thông tư 61/2025/TT-NHNN quy định: Phòng giao dịch là loại hình chi nhánh, được quản lý bởi một chi nhánh ở trong nước của ngân hàng thương mại, hạch toán báo số, có con dấu, có địa điểm đặt trụ sở trên địa bàn tỉnh, thành phố trực thuộc Trung ương nơi đặt trụ sở chi nhánh quản lý. Phòng giao dịch không được thực hiện:\r\n+ Phê duyệt, quyết định cấp tín dụng cho một khách hàng vượt quá hai (02) tỷ đồng Việt Nam hoặc ngoại tệ quy đổi tương đương, trừ trường hợp khoản cấp tín dụng được đảm bảo toàn bộ bằng tiền, thẻ tiết kiệm, giấy tờ có giá do chính ngân hàng thương mại phát hành, trái phiếu chính phủ, tín phiếu kho bạc nhà nước;\r\n+ Cung cấp dịch vụ thanh toán, chuyển tiền quốc tế.\r\nTheo quy định pháp luật nêu trên, giới hạn cấp tín dụng trên 02 tỷ đồng đối với PGD sẽ được loại trừ trong trường hợp khoản cấp tín dụng được đảm bảo toàn bộ bằng tiền, thẻ tiết kiệm, giấy tờ có giá do chính VPBank phát hành, trái phiếu chính phủ, tín phiếu kho bạc nhà nước.\r\n-Theo QnA hiểu giới hạn về việc PGD không được quyết định cấp tín dụng vượt quá 02 tỷ đồng cho một KH được xác định dựa trên tổng giá trị cấp tín dụng của tất cả các khoản tín dụng cấp cho KH.\r\n- Như vậy, trường hợp Khách hàng của Đơn vị, nếu cộng tổng giá trị hai khoản cấp tín dụng thì sẽ vượt quá mức 02 tỷ đồng. Theo đó, Đơn vị sẽ không đủ điều kiện để cấp tiếp khoản tín dụng thứ hai cho KH.\r\n3. Kết luận: \r\n- Trong trường hợp KH của Đơn vị có các khoản cấp tín dụng đã được cấp và các khoản tín dụng dự kiến được cấp là vượt quá 2 tỷ đồng thì:\r\n+ Hợp đồng cho vay cần được chuyển lên CN ký và đóng dấu;\r\n+ Các văn bản còn lại được ký tại PGD.",
@@ -1412,15 +1412,15 @@
     "question": "Khoản vay của Khách hàng có giá trị trên 2 tỷ đồng ban đầu được cấp bởi PGD do được bảo đảm 100% bằng tiền gửi tiết kiệm, nay KH đổi chấp tài sản bảo đảm từ tiền gửi tiết kiệm thành bất động sản. Đơn vị muốn hỏi trường hợp này khoản vay có cần phải chuyển lên CN để quản lý không, Đơn vị có cần thực hiện bổ sung các thủ tục nào với KH để đảm bảo tuân thủ quy định của pháp luật về mạng lưới của ngân hàng thương mại không?",
     "is_answerable": true,
     "gold_doc_ids": [
-      "32/2024/QH15",
-      "61/2025/TT-NHNN"
+      "61/2025/TT-NHNN",
+      "32/2024/QH15"
     ],
     "gold_citations": [
       {
-        "doc_id": "32/2024/QH15",
+        "doc_id": "61/2025/TT-NHNN",
         "article_id": "3",
-        "clause_id": "9",
-        "confidence": "passage-header"
+        "clause_id": "3",
+        "confidence": "reference-verified"
       }
     ],
     "reference_answer": "1. Căn cứ:\r\n- Luật các Tổ chức tín dụng 2024;\r\n- Thông tư 61/2025/TT-NHNN quy định về mạng lưới hoạt động của ngân hàng thương mại.\r\n2. Đánh giá về pháp lý:\r\n- Khoản 3, Điều 3, Thông tư 61/2025/TT-NHNN, Phòng giao dịch là loại hình chi nhánh, được quản lý bởi một chi nhánh ở trong nước của ngân hàng thương mại, hạch toán báo số, có con dấu, có địa điểm đặt trụ sở trên địa bàn tỉnh, thành phố trực thuộc Trung ương nơi đặt trụ sở chi nhánh quản lý. Phòng giao dịch không được thực hiện:\r\n+ Phê duyệt, quyết định cấp tín dụng cho một khách hàng vượt quá hai (02) tỷ đồng Việt Nam hoặc ngoại tệ quy đổi tương đương, trừ trường hợp khoản cấp tín dụng được đảm bảo toàn bộ bằng tiền, thẻ tiết kiệm, giấy tờ có giá do chính ngân hàng thương mại phát hành, trái phiếu chính phủ, tín phiếu kho bạc nhà nước;\r\n+ Cung cấp dịch vụ thanh toán, chuyển tiền quốc tế.\r\n- Trường hợp này, tại thời điểm quyết định cấp tín dụng, việc PGD cấp khoản vay trên 2 tỷ đồng cho KH là phù hợp với quy định của pháp luật do khoản vay được bảo đảm 100% bằng tiền gửi tiết kiệm.\r\n- Khi khoản vay có sự thay đổi về TSBĐ từ tiền gửi thành bất động sản, tính chất an toàn của khoản vay đã thay đổi. Theo đó QA hiểu rằng PGD sẽ không được phê duyệt việc đổi chấp tài sản này.\r\n3. Kết luận: \r\n- Với các trường hợp nêu trên QA kiến nghị:\r\n+ Trường hợp Ngân hàng có quy định nội bộ hướng dẫn xử lý hoặc cấp phê duyệt có phê duyệt xử lý vấn đề trên, Đơn vị thực hiện theo đúng quy định nội bộ/phê duyệt của cấp có thẩm quyền; hoặc\r\n+ Trường hợp không có hướng dẫn nội bộ/phê duyệt của cấp có thẩm quyền, theo QA, Đơn vị cần xem xét xử lý dưới hai góc độ sau:\r\n(i) Về nội bộ: Yêu cầu đổi chấp tài sản của Khách hàng cần được chuyển về Chi nhánh hoặc cấp phê duyệt cao hơn (tùy thẩm quyền phê duyệt trong từng thời kỳ) để thực hiện việc phê duyệt đổi chấp tài sản bảo đảm; \r\n(ii) Với Khách hàng: PGD tiếp tục quản lý khoản vay KH.",
@@ -1445,8 +1445,8 @@
       {
         "doc_id": "61/2025/TT-NHNN",
         "article_id": "3",
-        "clause_id": "9",
-        "confidence": "passage-header"
+        "clause_id": "1",
+        "confidence": "reference-verified"
       }
     ],
     "reference_answer": "1. Căn cứ:\n- Thông tư 61/2025/TT-NHNN quy định về mạng lưới hoạt động của ngân hàng thương mại;\n- Công văn số 276/NHNN- TGSNH về việc chuyển hoặc đặt một hoặc một số bộ phận nghiệp vụ không giao dịch trực tiếp với khách hàng ra ngoài trụ sở TCTD, CNNHNNg.\n2. Đánh giá về pháp lý:\n- Điều 3 Thông tư 61/2025/TT-NHNN quy định về mạng lưới hoạt động của Ngân hàng thương mại chỉ bao gồm chi nhánh, phòng giao dịch, văn phòng đại diện, đơn vị sự nghiệp ở trong nước; chi nhánh, văn phòng đại diện, ngân hàng 100% vốn ở nước ngoài theo quy định của pháp luật. Theo đó, việc TPBank thuê văn phòng/địa điểm từ Đối tác để đặt làm văn phòng – nơi làm việc của các cán bộ bán hàng ngoài địa điểm các Chi nhánh/Phòng Giao dịch theo PC là không bảo đảm tuân thủ hoàn toàn quy định của pháp luật.\n- Theo Công văn số 276/NHNN-TTGSNH của NHNN, TCTD có thể đặt một, một số bộ phận nghiệp vụ không giao dịch trực tiếp với Khách hàng ngoài địa điểm trụ sở của TCTD nhưng phải bảo đảm một số điều kiện về vị trí, an ninh, hệ thống thông tin. Theo đó, TCTD phải thông báo cho NHNN về địa điểm này, đồng thời không được giao dịch hoặc thực hiện bất kỳ hoạt động kinh doanh nào ở đây. QA thấy loại hình địa điểm của bộ phận nghiệp vụ này không đáp ứng được yêu cầu của Đơn vị.\n3. Kết luận:  \n- Việc TPBank ký kết Hợp đồng thuê địa điểm tại các Đối tác để phục vụ cho các mục đích như Đơn vị đề xuất là không phù hợp và có rủi ro, rủi ro này bao gồm: (i) Rủi ro vi phạm quy định của pháp luật về mạng lưới hoạt động của TPBank; (ii) Rủi ro khoản tiền thuê địa điểm không được hạch toán vào chi phí hợp lý của TPBank.\nVới các vấn đề pháp lý nêu trên, QA đề nghị Đơn vị trao đổi với Đối tác để thực hiện hợp tác theo hướng Cán bộ nhân viên của Đơn vị sẽ đến trực tiếp tại Đối tác để chào bán, tư vấn sản phẩm tín dụng của TPBank cho KH, với các KH có nhu cầu sử dụng sản phẩm, hồ sơ KH sẽ được chuyển về CN, PGD gần nhất để xử lý.",

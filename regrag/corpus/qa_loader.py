@@ -28,9 +28,18 @@ Anything half-way between the two (a sentinel answer that *does* carry gold, or
 a row with no gold that does *not* declare itself unanswerable) is an internal
 contradiction in the CSV. It is kept, classified conservatively as answerable,
 and reported loudly under ``probe_anomalies`` rather than silently absorbed.
+
+A small override table (``data/gold/citation_overrides.json``) is the one
+exception to pure CSV+URL derivation: for question ids where URL order and the
+passage-header regex provably picked the wrong instrument or clause, it pins
+the primary instrument and the citation triple that the annotator's own
+reference answer names. An override can only reorder candidates that URL
+resolution already produced; it never invents one. See
+``data/gold/TT61_TRIPLE_FINDINGS.md`` for the evidence.
 """
 
 import csv
+import json
 import os
 import re
 import unicodedata
@@ -62,6 +71,9 @@ UNANSWERABLE_CATEGORY = "unanswerable"
 #: the resolution confidences (manifest/slug/heuristic/unresolved) would be a
 #: lie; this one self-identifies instead.
 CONFIDENCE_NOT_APPLICABLE = "n/a-unanswerable"
+
+#: ``gold_citations[].confidence`` stamped on override-pinned citations.
+CITATION_CONFIDENCE_OVERRIDE = "reference-verified"
 
 _TRAILING_PUNCT_RE = re.compile(r"[\s\.\!\?\;\:\,\-]+$")
 
@@ -155,6 +167,57 @@ def question_anomaly(q: GoldQuestion) -> Optional[str]:
     )[1]
 
 
+def citation_overrides_path(repo_root: str) -> str:
+    """Location of the per-question citation override table."""
+    return os.path.join(repo_root, "data", "gold", "citation_overrides.json")
+
+
+def load_citation_overrides(path: str) -> Dict[str, Dict[str, object]]:
+    """Load the citation override table. Missing file = empty table.
+
+    Keys starting with ``_`` are documentation, not overrides.
+    """
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return {k: v for k, v in data.items() if not k.startswith("_")}
+
+
+def _apply_citation_override(
+    qid: str,
+    doc_ids: List[str],
+    confidence: str,
+    override: Dict[str, object],
+) -> Tuple[List[str], Dict[str, object], str]:
+    """Pin one question's primary instrument and citation triple.
+
+    Content-verified gold beats URL-order gold: when the annotator's own
+    reference answer names the governing instrument, article and clause, that
+    is stronger evidence than either the URL order or the passage-header regex
+    (which tied Q059/Q060/Q061 to Khoản 9 through a cross-reference inside the
+    passage, and Q059/Q060 to the wrong instrument). An override may only
+    reorder candidates the URL resolution already produced; it must never
+    invent an instrument.
+    """
+    primary = str(override.get("primary_doc_id", "")).strip()
+    if primary:
+        if primary not in doc_ids:
+            raise ValueError(
+                f"citation override for {qid}: primary_doc_id {primary!r} is not "
+                f"among the URL-resolved candidates {doc_ids}; refusing to "
+                "invent an instrument"
+            )
+        doc_ids = [primary] + [d for d in doc_ids if d != primary]
+    citation = {
+        "doc_id": doc_ids[0] if doc_ids else "UNRESOLVED:empty",
+        "article_id": str(override.get("article_id", "")).strip(),
+        "clause_id": override.get("clause_id"),
+        "confidence": str(override.get("citation_confidence", CITATION_CONFIDENCE_OVERRIDE)),
+    }
+    return doc_ids, citation, confidence
+
+
 def _row_id(raw_id: str, index: int) -> str:
     """Stable question id from the CSV `ID` column, falling back to row order.
 
@@ -176,6 +239,7 @@ def load_gold_questions(
     csv_path: str,
     manifest: Optional[Dict[str, str]] = None,
     repo_root: Optional[str] = None,
+    overrides: Optional[Dict[str, Dict[str, object]]] = None,
 ) -> List[GoldQuestion]:
     """Parse the QA CSV into canonical GoldQuestion objects.
 
@@ -199,6 +263,11 @@ def load_gold_questions(
             os.path.join(os.path.dirname(csv_path), "..", "..")
         )
         manifest = load_manifest(manifest_path(root))
+    if overrides is None:
+        root = repo_root or os.path.abspath(
+            os.path.join(os.path.dirname(csv_path), "..", "..")
+        )
+        overrides = load_citation_overrides(citation_overrides_path(root))
 
     questions: List[GoldQuestion] = []
     with open(csv_path, "r", encoding="utf-8-sig", newline="") as f:
@@ -264,6 +333,12 @@ def load_gold_questions(
                 confidence = "ambiguous-multi-url"
             else:
                 confidence = confidences[0] if confidences else "unresolved"
+
+            override = overrides.get(qid)
+            if override:
+                doc_ids, citation, confidence = _apply_citation_override(
+                    qid, doc_ids, confidence, override
+                )
 
             questions.append(
                 GoldQuestion(

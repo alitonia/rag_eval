@@ -1,0 +1,21 @@
+{
+  "_about": "Content-verified citation overrides, applied by regrag.corpus.qa_loader after URL resolution. Each entry may only pin a primary instrument that URL resolution already produced (it can reorder candidates, never invent one). Rationale and evidence: data/gold/TT61_TRIPLE_FINDINGS.md. Keys starting with '_' are ignored.",
+  "Q059": {
+    "primary_doc_id": "61/2025/TT-NHNN",
+    "article_id": "3",
+    "clause_id": "3",
+    "reason": "Reference answer cites Khoản 3 Điều 3 Thông tư 61/2025/TT-NHNN (Phòng giao dịch definition and the 2-billion-VND lending prohibition). The URL-order primary 32/2024/QH15 was the 2024 Law on Credit Institutions, whose Điều 3 is unrelated; clause 9 came from the passage's own cross-reference 'tại khoản 9 Điều này'."
+  },
+  "Q060": {
+    "primary_doc_id": "61/2025/TT-NHNN",
+    "article_id": "3",
+    "clause_id": "3",
+    "reason": "Same circular and clause as Q059: the reference answer's legal basis is Khoản 3 Điều 3 Thông tư 61/2025/TT-NHNN (PGD lending limits and collateral-change handling)."
+  },
+  "Q061": {
+    "primary_doc_id": "61/2025/TT-NHNN",
+    "article_id": "3",
+    "clause_id": "1",
+    "reason": "Reference answer cites Điều 3 Thông tư 61/2025/TT-NHNN Khoản 1 (the network definition used to classify the proposed off-site desk) plus Công văn 276/NHNN-TTGSNH, which carries no numbered article and so cannot be a citation gold target. Clause 9 was a passage cross-reference artifact."
+  }
+}

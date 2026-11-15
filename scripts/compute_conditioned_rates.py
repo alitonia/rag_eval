@@ -1,4 +1,5 @@
-"""Conditioned re-analysis of the RQ2/RQ1 headline rates (round-2 red-team fix).
+"""Conditioned re-analysis of the RQ2/RQ1 headline rates (post-campaign audit,
+2026-09-15; re-run 2026-11-16 after the Q059-Q061 gold fix).
 
 Splits the citation-unfaithfulness and hallucination rates by whether the
 question's gold Tier-1 chunk actually reached the prompt:
@@ -125,7 +126,8 @@ for mode in ("rag_bm25", "rag_dense"):
         u = sum(1 for r in sub if set(r._types) & UNFAITHFULNESS_TYPES)
         ab = sum(1 for r in sub if r.abstained)
         parts[c] = (u, len(sub), ab)
-    print(f"{mode}: overall_unfaithful={overall}/192 (gate: expect 94/83)")
+    print(f"{mode}: overall_unfaithful={overall}/192 (gate: expect 93/83 "
+          "after the Q059-Q061 gold fix, 2026-11-16; was 94/83)")
     for c, (u, n, ab) in parts.items():
         print(f"    {c:9s}: {u:3d}/{n:3d} unfaithful ({u/n*100:.1f}%)  refused={ab}")
 
@@ -163,7 +165,7 @@ for (m, mode), rows in sorted(by_mm.items()):
               f"refused={len(refused)}")
 
 # ---- Q059 replacement candidates ------------------------------------------
-print("=== Q059 replacement candidates (gold INTACT, WRONG_INSTRUMENT, correct>=1.0) ===")
+print("=== replacement candidates (gold INTACT, WRONG_INSTRUMENT, correct>=1.0) ===")
 gens_by_key = {(g["model_name"], g["retrieval_mode"], g["question_id"]): g for g in gens}
 picked = 0
 for r in records:
