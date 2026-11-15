@@ -95,4 +95,4 @@ No advisor/co-author verdict exists on disk for this paper (the 2026-09-13 repor
 | Date | Venue | Commit | Score | Prob. | Human verdict | Outcome |
 |---|---|---|---|---|---|---|
 | 2026-09-13 | RIVF 2026 | dc90047 | 7.45 printed / 7.70 correct arithmetic | 78% | none | superseded |
-| 2026-09-15 | RIVF 2026 | df91770 | 7.48 | ~73% | none | Open (notif. Oct 15) |
+| 2026-09-15 | RIVF 2026 | df91770 | 7.48 | ~73% | none | **ACCEPTED** (Oct 2026) — first outcome-calibrated point; see `venue_rank_RIVF2026_2026-11-16_camera_ready.md` |
