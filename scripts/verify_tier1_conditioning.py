@@ -1,15 +1,14 @@
-"""Verify round-2 red-team BLOCKER claims against the campaign logs.
+"""Verify, from the campaign logs, which RAG rows actually saw their gold
+Tier-1 passage.
 
-BLOCKER-1: is the question's gold Tier-1 chunk actually in the retrieved top-3
-(and untruncated) for RAG answerable rows?  Claims under test (laneH2):
-  absent-from-top3: 93/192 BM25, 51/192 dense
-  present-but-truncated: 42 BM25, 57 dense  -> intact 57/192 and 84/192
-  text-level: gold passage absent from 144/384 RAG answerable prompts
+Two semantics are reported, matching the paper's two statements:
+  chunk-in-top-3 (Section III-B): the gold chunk id among the retrieved top-3,
+    irrespective of the context budget
+  prompt-visible (Section V-A): the gold passage head present in the final
+    prompt after the context budget was applied
 
-BLOCKER-2: what did the Q059 (RAG-BM25) prompt actually contain, and what is
-the canonical gold for Q059?
-
-Also emits: answered-row hallucination rates (WARN-5) if per-row labels exist.
+Also prints answered-row hallucination rates and the Q059 canonical gold that
+the citation-override table pins (data/gold/TT61_TRIPLE_FINDINGS.md).
 """
 from __future__ import annotations
 

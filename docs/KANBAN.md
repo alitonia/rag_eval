@@ -3,7 +3,7 @@
 Tracked against GitHub Issues in [alitonia/rag_eval](https://github.com/alitonia/rag_eval/issues) and the [Seminar_2_board](https://github.com/users/alitonia/projects/6) project.
 **Target: IEEE-RIVF 2026 — paper deadline 2026-09-15 (hard).** See `docs/PROJECT_PLAN.md` §1.
 
-**P0 right now:** #7 κ subset (Thành & Hương grade 30 rows in `data/human/kappa_grading_{thanh,huong}.csv`) · ~50 scorer validation labels (`data/human/scorer_validation_50.csv`) · Zenodo DOI reservation · EDAS N35414 submission ≥6 h early.
+**P0 right now (camera-ready, due Tue 2026-11-25, verified 2026-11-16):** Zenodo DOI reservation + Data-Availability DOI insertion · Q059–Q061 gold ambiguity · IEEE camera-ready mechanics from the acceptance email (eCF, PDF check, author registration) · final rebuild + release-asset refresh. The 2026-09-13 P0 set is closed: the κ promise was dropped by decision (commit 131a657) and the scorer validation landed in §IV-C (commit 29598b7).
 
 Last re-baselined **2026-09-13** against the live repository and the completed 792-row campaign. Statuses below are *verified*, not claimed — every "done" has a command that demonstrates it.
 
@@ -15,9 +15,20 @@ Last re-baselined **2026-09-13** against the live repository and the completed 7
 |---|---|
 | Paper due | **Tue 2026-09-15**, EDAS `N35414`, ≤6 pp IEEE A4 |
 | Days remaining | 2 (as of Sun 09-13) |
-| Notification / camera-ready | 2026-10-15 / 2026-11-11 |
+| Notification / camera-ready | 2026-10-18–20 / **2026-11-25** (verified 2026-11-16 from rivf2026.org Important Dates, marked Tentative; supersedes the 2026-09-13 ledger values 10-15 / 11-11) |
 | Conference | 2026-12-18→20, VinUniversity Hanoi — **in-person presentation required** |
 | Fallback | Special sessions 2026-09-30 (only SS1 *AI for Smart Cities* is even a stretch fit) |
+
+---
+
+## 🟣 Camera-ready (due Tue 2026-11-25, verified 2026-11-16)
+
+- [ ] **Zenodo deposit** — ON HOLD per owner decision 2026-11-16. The public-allowlist bundle is built and audited (`scripts/build_zenodo_bundle.sh` + `scripts/audit_zenodo_bundle.sh`: calibrated leak sweep, exclusion check, replay gate, sha256 integrity). Remaining when the owner approves: reserve DOI, insert it into Data Availability, rebuild the PDF, deposit.
+- [x] **Q059–Q061 gold ambiguity** — FIXED 2026-11-16: `citation_overrides.json` + loader hook pin TT 61/2025 Điều 3 (Khoản 3/3/1); canonical JSON + tier-1 labels regenerated; tables re-scored (`data/eval/*goldfix*`); paper numbers updated (F1 0.326, 48%, 33–41% clipped); Table III reproduced identically; evidence in `data/gold/TT61_TRIPLE_FINDINGS.md`.
+- [ ] **IEEE camera-ready mechanics** — from the acceptance email / EDAS N35414: eCF copyright signing, PDF validation route, author-registration deadline. Not published on rivf2026.org (checked 2026-11-16).
+- [ ] **EDAS metadata = PDF author block** — 6 authors, Lan Huong first, Thanh Phuong Nguyen (L'Aquila) sixth (commit a345e52). Verify EDAS matches; fix metadata if the venue allows.
+- [ ] **Final rebuild + artifact refresh** — 6 pp / 0 undefined / 0 overfull; refresh the `regrag-vn` v1.0.0 `main.pdf` asset and the Zenodo record with the final PDF.
+- [ ] **Presentation** — in-person, Dec 18–20, VinUniversity Hanoi (unpresented papers are excluded from Xplore); registration and travel are user-side.
 
 ---
 

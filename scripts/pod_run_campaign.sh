@@ -38,8 +38,8 @@ printf 'export HF_TOKEN=%s\nexport HF_ARTIFACTS_REPO=%s\n' "$HF_TOKEN" "$HF_REPO
 
 # [4] pip in background (marker pattern). Decide on OUR marker only: the
 #     pytorch template runs its own boot-time pip, and pgrep -f 'pip instal[l]'
-#     matched it (2026-09-13, zesty_coffee_herring) - the skip branch fired
-#     spuriously and hf was missing at the code-pull step.
+#     can match that instead - the skip branch then fires spuriously and hf is
+#     missing at the code-pull step.
 SSH "if test -f /workspace/.pip_done; then echo 'pip done - skip'; else nohup bash -c 'pip install --break-system-packages \"numpy<2\" transformers accelerate bitsandbytes sentence-transformers rank_bm25 pyvi requests \"huggingface_hub[cli]\" > /workspace/pip.log 2>&1 && touch /workspace/.pip_done' >/dev/null 2>&1 & echo 'pip launched'; fi" </dev/null
 
 # [5] code + inputs pull (per-block auth: source .hfenv with set -a)
@@ -56,8 +56,8 @@ SSH "cd /workspace/rag_eval && set -o pipefail && python3 -u scripts/run_campaig
 
 # [8] runner with sentinels + empty-log guards, launched under nohup.
 #     mkdir BEFORE the redirect: a missing logs dir kills the runner's
-#     stdout redirect before bash even execs it (2026-09-13, phantom
-#     LAUNCHED on zesty_coffee_herring - the runner never started).
+#     stdout redirect before bash even execs it (an early run lost the
+#     runner this way - the log said LAUNCHED but nothing ever started).
 SSH "mkdir -p /workspace/logs && cat > /workspace/rag_eval/runner_campaign.sh" <<'RUNNER'
 #!/usr/bin/env bash
 set -uo pipefail

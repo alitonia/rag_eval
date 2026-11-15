@@ -361,7 +361,7 @@ Người đánh giá đọc câu hỏi (`question`), câu trả lời chuẩn (`
 Sau khi hoàn thành việc điền các cột `human_correct`, `human_hallucinated`, `human_abstained` vào file `data/human/scorer_validation_50.csv`, chạy đoạn script sau để tạo báo cáo so sánh §IV-C:
 
 ```bash
-/mnt/data/seminar_2/.venv/bin/python3 -c '
+.venv/bin/python3 -c '
 import csv, json
 from regrag.evaluation.metrics import validation_report
 

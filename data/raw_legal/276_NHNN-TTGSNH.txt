@@ -3,7 +3,7 @@
 # Date: 2026-09-11
 # Note: Fetched manually by a teammate from the official source (replacing unreadable legacy .doc)
 # Context: Official dispatch 276/NHNN-TTGSNH cited by Q061 alongside TT 61/2025/TT-NHNN
-# Action: verify header before camera-ready
+# Verified 2026-11-16: header is dispatch 276/NHNN-TTGSNH of 16 January 2017 on moving non-transaction business units off-site
 NGÂN HÀNG NHÀ NƯỚCVIỆT NAM -------
 CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM Độc lập - Tự do - Hạnh phúc  ---------------
 Số: 276/NHNN-TTGSNH V/v chuyển hoặc đặt một, một số bộ phận nghiệp vụ không giao dịch trực tiếp với khách hàng ngoài trụ sở TCTD, CNNHNNg
