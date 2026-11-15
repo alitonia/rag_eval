@@ -91,14 +91,14 @@ for t in "${TRACKS[@]}"; do
   git ls-files -- "$t" >> "$tar_list"
 done
 
-git archive --format=tar.gz --prefix="$NAME/" --pathspec-from-file="$tar_list" \
-  -o "$OUT/$NAME-$COMMIT.tar.gz"
+mapfile -t PATHS < "$tar_list"
+
+git archive --format=tar.gz --prefix="$NAME/" -o "$OUT/$NAME-$COMMIT.tar.gz" HEAD -- "${PATHS[@]}"
 
 # Also lay the tree out unpacked for Zenodo's web UI (which shows archives
 # poorly): same content, plain files.
 mkdir -p "$OUT/$NAME"
-git archive --format=tar --prefix="$NAME/" --pathspec-from-file="$tar_list" \
-  | tar xf - -C "$OUT"
+git archive --format=tar --prefix="$NAME/" HEAD -- "${PATHS[@]}" | tar xf - -C "$OUT"
 
 # The raw ingested sources are gitignored (repo policy: manifest carries
 # URL+sha1 provenance), but the paper's Data and Code Availability paragraph
