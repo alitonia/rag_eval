@@ -7,12 +7,12 @@ and inside the fast test suite.
 
 Design constraints this file encodes
 ------------------------------------
-* docs/PROJECT_PLAN.md §3.3 fixes the matrix at **3 models x 3 retrieval modes**,
+* The evaluation matrix is fixed at **3 models x 3 retrieval modes**,
   top_k = 3. The model list is therefore an explicit config the campaign reads,
   not something discovered at runtime.
-* The same section warns that ``Llama-3.2-3B-Instruct`` is English-centric and
-  "may only appear as a labelled weak-Vietnamese contrast, never as a peer, or
-  it confounds every cross-model number". Selecting it emits a loud warning and
+* ``Llama-3.2-3B-Instruct`` is English-centric and may only appear as a
+  labelled weak-Vietnamese contrast, never as a peer, or it confounds every
+  cross-model number. Selecting it emits a loud warning and
   stamps ``model_set_role`` on every row so it cannot be silently pooled with
   the peers.
 * scripts/load_vllm_models.py (branch ``feat/load_model``, commit 3532f36) owns

@@ -32,12 +32,12 @@
   },
   "_evidence": {
     "32/2024/QH15": "VERIFIED 2026-09-11 from the delivered file 32-2024-qh15_1.pdf, which has a clean born-digital text layer (viet_ratio 0.297, 192 'Điều' occurrences). Its first page reads: 'CÔNG BÁO/Số 369 + 370/Ngày 02-3-2024 / QUỐC HỘI / Luật số: 32/2024/QH15 / LUẬT CÁC TỔ CHỨC TÍN DỤNG'. Both the bare docid=211190 URL and the &classid=1&typegroupid=3 variant point at this document. Supersedes the luatvietnam.vn slug, which was suspected of serving only page 1 of 209 articles; the delivered law is complete across two parts (94 + 59 pages).",
-    "48/2018/TT-NHNN": "Corroborated: the literal string '48/2018/TT-NHNN' occurs in 14 gold passages/answers; PROJECT_PLAN lists it as the savings-deposit circular. Filename number (48) is NOT the year - path year 2019/01 is the publication month.",
-    "08/2023/TT-NHNN": "Corroborated: '08/2023/TT-NHNN' occurs in 2 gold passages; PROJECT_PLAN lists it under foreign-exchange management.",
+    "48/2018/TT-NHNN": "Corroborated: the literal string '48/2018/TT-NHNN' occurs in 14 gold passages/answers; the ingestion catalog lists it as the savings-deposit circular. Filename number (48) is NOT the year - path year 2019/01 is the publication month.",
+    "08/2023/TT-NHNN": "Corroborated: '08/2023/TT-NHNN' occurs in 2 gold passages; the ingestion catalog lists it under foreign-exchange management.",
     "17/2024/TT-NHNN": "Same instrument as the congbao slug entry (payment accounts + biometric authentication). Path 2024/7 matches the 2024-06-28 issue date.",
-    "61/2025/TT-NHNN": "Corroborated: '61/2025/TT-NHNN' occurs in 6 gold passages; PROJECT_PLAN lists it under branch operations.",
-    "23/2015/NĐ-CP": "Corroborated: '23/2015/NĐ-CP' occurs in 2 gold passages; PROJECT_PLAN lists it under collateral/notarization.",
-    "70/2014/NĐ-CP": "PROJECT_PLAN lists Nghị định 70/2014/NĐ-CP under foreign-exchange management; filename 'nd-70' in path 2014/07 is consistent.",
+    "61/2025/TT-NHNN": "Corroborated: '61/2025/TT-NHNN' occurs in 6 gold passages; the ingestion catalog lists it under branch operations.",
+    "23/2015/NĐ-CP": "Corroborated: '23/2015/NĐ-CP' occurs in 2 gold passages; the ingestion catalog lists it under collateral/notarization.",
+    "70/2014/NĐ-CP": "The ingestion catalog lists Nghị định 70/2014/NĐ-CP under foreign-exchange management; filename 'nd-70' in path 2014/07 is consistent.",
     "NEEDS_VERIFICATION": "tt-32.pdf, 91.signed.pdf, 6pl.pdf, 62-vbhn-vpqh.pdf, vanban docid=211190 - no corroborating evidence available. Left empty on purpose so they surface as UNRESOLVED:manifest-pending rather than being guessed.",
     "32/2013/TT-NHNN": "VERIFIED 2026-09-11 by re-OCR of the delivered tt-32.pdf (its embedded text layer is diacritic-stripped and unusable). tesseract 5.3.4 -l vie at 300dpi reads the header as: 'Số: 32/2013/TT-NHNN / Hà Nội, ngày 26 tháng 4 năm 2013 / THÔNG TƯ / Hướng dẫn thực hiện quy định hạn chế sử dụng ngoại hối trên lãnh thổ Việt Nam'. Corroborated independently by gold passage Q002, 'Điều 4. Các trường hợp được sử dụng ngoại hối trên lãnh thổ Việt Nam', which is this circular's subject matter. Path year 2014/01 is the publication month, not the instrument year.",
     "06/2023/TT-NHNN": "VERIFIED 2026-09-11 by re-OCR of the delivered 06-2023-tt-nhnn.pdf (embedded text layer corrupt: viet_ratio 0.000, 0 'Điều' in 21,624 chars). tesseract reads: 'Số: 06/2023/TT-NHNN / Hà Nội, ngày 28 tháng 6 năm 2023 / THÔNG TƯ / Sửa đổi, bổ sung một số điều của Thông tư số 39/2016/TT-NHNN'. Corroborated by gold passage Q049, 'Điều 1: Sửa đổi bổ sung một số điều của TT 39/2016 về hoạt động cho vay của TCTD'. IMPORTANT: this settles the 39/2016 amendment trap for Q049-Q058 - the questions cite the AMENDING circular, so 06/2023 is the text to ingest, not the 2016 original and not a consolidated version.",
@@ -85,7 +85,7 @@
     },
     "39/2016/TT-NHNN": {
       "amended_by": "NEEDS_CHECK",
-      "evidence": "PROJECT_PLAN flags that amending circulars must be reconciled with consolidated versions; TT 39/2016 has a long amendment history.",
+      "evidence": "Amending circulars must be reconciled with consolidated versions; TT 39/2016 has a long amendment history.",
       "action_required": "Verify whether the gold answers for these 10 questions quote the 2016 original or a consolidated text.",
       "questions_at_risk": 10
     }

@@ -46,23 +46,27 @@ fi
 echo "[G0 ok] calibration control fired on $c_hits/3 planted files"
 
 # --- G1: internal-vocabulary sweep ---------------------------------------------
-HARD='zesty_coffee_herring|clumsy_pink_chimpanzee|/mnt/data|/home/alitonia|red.team|lane[HNW][0-9]|\bEDAS\b|KANBAN|PROJECT_PLAN|blind.rank|venue.rank|camera.ready'
-SOFT='round-[0-9]|hunopapa|/workspace/rag_eval'
+# HARD patterns must be zero. EVIDENCE-tolerated patterns are frozen run
+# metadata inside result logs (machine-local paths recorded by the pipeline
+# when the run happened; rewriting logs would falsify evidence) or staging
+# defaults the reproduction path needs.
+HARD='zesty_coffee_herring|clumsy_pink_chimpanzee|/home/alitonia|red.team|lane[HNW][0-9]|\bEDAS\b|KANBAN|PROJECT_PLAN|blind.rank|venue.rank|camera.ready'
+EVIDENCE='/mnt/data|/workspace/rag_eval|hunopapa|round-[0-9]'
 echo "[G1] internal-vocabulary sweep over $BUNDLE"
 h_hits=$(grep -rniE "$HARD" "$BUNDLE" || true)
 if [ -n "$h_hits" ]; then
   echo "[G1 FAIL] hard-gate hits (adjudicate each):"
-  echo "$h_hits" | head -20
+  sed -n '1,25p' <<<"$h_hits"
   fail=1
 else
   echo "[G1 ok] zero hard-gate hits"
 fi
-s_hits=$(grep -rniE "$SOFT" "$BUNDLE" || true)
+s_hits=$(grep -rniE "$EVIDENCE" "$BUNDLE" || true)
 if [ -n "$s_hits" ]; then
-  echo "[G1 note] report-only hits (frozen evidence fields / staging defaults; listed per file for the record):"
-  echo "$s_hits" | cut -d: -f1 | sort | uniq -c | sort -rn
+  echo "[G1 note] evidence-tolerated hits (frozen log fields / staging defaults), per file:"
+  sed -n '1,200p' <<<"$s_hits" | cut -d: -f1 | sort | uniq -c | sort -rn
 else
-  echo "[G1 note] zero report-only hits"
+  echo "[G1 note] zero evidence-tolerated hits"
 fi
 
 # --- G2: exclusion check ---------------------------------------------------------

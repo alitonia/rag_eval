@@ -5,8 +5,8 @@ Why two backends, and why the distinction is recorded on every row
 ``scripts/load_vllm_models.py`` (branch ``feat/load_model``, commit 3532f36)
 starts each benchmark model as a vLLM OpenAI-compatible server and sets
 ``VLLM_SERVED_MODEL_NAME`` to the **alias**, on port ``base_port + offset``.
-That is the "collapse N fragile integrations into 1" path docs/PROJECT_PLAN.md
-§3.3 recommends, and it is the harness's primary backend: one HTTP client code
+That is the "collapse N fragile integrations into 1" path, and it is the
+harness's primary backend: one HTTP client code
 path serves every model, so adding a model is a registry entry rather than a new
 tokenizer/quantization integration.
 

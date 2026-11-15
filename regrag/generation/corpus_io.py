@@ -9,8 +9,8 @@ It lives in ``regrag/generation/`` rather than ``regrag/corpus/`` purely because
 ``regrag/corpus/`` is outside this harness's write scope; it has no generation
 dependencies and should be relocated there once that is possible.
 
-Loud-failure contract (docs/PROJECT_PLAN.md §5)
-----------------------------------------------
+Loud-failure contract
+---------------------
 * missing corpus file              -> FileNotFoundError
 * corpus file with 0 chunks        -> ProvenanceError, naming the ingest script
 * chunks with mixed corpus_source  -> ProvenanceError (a campaign must be bound

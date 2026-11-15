@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-15T18:27:22+00:00",
+  "timestamp_utc": "2026-11-15T18:47:17+00:00",
   "gate": "C",
   "metric": "bm25_recall",
   "retriever_backend": "bm25-rank_bm25+pyvi",
@@ -45,7 +45,7 @@
           "article_id": "7",
           "doc_title": "Nghị định quy định chi tiết thi hành một số điều của Pháp lệnh Ngoại hối",
           "article_title": "Chuyến tiền một chiều từ Việt Nam ra nước ngoài",
-          "score": 35.9828
+          "score": 35.9835
         },
         {
           "rank": 2,
@@ -53,7 +53,7 @@
           "article_id": "7",
           "doc_title": "Thông tư hướng dẫn về quản lý ngoại hối đối với hoạt động đầu tư trực tiếp nước ngoài vào Việt Nam",
           "article_title": "Các giao dịch thu, chi trên tài khoản vốn đầu tư trực tiếp bằng",
-          "score": 31.3241
+          "score": 31.3247
         },
         {
           "rank": 3,
@@ -61,7 +61,7 @@
           "article_id": "39",
           "doc_title": "Luật Nhập cảnh, xuất cảnh, quá cảnh, cư trú của người nước ngoài tại Việt Nam (văn bản hợp nhất, gồm sửa đổi của Luật số 51/2019/QH14)",
           "article_title": "Các trường hợp được xét cho thường trú",
-          "score": 29.873
+          "score": 29.8733
         }
       ]
     },
@@ -79,7 +79,7 @@
           "article_id": "9",
           "doc_title": "Nghị định quy định chi tiết thi hành một số điều của Pháp lệnh Ngoại hối",
           "article_title": "Chuyển thu nhập từ hoạt động đầu tư trực tiếp ra nước ngoài",
-          "score": 34.4422
+          "score": 34.4427
         },
         {
           "rank": 2,
@@ -87,7 +87,7 @@
           "article_id": "1",
           "doc_title": "Pháp lệnh sửa đổi, bổ sung một số điều của Pháp lệnh Ngoại hối",
           "article_title": "Sửa đôi, bô sung một sô điêu của Pháp lệnh ngoại hôi:",
-          "score": 33.0208
+          "score": 33.0216
         },
         {
           "rank": 3,
@@ -95,7 +95,7 @@
           "article_id": "1",
           "doc_title": "Pháp lệnh sửa đổi, bổ sung một số điều của Pháp lệnh Ngoại hối",
           "article_title": "Sửa đôi, bô sung một sô điêu của Pháp lệnh ngoại hôi:",
-          "score": 30.1432
+          "score": 30.1439
         }
       ]
     },
@@ -113,7 +113,7 @@
           "article_id": "155",
           "doc_title": "Luật Các tổ chức tín dụng 2024 (part 2 of 2)",
           "article_title": "Chuyển lợi nhuận, chuyển tài sản ra nước ngoài",
-          "score": 22.9413
+          "score": 22.9415
         },
         {
           "rank": 2,
@@ -121,7 +121,7 @@
           "article_id": "155",
           "doc_title": "Luật Các tổ chức tín dụng 2024 (part 2 of 2)",
           "article_title": "Chuyển lợi nhuận, chuyển tài sản ra nước ngoài",
-          "score": 20.7806
+          "score": 20.7808
         },
         {
           "rank": 3,
@@ -129,7 +129,7 @@
           "article_id": "155",
           "doc_title": "Luật Các tổ chức tín dụng 2024 (part 2 of 2)",
           "article_title": "Chuyển lợi nhuận, chuyển tài sản ra nước ngoài",
-          "score": 19.8582
+          "score": 19.8584
         }
       ]
     },
@@ -147,7 +147,7 @@
           "article_id": "4",
           "doc_title": "Thông tư quy định về phương thức giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng",
           "article_title": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán",
-          "score": 14.044
+          "score": 14.0443
         },
         {
           "rank": 2,
@@ -155,7 +155,7 @@
           "article_id": "6",
           "doc_title": "Thông tư quy định về phương thức giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng",
           "article_title": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán",
-          "score": 13.1809
+          "score": 13.1811
         },
         {
           "rank": 3,
@@ -163,7 +163,7 @@
           "article_id": "11",
           "doc_title": "Nghị định về cấp bản sao từ sổ gốc, chứng thực bản sao từ bản chính, chứng thực chữ ký",
           "article_title": "Tiếng nói và chữ viết dùng trong chứng thực hợp đồng, giao dịch",
-          "score": 11.5111
+          "score": 11.5112
         }
       ]
     },
@@ -181,7 +181,7 @@
           "article_id": "6",
           "doc_title": "Thông tư quy định về điều kiện vay nước ngoài không được Chính phủ bảo lãnh",
           "article_title": "Nguyên tắc sử dụng vôn vay nước ngoài",
-          "score": 18.8898
+          "score": 18.89
         },
         {
           "rank": 2,
@@ -189,7 +189,7 @@
           "article_id": "19",
           "doc_title": "Thông tư quy định về điều kiện vay nước ngoài không được Chính phủ bảo lãnh",
           "article_title": "Trách nhiệm của bên đi vay",
-          "score": 17.3825
+          "score": 17.3827
         },
         {
           "rank": 3,
@@ -197,7 +197,7 @@
           "article_id": "19",
           "doc_title": "Thông tư quy định về điều kiện vay nước ngoài không được Chính phủ bảo lãnh",
           "article_title": "Trách nhiệm của bên đi vay",
-          "score": 16.9026
+          "score": 16.9028
         }
       ]
     },
@@ -216,7 +216,7 @@
           "article_id": "32",
           "doc_title": "Thông tư quy định về hoạt động cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài",
           "article_title": "đ Thông tư này (nếu có); các công việc khác thuộc quy trình thẩm định,",
-          "score": 56.3918
+          "score": 56.3937
         },
         {
           "rank": 2,
@@ -224,7 +224,7 @@
           "article_id": "1",
           "doc_title": "Thông tư sửa đổi, bổ sung một số điều của Thông tư số 39/2016/TT-NHNN",
           "article_title": "Sửa đối, bố sung một số điều của Thông tư số 39/2016/TT-",
-          "score": 55.6005
+          "score": 55.6023
         },
         {
           "rank": 3,
@@ -232,7 +232,7 @@
           "article_id": "4",
           "doc_title": "Thông tư quy định về phương thức giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng",
           "article_title": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán",
-          "score": 53.8642
+          "score": 53.8657
         }
       ]
     }

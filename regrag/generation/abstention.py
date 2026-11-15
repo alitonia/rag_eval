@@ -16,7 +16,8 @@ and ``regrag/evaluation/metrics.py`` tests only for that keyphrase plus
 "không có trong tài liệu" and "không tìm thấy thông tin". None of those match
 the gold sentinel. Left alone, every correct refusal would be scored as a
 non-abstention and RQ2 would come out inverted with no warning - exactly the
-silent-substitution failure class docs/PROJECT_PLAN.md §5 exists to prevent.
+silent-substitution failure class this pipeline's provenance guards exist to
+prevent.
 
 Two-tier detection
 ------------------

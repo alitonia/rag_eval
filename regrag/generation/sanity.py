@@ -1,6 +1,6 @@
 """Per-model prompt-format sanity probe.
 
-docs/PROJECT_PLAN.md §3.3 names this as the dangerous silent failure of a
+A wrong chat template is the dangerous silent failure of a
 multi-model campaign:
 
     "a wrong chat template produces degenerate output that reads as 'this model
