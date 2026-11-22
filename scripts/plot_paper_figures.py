@@ -67,7 +67,7 @@ def make_benchmark_figure() -> None:
 
     # Panel (b): Breakdown of 24 unanswerable probes
     probe_types = [
-        "Stale / Basel II",
+        "CAR / Foreign loan",
         "Parcel-merging",
         "Marital property",
         "Payment-account",
