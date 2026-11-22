@@ -1,126 +1,310 @@
-%% vnchars.sty -- Vietnamese precomposed characters as T1 composites.
+%% vnchars.sty -- Vietnamese UTF-8 characters via native T5 Type-1 glyphs
+%% with an automatic T1 composite fallback on minimal TeX installs.
 %%
-%% WHY THIS FILE EXISTS (read before deleting):
-%% This machine's TeX Live has NO Vietnamese support package: there is no
-%% vntex, no babel `vietnam' language definition, and latex-base's
-%% utf8enc.dfu contains no entry for the Vietnamese block U+1EA0-U+1EF5 nor
-%% for the horns U+01A0/01A1/01AF/01B0. Under \usepackage[utf8]{inputenc} +
-%% \usepackage[T1]{fontenc} (the encoding pair the IEEE-RIVF template and the
-%% project brief require) every character such as i-with-dot-below, o-horn or
-%% a-with-hook-above therefore raises "Unicode character ... not set up for
-%% use with LaTeX". lualatex/xelatex are not a fallback here: luaotfload is
-%% broken on this host ("module 'luaotfload-main' not found"), so pdflatex is
-%% the only working engine.
+%% v1.0 (2026-11-20):
+%%   When T5 encoding (`t5enc.def`) and a T5 Times font (`t5ptm.fd` or TeX Gyre
+%%   Termes `t5qtm.fd`) are present, load `fontenc` with `[T5,T1]` (keeping `T1`
+%%   as the document default for English prose), alias IEEEtran's PostScript
+%%   families (`ptm`, `phv`, `pcr`) to `qtm`/`qhv`/`qcr` when `t5p*.fd` are
+%%   absent, and dispatch every Vietnamese UTF-8 codepoint directly to its
+%%   precomposed T5 glyph via `\vn@tfive`. This eliminates split horns, detached
+%%   hook-above accents, and broken `T1/ptm` `\dj` bars.
 %%
-%% This package supplies the missing characters as composites built from
-%% accents the T1/EC fonts DO provide, following the decomposition used by
-%% VnTeX (see hyperref's puvnenc.def, which documents exactly which accent
-%% stacks onto which base for every Vietnamese codepoint):
-%%   dot below    -> \d{...}        (latex kernel, renders correctly)
-%%   acute/grave/tilde/circumflex/breve -> \' \` \~ \^ \breve (kernel)
-%%   hook above   -> \h{...}        (defined here; VnTeX name)
-%%   horn         -> \ohorn/\uhorn  (defined here; VnTeX name)
-%%
-%% GUARD: if a genuine Vietnamese setup is loaded first (vntex or babel
-%% vietnam, which define \h, \ohorn, \uhorn), this package does nothing and
-%% the real glyphs are used. Authors compiling on a full TeX Live install
-%% (texlive-lang-other) therefore get perfect output from the same source;
-%% the composites below are only the fallback for minimal installs.
-%%
-%% VISUAL CHECK: re-inspected 2026-09-15 via A/B render (arm B adopted:
-%% rotated-questiondown hook, curly-quote horn; arm A's raised-'r' judged
-%% unacceptable at print size). Horn position fixed same day (v0.3): the
-%% tick is tucked INSIDE the base letter's advance width (kern back, \rlap,
-%% kern forward) instead of protruding past it -- a protruding zero-width
-%% \rlap tick collided with the following glyph (e.g. "tư)", "sửa", "bởi").
+%%   When native T5 fonts are unavailable, retain the v0.3 T1 composite
+%%   definitions as an emergency fallback (and stay a no-op if `vntex`/`babel`
+%%   already defined `\h`, `\ohorn`, `\uhorn`).
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{vnchars}[2026/09/15 v0.3 Vietnamese precomposed chars as T1 composites]
-\RequirePackage{graphicx}
+\ProvidesPackage{vnchars}[2026/11/20 v1.0 Vietnamese characters via T5 or T1 composites]
 
-% --- hook above (dấu hỏi): a small raised hook centred over the base ------
-\@ifundefined{h}{%
-  \DeclareRobustCommand{\h}[1]{%
-    \ooalign{%
-      \hidewidth\raise.84ex\hbox{\fontsize{4.4}{4.4}\selectfont\rotatebox[origin=c]{180}{\textquestiondown}}\hidewidth
-      \crcr#1}}%
-}{}
-
-% --- horn (dấu móc): a small raised tick at the top right of o / u ---------
-% Net advance = the bare base letter: the tick is drawn .14em left of the
-% base's right edge (growing out of its shoulder) and the trailing kern
-% restores the pen, so the composite never touches the next glyph.
-\newcommand{\vn@horn@tick}{\fontsize{4.8}{4.8}\selectfont\textquoteright}
-\@ifundefined{ohorn}{%
-  \DeclareRobustCommand{\ohorn}{o\kern-.14em\rlap{\raise.70ex\hbox{\vn@horn@tick}}\kern.14em}%
-}{}
-\@ifundefined{uhorn}{%
-  \DeclareRobustCommand{\uhorn}{u\kern-.14em\rlap{\raise.70ex\hbox{\vn@horn@tick}}\kern.14em}%
-}{}
-\@ifundefined{OHORN}{%
-  \DeclareRobustCommand{\OHORN}{O\kern-.14em\rlap{\raise.82ex\hbox{\vn@horn@tick}}\kern.14em}%
-}{}
-\@ifundefined{UHORN}{%
-  \DeclareRobustCommand{\UHORN}{U\kern-.14em\rlap{\raise.82ex\hbox{\vn@horn@tick}}\kern.14em}%
+\newif\ifvn@native@tfive
+\vn@native@tfivefalse
+\IfFileExists{t5enc.def}{%
+  \IfFileExists{t5ptm.fd}{\vn@native@tfivetrue}{%
+    \IfFileExists{t5qtm.fd}{\vn@native@tfivetrue}{}%
+  }%
 }{}
 
-% --- map the precomposed codepoints onto those composites ------------------
-% \DeclareUnicodeCharacter is provided by inputenc; skip silently if absent.
-\@ifundefined{DeclareUnicodeCharacter}{}{%
-  % a group
-  \DeclareUnicodeCharacter{1EA1}{\d{a}}%
-  \DeclareUnicodeCharacter{1EA3}{\h{a}}%
-  \DeclareUnicodeCharacter{1EA5}{\'{\^{a}}}%
-  \DeclareUnicodeCharacter{1EA7}{\`{\^{a}}}%
-  \DeclareUnicodeCharacter{1EA9}{\h{\^{a}}}%
-  \DeclareUnicodeCharacter{1EAB}{\~{\^{a}}}%
-  \DeclareUnicodeCharacter{1EAD}{\d{\^{a}}}%
-  \DeclareUnicodeCharacter{1EAF}{\'{\u{a}}}%
-  \DeclareUnicodeCharacter{1EB1}{\`{\u{a}}}%
-  \DeclareUnicodeCharacter{1EB3}{\h{\u{a}}}%
-  \DeclareUnicodeCharacter{1EB5}{\~{\u{a}}}%
-  \DeclareUnicodeCharacter{1EB7}{\d{\u{a}}}%
-  % e group
-  \DeclareUnicodeCharacter{1EB9}{\d{e}}%
-  \DeclareUnicodeCharacter{1EBB}{\h{e}}%
-  \DeclareUnicodeCharacter{1EBD}{\~{e}}%
-  \DeclareUnicodeCharacter{1EBF}{\'{\^{e}}}%
-  \DeclareUnicodeCharacter{1EC1}{\`{\^{e}}}%
-  \DeclareUnicodeCharacter{1EC3}{\h{\^{e}}}%
-  \DeclareUnicodeCharacter{1EC5}{\~{\^{e}}}%
-  \DeclareUnicodeCharacter{1EC7}{\d{\^{e}}}%
-  % i group
-  \DeclareUnicodeCharacter{1EC9}{\h{\i}}%
-  \DeclareUnicodeCharacter{1ECB}{\d{\i}}%
-  % o group
-  \DeclareUnicodeCharacter{1ECD}{\d{o}}%
-  \DeclareUnicodeCharacter{1ECF}{\h{o}}%
-  \DeclareUnicodeCharacter{1ED1}{\'{\^{o}}}%
-  \DeclareUnicodeCharacter{1ED3}{\`{\^{o}}}%
-  \DeclareUnicodeCharacter{1ED5}{\h{\^{o}}}%
-  \DeclareUnicodeCharacter{1ED7}{\~{\^{o}}}%
-  \DeclareUnicodeCharacter{1ED9}{\d{\^{o}}}%
-  \DeclareUnicodeCharacter{1EDB}{\'{\ohorn}}%
-  \DeclareUnicodeCharacter{1EDD}{\`{\ohorn}}%
-  \DeclareUnicodeCharacter{1EDF}{\h{\ohorn}}%
-  \DeclareUnicodeCharacter{1EE1}{\~{\ohorn}}%
-  \DeclareUnicodeCharacter{1EE3}{\d{\ohorn}}%
-  % u group
-  \DeclareUnicodeCharacter{1EE5}{\d{u}}%
-  \DeclareUnicodeCharacter{1EE7}{\h{u}}%
-  \DeclareUnicodeCharacter{1EE9}{\'{\uhorn}}%
-  \DeclareUnicodeCharacter{1EEB}{\`{\uhorn}}%
-  \DeclareUnicodeCharacter{1EED}{\h{\uhorn}}%
-  \DeclareUnicodeCharacter{1EEF}{\~{\uhorn}}%
-  \DeclareUnicodeCharacter{1EF1}{\d{\uhorn}}%
-  % y group
-  \DeclareUnicodeCharacter{1EF5}{\d{y}}%
-  \DeclareUnicodeCharacter{1EF7}{\h{y}}%
-  \DeclareUnicodeCharacter{1EF9}{\~{y}}%
-  % horns
-  \DeclareUnicodeCharacter{01A0}{\OHORN}%
-  \DeclareUnicodeCharacter{01A1}{\ohorn}%
-  \DeclareUnicodeCharacter{01AF}{\UHORN}%
-  \DeclareUnicodeCharacter{01B0}{\uhorn}%
-}
+\ifvn@native@tfive
+  \RequirePackage[T5,T1]{fontenc}
+
+  % Silence IEEEtran \scshape+\emph (`T1/ptm/m/scit`) undefined warning and
+  % ensure T5 `scit` matches T1/ptm's lowercase italic fallback inside table captions.
+  \IfFileExists{t1ptm.fd}{%
+    \@ifundefined{T1+ptm}{\InputIfFileExists{t1ptm.fd}{}{}}{}%
+    \@ifundefined{T1/ptm/m/scit}{\DeclareFontShape{T1}{ptm}{m}{scit}{<->ssub*ptm/m/it}{}}{}%
+  }{}%
+
+  % Map IEEEtran's `ptm`/`phv`/`pcr` families onto TeX Gyre T5 families
+  % (`qtm`, `qhv`, `qcr`) whenever standard `vntex` `t5p*.fd` files are absent.
+  % Note: NFSS `ssub` requires the target `.fd` family to be loaded first.
+  \IfFileExists{t5ptm.fd}{}{%
+    \InputIfFileExists{t5qtm.fd}{}{}%
+    \DeclareFontFamily{T5}{ptm}{}%
+    \DeclareFontShape{T5}{ptm}{m}{n}{<->ssub*qtm/m/n}{}%
+    \DeclareFontShape{T5}{ptm}{m}{it}{<->ssub*qtm/m/it}{}%
+    \DeclareFontShape{T5}{ptm}{m}{sl}{<->ssub*qtm/m/it}{}%
+    \DeclareFontShape{T5}{ptm}{m}{sc}{<->ssub*qtm/m/sc}{}%
+    \DeclareFontShape{T5}{ptm}{m}{scit}{<->ssub*qtm/m/it}{}%
+    \DeclareFontShape{T5}{ptm}{m}{scsl}{<->ssub*qtm/m/it}{}%
+    \DeclareFontShape{T5}{ptm}{b}{n}{<->ssub*qtm/b/n}{}%
+    \DeclareFontShape{T5}{ptm}{b}{it}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{b}{sl}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{b}{sc}{<->ssub*qtm/b/sc}{}%
+    \DeclareFontShape{T5}{ptm}{b}{scit}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{b}{scsl}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{bx}{n}{<->ssub*qtm/b/n}{}%
+    \DeclareFontShape{T5}{ptm}{bx}{it}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{bx}{sl}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{bx}{sc}{<->ssub*qtm/b/sc}{}%
+    \DeclareFontShape{T5}{ptm}{bx}{scit}{<->ssub*qtm/b/it}{}%
+    \DeclareFontShape{T5}{ptm}{bx}{scsl}{<->ssub*qtm/b/it}{}%
+  }%
+  \IfFileExists{t5phv.fd}{}{%
+    \IfFileExists{t5qhv.fd}{%
+      \InputIfFileExists{t5qhv.fd}{}{}%
+      \DeclareFontFamily{T5}{phv}{}%
+      \DeclareFontShape{T5}{phv}{m}{n}{<->ssub*qhv/m/n}{}%
+      \DeclareFontShape{T5}{phv}{m}{it}{<->ssub*qhv/m/it}{}%
+      \DeclareFontShape{T5}{phv}{m}{sl}{<->ssub*qhv/m/it}{}%
+      \DeclareFontShape{T5}{phv}{m}{sc}{<->ssub*qhv/m/sc}{}%
+      \DeclareFontShape{T5}{phv}{b}{n}{<->ssub*qhv/b/n}{}%
+      \DeclareFontShape{T5}{phv}{b}{it}{<->ssub*qhv/b/it}{}%
+      \DeclareFontShape{T5}{phv}{b}{sl}{<->ssub*qhv/b/it}{}%
+      \DeclareFontShape{T5}{phv}{bx}{n}{<->ssub*qhv/b/n}{}%
+      \DeclareFontShape{T5}{phv}{bx}{it}{<->ssub*qhv/b/it}{}%
+      \DeclareFontShape{T5}{phv}{bx}{sl}{<->ssub*qhv/b/it}{}%
+    }{}%
+  }%
+  \IfFileExists{t5pcr.fd}{}{%
+    \IfFileExists{t5qcr.fd}{%
+      \InputIfFileExists{t5qcr.fd}{}{}%
+      \DeclareFontFamily{T5}{pcr}{}%
+      \DeclareFontShape{T5}{pcr}{m}{n}{<->ssub*qcr/m/n}{}%
+      \DeclareFontShape{T5}{pcr}{m}{it}{<->ssub*qcr/m/it}{}%
+      \DeclareFontShape{T5}{pcr}{m}{sl}{<->ssub*qcr/m/it}{}%
+      \DeclareFontShape{T5}{pcr}{b}{n}{<->ssub*qcr/b/n}{}%
+      \DeclareFontShape{T5}{pcr}{b}{it}{<->ssub*qcr/b/it}{}%
+      \DeclareFontShape{T5}{pcr}{bx}{n}{<->ssub*qcr/b/n}{}%
+      \DeclareFontShape{T5}{pcr}{bx}{it}{<->ssub*qcr/b/it}{}%
+    }{}%
+  }%
+
+  \DeclareRobustCommand{\vn@tfive}[1]{\leavevmode{\fontencoding{T5}\selectfont #1}}
+
+  \@ifundefined{DeclareUnicodeCharacter}{}{%
+    % Single-accent Vietnamese Latin-1 & Latin-A letters
+    \DeclareUnicodeCharacter{00C0}{\vn@tfive{\@tabacckludge`A}}%
+    \DeclareUnicodeCharacter{00C1}{\vn@tfive{\@tabacckludge'A}}%
+    \DeclareUnicodeCharacter{00C2}{\vn@tfive{\^A}}%
+    \DeclareUnicodeCharacter{00C3}{\vn@tfive{\~A}}%
+    \DeclareUnicodeCharacter{00C8}{\vn@tfive{\@tabacckludge`E}}%
+    \DeclareUnicodeCharacter{00C9}{\vn@tfive{\@tabacckludge'E}}%
+    \DeclareUnicodeCharacter{00CA}{\vn@tfive{\^E}}%
+    \DeclareUnicodeCharacter{00CC}{\vn@tfive{\@tabacckludge`I}}%
+    \DeclareUnicodeCharacter{00CD}{\vn@tfive{\@tabacckludge'I}}%
+    \DeclareUnicodeCharacter{00D2}{\vn@tfive{\@tabacckludge`O}}%
+    \DeclareUnicodeCharacter{00D3}{\vn@tfive{\@tabacckludge'O}}%
+    \DeclareUnicodeCharacter{00D4}{\vn@tfive{\^O}}%
+    \DeclareUnicodeCharacter{00D5}{\vn@tfive{\~O}}%
+    \DeclareUnicodeCharacter{00D9}{\vn@tfive{\@tabacckludge`U}}%
+    \DeclareUnicodeCharacter{00DA}{\vn@tfive{\@tabacckludge'U}}%
+    \DeclareUnicodeCharacter{00DD}{\vn@tfive{\@tabacckludge'Y}}%
+    \DeclareUnicodeCharacter{00E0}{\vn@tfive{\@tabacckludge`a}}%
+    \DeclareUnicodeCharacter{00E1}{\vn@tfive{\@tabacckludge'a}}%
+    \DeclareUnicodeCharacter{00E2}{\vn@tfive{\^a}}%
+    \DeclareUnicodeCharacter{00E3}{\vn@tfive{\~a}}%
+    \DeclareUnicodeCharacter{00E8}{\vn@tfive{\@tabacckludge`e}}%
+    \DeclareUnicodeCharacter{00E9}{\vn@tfive{\@tabacckludge'e}}%
+    \DeclareUnicodeCharacter{00EA}{\vn@tfive{\^e}}%
+    \DeclareUnicodeCharacter{00EC}{\vn@tfive{\@tabacckludge`\i}}%
+    \DeclareUnicodeCharacter{00ED}{\vn@tfive{\@tabacckludge'\i}}%
+    \DeclareUnicodeCharacter{00F2}{\vn@tfive{\@tabacckludge`o}}%
+    \DeclareUnicodeCharacter{00F3}{\vn@tfive{\@tabacckludge'o}}%
+    \DeclareUnicodeCharacter{00F4}{\vn@tfive{\^o}}%
+    \DeclareUnicodeCharacter{00F5}{\vn@tfive{\~o}}%
+    \DeclareUnicodeCharacter{00F9}{\vn@tfive{\@tabacckludge`u}}%
+    \DeclareUnicodeCharacter{00FA}{\vn@tfive{\@tabacckludge'u}}%
+    \DeclareUnicodeCharacter{00FD}{\vn@tfive{\@tabacckludge'y}}%
+    \DeclareUnicodeCharacter{0102}{\vn@tfive{\u A}}%
+    \DeclareUnicodeCharacter{0103}{\vn@tfive{\u a}}%
+    \DeclareUnicodeCharacter{0110}{\vn@tfive{\DJ}}%
+    \DeclareUnicodeCharacter{0111}{\vn@tfive{\dj}}%
+    \DeclareUnicodeCharacter{0128}{\vn@tfive{\~I}}%
+    \DeclareUnicodeCharacter{0129}{\vn@tfive{\~\i}}%
+    \DeclareUnicodeCharacter{0168}{\vn@tfive{\~U}}%
+    \DeclareUnicodeCharacter{0169}{\vn@tfive{\~u}}%
+    \DeclareUnicodeCharacter{01A0}{\vn@tfive{\OHORN}}%
+    \DeclareUnicodeCharacter{01A1}{\vn@tfive{\ohorn}}%
+    \DeclareUnicodeCharacter{01AF}{\vn@tfive{\UHORN}}%
+    \DeclareUnicodeCharacter{01B0}{\vn@tfive{\uhorn}}%
+    % Vietnamese Extended-A block U+1EA0..U+1EF9 (per t5enc.dfu)
+    \DeclareUnicodeCharacter{1EA0}{\vn@tfive{\d A}}%
+    \DeclareUnicodeCharacter{1EA1}{\vn@tfive{\d a}}%
+    \DeclareUnicodeCharacter{1EA2}{\vn@tfive{\h A}}%
+    \DeclareUnicodeCharacter{1EA3}{\vn@tfive{\h a}}%
+    \DeclareUnicodeCharacter{1EA4}{\vn@tfive{\@tabacckludge'\ACIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EA5}{\vn@tfive{\@tabacckludge'\acircumflex}}%
+    \DeclareUnicodeCharacter{1EA6}{\vn@tfive{\@tabacckludge`\ACIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EA7}{\vn@tfive{\@tabacckludge`\acircumflex}}%
+    \DeclareUnicodeCharacter{1EA8}{\vn@tfive{\h\ACIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EA9}{\vn@tfive{\h\acircumflex}}%
+    \DeclareUnicodeCharacter{1EAA}{\vn@tfive{\~\ACIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EAB}{\vn@tfive{\~\acircumflex}}%
+    \DeclareUnicodeCharacter{1EAC}{\vn@tfive{\d\ACIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EAD}{\vn@tfive{\d\acircumflex}}%
+    \DeclareUnicodeCharacter{1EAE}{\vn@tfive{\@tabacckludge'\ABREVE}}%
+    \DeclareUnicodeCharacter{1EAF}{\vn@tfive{\@tabacckludge'\abreve}}%
+    \DeclareUnicodeCharacter{1EB0}{\vn@tfive{\@tabacckludge`\ABREVE}}%
+    \DeclareUnicodeCharacter{1EB1}{\vn@tfive{\@tabacckludge`\abreve}}%
+    \DeclareUnicodeCharacter{1EB2}{\vn@tfive{\h\ABREVE}}%
+    \DeclareUnicodeCharacter{1EB3}{\vn@tfive{\h\abreve}}%
+    \DeclareUnicodeCharacter{1EB4}{\vn@tfive{\~\ABREVE}}%
+    \DeclareUnicodeCharacter{1EB5}{\vn@tfive{\~\abreve}}%
+    \DeclareUnicodeCharacter{1EB6}{\vn@tfive{\d\ABREVE}}%
+    \DeclareUnicodeCharacter{1EB7}{\vn@tfive{\d\abreve}}%
+    \DeclareUnicodeCharacter{1EB8}{\vn@tfive{\d E}}%
+    \DeclareUnicodeCharacter{1EB9}{\vn@tfive{\d e}}%
+    \DeclareUnicodeCharacter{1EBA}{\vn@tfive{\h E}}%
+    \DeclareUnicodeCharacter{1EBB}{\vn@tfive{\h e}}%
+    \DeclareUnicodeCharacter{1EBC}{\vn@tfive{\~E}}%
+    \DeclareUnicodeCharacter{1EBD}{\vn@tfive{\~e}}%
+    \DeclareUnicodeCharacter{1EBE}{\vn@tfive{\@tabacckludge'\ECIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EBF}{\vn@tfive{\@tabacckludge'\ecircumflex}}%
+    \DeclareUnicodeCharacter{1EC0}{\vn@tfive{\@tabacckludge`\ECIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EC1}{\vn@tfive{\@tabacckludge`\ecircumflex}}%
+    \DeclareUnicodeCharacter{1EC2}{\vn@tfive{\h\ECIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EC3}{\vn@tfive{\h\ecircumflex}}%
+    \DeclareUnicodeCharacter{1EC4}{\vn@tfive{\~\ECIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EC5}{\vn@tfive{\~\ecircumflex}}%
+    \DeclareUnicodeCharacter{1EC6}{\vn@tfive{\d\ECIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1EC7}{\vn@tfive{\d\ecircumflex}}%
+    \DeclareUnicodeCharacter{1EC8}{\vn@tfive{\h I}}%
+    \DeclareUnicodeCharacter{1EC9}{\vn@tfive{\h i}}%
+    \DeclareUnicodeCharacter{1ECA}{\vn@tfive{\d I}}%
+    \DeclareUnicodeCharacter{1ECB}{\vn@tfive{\d i}}%
+    \DeclareUnicodeCharacter{1ECC}{\vn@tfive{\d O}}%
+    \DeclareUnicodeCharacter{1ECD}{\vn@tfive{\d o}}%
+    \DeclareUnicodeCharacter{1ECE}{\vn@tfive{\h O}}%
+    \DeclareUnicodeCharacter{1ECF}{\vn@tfive{\h o}}%
+    \DeclareUnicodeCharacter{1ED0}{\vn@tfive{\@tabacckludge'\OCIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1ED1}{\vn@tfive{\@tabacckludge'\ocircumflex}}%
+    \DeclareUnicodeCharacter{1ED2}{\vn@tfive{\@tabacckludge`\OCIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1ED3}{\vn@tfive{\@tabacckludge`\ocircumflex}}%
+    \DeclareUnicodeCharacter{1ED4}{\vn@tfive{\h\OCIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1ED5}{\vn@tfive{\h\ocircumflex}}%
+    \DeclareUnicodeCharacter{1ED6}{\vn@tfive{\~\OCIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1ED7}{\vn@tfive{\~\ocircumflex}}%
+    \DeclareUnicodeCharacter{1ED8}{\vn@tfive{\d\OCIRCUMFLEX}}%
+    \DeclareUnicodeCharacter{1ED9}{\vn@tfive{\d\ocircumflex}}%
+    \DeclareUnicodeCharacter{1EDA}{\vn@tfive{\@tabacckludge'\OHORN}}%
+    \DeclareUnicodeCharacter{1EDB}{\vn@tfive{\@tabacckludge'\ohorn}}%
+    \DeclareUnicodeCharacter{1EDC}{\vn@tfive{\@tabacckludge`\OHORN}}%
+    \DeclareUnicodeCharacter{1EDD}{\vn@tfive{\@tabacckludge`\ohorn}}%
+    \DeclareUnicodeCharacter{1EDE}{\vn@tfive{\h\OHORN}}%
+    \DeclareUnicodeCharacter{1EDF}{\vn@tfive{\h\ohorn}}%
+    \DeclareUnicodeCharacter{1EE0}{\vn@tfive{\~\OHORN}}%
+    \DeclareUnicodeCharacter{1EE1}{\vn@tfive{\~\ohorn}}%
+    \DeclareUnicodeCharacter{1EE2}{\vn@tfive{\d\OHORN}}%
+    \DeclareUnicodeCharacter{1EE3}{\vn@tfive{\d\ohorn}}%
+    \DeclareUnicodeCharacter{1EE4}{\vn@tfive{\d U}}%
+    \DeclareUnicodeCharacter{1EE5}{\vn@tfive{\d u}}%
+    \DeclareUnicodeCharacter{1EE6}{\vn@tfive{\h U}}%
+    \DeclareUnicodeCharacter{1EE7}{\vn@tfive{\h u}}%
+    \DeclareUnicodeCharacter{1EE8}{\vn@tfive{\@tabacckludge'\UHORN}}%
+    \DeclareUnicodeCharacter{1EE9}{\vn@tfive{\@tabacckludge'\uhorn}}%
+    \DeclareUnicodeCharacter{1EEA}{\vn@tfive{\@tabacckludge`\UHORN}}%
+    \DeclareUnicodeCharacter{1EEB}{\vn@tfive{\@tabacckludge`\uhorn}}%
+    \DeclareUnicodeCharacter{1EEC}{\vn@tfive{\h\UHORN}}%
+    \DeclareUnicodeCharacter{1EED}{\vn@tfive{\h\uhorn}}%
+    \DeclareUnicodeCharacter{1EEE}{\vn@tfive{\~\UHORN}}%
+    \DeclareUnicodeCharacter{1EEF}{\vn@tfive{\~\uhorn}}%
+    \DeclareUnicodeCharacter{1EF0}{\vn@tfive{\d\UHORN}}%
+    \DeclareUnicodeCharacter{1EF1}{\vn@tfive{\d\uhorn}}%
+    \DeclareUnicodeCharacter{1EF2}{\vn@tfive{\@tabacckludge`Y}}%
+    \DeclareUnicodeCharacter{1EF3}{\vn@tfive{\@tabacckludge`y}}%
+    \DeclareUnicodeCharacter{1EF4}{\vn@tfive{\d Y}}%
+    \DeclareUnicodeCharacter{1EF5}{\vn@tfive{\d y}}%
+    \DeclareUnicodeCharacter{1EF6}{\vn@tfive{\h Y}}%
+    \DeclareUnicodeCharacter{1EF7}{\vn@tfive{\h y}}%
+    \DeclareUnicodeCharacter{1EF8}{\vn@tfive{\~Y}}%
+    \DeclareUnicodeCharacter{1EF9}{\vn@tfive{\~y}}%
+  }%
+
+\else
+  % Emergency T1 composite fallback when native T5 fonts/encodings are absent
+  \RequirePackage{graphicx}
+
+  \@ifundefined{h}{%
+    \DeclareRobustCommand{\h}[1]{%
+      \ooalign{%
+        \hidewidth\raise.84ex\hbox{\fontsize{4.4}{4.4}\selectfont\rotatebox[origin=c]{180}{\textquestiondown}}\hidewidth
+        \crcr#1}}%
+  }{}
+
+  \newcommand{\vn@horn@tick}{\fontsize{4.8}{4.8}\selectfont\textquoteright}
+  \@ifundefined{ohorn}{%
+    \DeclareRobustCommand{\ohorn}{o\kern-.14em\rlap{\raise.70ex\hbox{\vn@horn@tick}}\kern.14em}%
+  }{}
+  \@ifundefined{uhorn}{%
+    \DeclareRobustCommand{\uhorn}{u\kern-.14em\rlap{\raise.70ex\hbox{\vn@horn@tick}}\kern.14em}%
+  }{}
+  \@ifundefined{OHORN}{%
+    \DeclareRobustCommand{\OHORN}{O\kern-.14em\rlap{\raise.82ex\hbox{\vn@horn@tick}}\kern.14em}%
+  }{}
+  \@ifundefined{UHORN}{%
+    \DeclareRobustCommand{\UHORN}{U\kern-.14em\rlap{\raise.82ex\hbox{\vn@horn@tick}}\kern.14em}%
+  }{}
+
+  \@ifundefined{DeclareUnicodeCharacter}{}{%
+    \DeclareUnicodeCharacter{1EA1}{\d{a}}%
+    \DeclareUnicodeCharacter{1EA3}{\h{a}}%
+    \DeclareUnicodeCharacter{1EA5}{\'{\^{a}}}%
+    \DeclareUnicodeCharacter{1EA7}{\`{\^{a}}}%
+    \DeclareUnicodeCharacter{1EA9}{\h{\^{a}}}%
+    \DeclareUnicodeCharacter{1EAB}{\~{\^{a}}}%
+    \DeclareUnicodeCharacter{1EAD}{\d{\^{a}}}%
+    \DeclareUnicodeCharacter{1EAF}{\'{\u{a}}}%
+    \DeclareUnicodeCharacter{1EB1}{\`{\u{a}}}%
+    \DeclareUnicodeCharacter{1EB3}{\h{\u{a}}}%
+    \DeclareUnicodeCharacter{1EB5}{\~{\u{a}}}%
+    \DeclareUnicodeCharacter{1EB7}{\d{\u{a}}}%
+    \DeclareUnicodeCharacter{1EB9}{\d{e}}%
+    \DeclareUnicodeCharacter{1EBB}{\h{e}}%
+    \DeclareUnicodeCharacter{1EBD}{\~{e}}%
+    \DeclareUnicodeCharacter{1EBF}{\'{\^{e}}}%
+    \DeclareUnicodeCharacter{1EC1}{\`{\^{e}}}%
+    \DeclareUnicodeCharacter{1EC3}{\h{\^{e}}}%
+    \DeclareUnicodeCharacter{1EC5}{\~{\^{e}}}%
+    \DeclareUnicodeCharacter{1EC7}{\d{\^{e}}}%
+    \DeclareUnicodeCharacter{1EC9}{\h{\i}}%
+    \DeclareUnicodeCharacter{1ECB}{\d{\i}}%
+    \DeclareUnicodeCharacter{1ECD}{\d{o}}%
+    \DeclareUnicodeCharacter{1ECF}{\h{o}}%
+    \DeclareUnicodeCharacter{1ED1}{\'{\^{o}}}%
+    \DeclareUnicodeCharacter{1ED3}{\`{\^{o}}}%
+    \DeclareUnicodeCharacter{1ED5}{\h{\^{o}}}%
+    \DeclareUnicodeCharacter{1ED7}{\~{\^{o}}}%
+    \DeclareUnicodeCharacter{1ED9}{\d{\^{o}}}%
+    \DeclareUnicodeCharacter{1EDB}{\'{\ohorn}}%
+    \DeclareUnicodeCharacter{1EDD}{\`{\ohorn}}%
+    \DeclareUnicodeCharacter{1EDF}{\h{\ohorn}}%
+    \DeclareUnicodeCharacter{1EE1}{\~{\ohorn}}%
+    \DeclareUnicodeCharacter{1EE3}{\d{\ohorn}}%
+    \DeclareUnicodeCharacter{1EE5}{\d{u}}%
+    \DeclareUnicodeCharacter{1EE7}{\h{u}}%
+    \DeclareUnicodeCharacter{1EE9}{\'{\uhorn}}%
+    \DeclareUnicodeCharacter{1EEB}{\`{\uhorn}}%
+    \DeclareUnicodeCharacter{1EED}{\h{\uhorn}}%
+    \DeclareUnicodeCharacter{1EEF}{\~{\uhorn}}%
+    \DeclareUnicodeCharacter{1EF1}{\d{\uhorn}}%
+    \DeclareUnicodeCharacter{1EF5}{\d{y}}%
+    \DeclareUnicodeCharacter{1EF7}{\h{y}}%
+    \DeclareUnicodeCharacter{1EF9}{\~{y}}%
+    \DeclareUnicodeCharacter{01A0}{\OHORN}%
+    \DeclareUnicodeCharacter{01A1}{\ohorn}%
+    \DeclareUnicodeCharacter{01AF}{\UHORN}%
+    \DeclareUnicodeCharacter{01B0}{\uhorn}%
+  }%
+\fi
 \endinput

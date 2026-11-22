@@ -1,10 +1,10 @@
 {
   "title": "Citation-Level Unfaithfulness of Small Language Models on Vietnamese Banking Regulation: A Provenance-Guarded RAG Benchmark",
   "upload_type": "dataset",
-  "description": "<p>RegRAG-VN is a QA-driven benchmark and evaluation framework for Vietnamese banking and payment regulation, accompanying the IEEE-RIVF 2026 paper of the same title. It holds 88 questions (64 answerable over State Bank of Vietnam circulars, decrees and laws, each with a verbatim gold passage and article-level <em>Điều</em> gold; 24 unanswerable probes whose gold label is an explicit abstention sentinel) and a two-tier corpus whose coverage invariant requires every retained question's gold passage to match an ingested instrument verbatim.</p><p>The release contains the ingestion and evaluation code, the two-tier corpus, the raw ingested sources (redistributed as downloaded from official government sources; original terms apply), the full 792-row generation campaign log (3 models x 3 retrieval modes x 88 questions, one RTX 3090, 4-bit quantisation, greedy decoding), the retrieval-recall logs for the sparse (BM25 + pyvi) and dense (BGE-M3) arms, the computed table inputs and the paper PDF. Every record carries its corpus tier, retriever backend and quantisation tag; aggregation refuses rows with unset or degraded provenance. The campaign ran on the Tier-1 fixture, disclosed as an upper-bound conditioning in the paper; retrieval quality is measured on the full Tier-2 corpus.</p>",
+  "description": "<p>RegRAG-VN is a QA-driven benchmark and evaluation framework for Vietnamese banking and payment regulation, accompanying the IEEE-RIVF 2026 paper of the same title. It holds 88 questions (64 answerable over State Bank of Vietnam circulars, decrees and laws, each with a gold passage, 63 repaired verbatim with article-level <em>Điều</em> gold plus one summary annex item; and 24 unanswerable probes whose gold label requires explicit refusal) alongside a two-tier corpus whose coverage invariant requires every retained verbatim gold passage to match an ingested chunk.</p><p>The release contains the ingestion and evaluation code, the two-tier corpus, the raw ingested sources (redistributed as downloaded from official government sources; original terms apply), the full 792-row generation campaign log (3 models x 3 retrieval modes x 88 questions, one RTX 3090, 4-bit quantisation, greedy decoding), the retrieval-recall logs for the sparse (BM25 + pyvi) and dense (BGE-M3) arms, the computed table inputs and the paper PDF. Every record carries its corpus tier, retriever backend and quantisation tag; aggregation refuses rows with unset or degraded provenance. The campaign ran on the Tier-1 fixture, disclosed as an upper-bound conditioning in the paper; retrieval quality is measured on the full Tier-2 corpus.</p>",
   "creators": [
-    {"name": "Dinh Thi Lan Huong", "affiliation": "Hanoi University of Science and Technology"},
-    {"name": "Nguyen Huy Hoang", "affiliation": "Hanoi University of Science and Technology"},
+    {"name": "Dinh Thi Lan Huong", "affiliation": "Hanoi University of Science and Technology", "orcid": "0009-0005-0631-4283"},
+    {"name": "Nguyen Huy Hoang", "affiliation": "Hanoi University of Science and Technology", "orcid": "0009-0004-5210-5506"},
     {"name": "Nguyen Thang Phuc", "affiliation": "Hanoi University of Science and Technology"},
     {"name": "Vu Duc Thanh", "affiliation": "Hanoi University of Science and Technology"},
     {"name": "Nguyen Khac Duy Ngoc", "affiliation": "Hanoi University of Science and Technology"},
@@ -13,13 +13,7 @@
   "keywords": ["retrieval-augmented generation", "hallucination", "citation faithfulness", "abstention", "Vietnamese legal NLP", "benchmark"],
   "license": "CC-BY-4.0",
   "access_right": "open",
-  "related_identifiers": [
-    {
-      "identifier": "https://github.com/alitonia/regrag-vn",
-      "relation": "isSupplementTo",
-      "resource_type": "dataset"
-    }
-  ],
-  "notes": "Legal texts under data/raw_legal/ and the ingested corpora are redistributed as downloaded from official Vietnamese government sources and remain under their original terms. The paper PDF is included; the authors retain copyright per the venue's terms.",
+  "related_identifiers": [],
+  "notes": "Legal texts under data/raw_legal/ and the ingested corpora are redistributed as downloaded from official Vietnamese government publications and remain under their original terms. The paper PDF is included; the authors retain copyright per the venue's terms.",
   "journal_metadata": null
 }
